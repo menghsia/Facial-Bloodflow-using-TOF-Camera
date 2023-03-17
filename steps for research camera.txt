@@ -1,0 +1,7 @@
+- Use Automotive Suite to record a video clip (.skv file)
+- Copy skv file(s) to /skvs/
+- Open imx520_sample project in Visual Studio (use the long .exe profile)
+- Run facial_skBF_facemeshTrak.py
+- copy the bfsig output file to matlab_code
+- open process_thermal.m
+- this outputs charts of the heart rate
