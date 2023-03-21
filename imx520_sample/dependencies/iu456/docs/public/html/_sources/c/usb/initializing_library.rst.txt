@@ -1,0 +1,75 @@
+Library initialization
+======================
+
+Usually call `iu456_initialize`  for the initialization of the library. Call `iu456_initialize_with_device_property` when specify the EEPROM slave address or production data location address, calibartion data location address and the device to connect.
+
+.. note:: The `iu456_initialize_with_device_property` function is supported on Windows platform only.
+
+Initializing and shutting down the library
+------------------------------------------
+
+The `iu456_initialize` function must be called once before any other call to the library. The user can supply `on_arrival` and `on_removal` callbacks that will be respectively called when a compatible device is plugged in or removed.
+
+.. note:: The `on_arrival` callback will be called for devices already plugged in when the `iu456_initialize` function is called.
+
+To release the library, the user must call the `iu456_shutdown` function after the last call to the library.
+
+.. code-block:: c
+    :linenos:
+
+
+    #include <iostream>
+
+    #include "iu456/iu456.h"
+
+    int main()
+    {
+        iu456_error_details_t error_details;
+        if (!iu456_initialize(nullptr, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed initialize library: " << error_details.message << std::endl;
+            return -1;
+        }
+
+        iu456_shutdown(&error_details);
+
+        return 0;
+    }
+
+
+Initializing with device property and shutting down the library
+--------------------------------------------------------------
+
+The `iu456_initialize_with_device_property` function must be called once before any other call to the library. The user can supply `on_arrival` and `on_removal` callbacks that will be respectively called when a compatible device is plugged in or removed.
+
+.. note:: The `on_arrival` callback will be called for devices already plugged in when the `iu456_initialize_with_device_property` function is called.
+
+To release the library, the user must call the `iu456_shutdown` function after the last call to the library.
+
+.. code-block:: c
+    :linenos:
+
+
+    #include <iostream>
+
+    #include "iu456/iu456.h"
+
+    int main()
+    {
+        iu456_error_details_t error_details;
+        std::vector<uint8_t> eeprom_slave_address{ 0x50, 0x51, 0x52, 0x53, 0x56 };
+        static const int32_t eeprom_production_address = 0x00000000;
+        static const int32_t eeprom_calibration_address = 0x00000040;
+        static const int specify_device_nunmber = 0;
+
+        if (!iu456_initialize_with_device_property(nullptr, nullptr, nullptr, nullptr, eeprom_slave_address.data(), static_cast<uint32_t>(eeprom_slave_address.size()), eeprom_production_address, eeprom_calibration_address, specify_device_nunmber, &error_details))
+        {
+            std::cerr << "Failed initialize library: " << error_details.message << std::endl;
+            return -1;
+        }
+
+        iu456_shutdown(&error_details);
+
+        return 0;
+    }
+

@@ -1,0 +1,6 @@
+Sample
+======
+
+.. literalinclude:: ../../../../../samples/iu456_usb/main.cpp
+	:language: c
+	:lines: 13-

@@ -1,0 +1,48 @@
+Depth filtering
+===============
+
+The `iu456_set_filtering` function provides a way to control whether filtering
+is done or not. Filtering is enabled  by default.
+
+.. note:: For certain modes of operation a minimal level of filtering is
+    required to ensure consistent quality.
+
+.. code-block:: c
+    :linenos:
+
+
+    #include <iostream>
+
+    #include "iu456/iu456.h"
+
+    int main()
+    {
+        iu456_error_details_t error_details;
+        if (!iu456_initialize(nullptr, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed initialize library: " << error_details.message << std::endl;
+            return -1;
+        }
+
+        iu456_handle_t* handle = nullptr;
+
+        if (!iu456_create(&handle, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed to initialize device: " << error_details.message << std::endl;
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        if (!iu456_set_filtering(handle, iu456_property_state_disabled, &error_details))
+        {
+            std::cerr << "Failed to disable filtering" << std::endl;
+            iu456_destroy(handle, &error_details);
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        iu456_destroy(handle, &error_details);
+
+        iu456_shutdown(&error_details);
+        return 0;
+    }

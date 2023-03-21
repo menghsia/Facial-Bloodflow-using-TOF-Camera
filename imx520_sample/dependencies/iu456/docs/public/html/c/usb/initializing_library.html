@@ -1,0 +1,346 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Library initialization &mdash; IU456 Library 1.5 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="IU456 Library 1.5 documentation" href="../../index.html"/>
+        <link rel="up" title="C API" href="../../c.html"/>
+        <link rel="next" title="Enumerating devices" href="enumerating_devices.html"/>
+        <link rel="prev" title="State of the library" href="state_of_library.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../../index.html" class="fa fa-home"> IU456 Library</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Library Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../overview.html#main-features">Main features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../overview.html#minimum-requirements">Minimum requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../overview.html#concurrent-access">Concurrent access</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../physical_setup.html">Physical setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../physical_setup.html#imx456">IMX456</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../physical_setup.html#imx316">IMX316</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../physical_setup.html#imx516">IMX516</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../physical_setup.html#ssp-500-dip-sw-setting">SSP-500 DIP SW setting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../physical_setup.html#microsd-memory-card">microSD memory card</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../physical_setup.html#usb-3-0">USB 3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../physical_setup.html#power-supply">Power supply</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installing the library</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../install.html#windows">Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../install.html#imx456-imx316-imx516-sony-mini-kit">IMX456/IMX316/IMX516 Sony Mini-Kit</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../output_format.html">Output formats and units</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../output_format.html#the-unambiguous-range">The unambiguous range</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../output_format.html#the-coordinate-system">The coordinate system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../output_format.html#the-depth-map">The depth map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../output_format.html#the-x-and-y-maps">The <cite>x</cite> and <cite>y</cite> maps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../output_format.html#the-confidence-map">The confidence map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../output_format.html#the-lens-intrinsics">The lens intrinsics</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../c.html">C API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="state_of_library.html">State of the library</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Library initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="enumerating_devices.html">Enumerating devices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instantiating.html">Instantiating a camera</a></li>
+<li class="toctree-l2"><a class="reference internal" href="device_information.html">Getting device information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interacting_with_configurations.html">Interacting with available configurations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_stream.html">Getting the stream out of the device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="device_removal_notification.html">Getting device removal notification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="filtering.html">Depth filtering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adjustable_frame_rate.html">Adjustable frame rate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adjustable_exposure_time.html">Adjustable exposure time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_raw_calibration.html">Getting the raw calibration data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="building_the_sample.html">Building the sample</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sample.html">Sample</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html">API Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../hardware_failure_handling.html">Hardware failure handling</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../hardware_failure_handling.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../hardware_failure_handling.html#streaming-failure">Streaming failure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../hardware_failure_handling.html#laser-temperature-outside-operational-range">Laser temperature outside operational range</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../hardware_failure_handling.html#laser-temperature-outside-spec-range">Laser temperature outside spec range</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../known_limitations.html">Known Limitations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../known_limitations.html#streaming">Streaming</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../known_limitations.html#stability">Stability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../known_limitations.html#api">API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../known_limitations.html#feature-dependence">Feature dependence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../known_limitations.html#hardware-dependence">Hardware dependence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../known_limitations.html#mode-dependence">Mode dependence</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../supported_hardware.html">Supported hardware</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../supported_hardware.html#imx456-es1-sony-mini-kit">IMX456 (ES1) Sony Mini-Kit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../supported_hardware.html#imx456-es2-sony-mini-kit">IMX456 (ES2) Sony Mini-Kit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../supported_hardware.html#imx316-sony-mini-kit">IMX316 Sony Mini-Kit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../supported_hardware.html#imx516-sony-mini-kit">IMX516 Sony Mini-Kit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../supported_hardware.html#imx456es2-modules-for-automotive-mx519-mx520">IMX456ES2 modules for AutoMotive(MX519/MX520)</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">IU456 Library</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../c.html">C API</a> &raquo;</li>
+      
+    <li>Library initialization</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="../../_sources/c/usb/initializing_library.rst.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="library-initialization">
+<h1>Library initialization<a class="headerlink" href="#library-initialization" title="Permalink to this headline">¶</a></h1>
+<p>Usually call <cite>iu456_initialize</cite>  for the initialization of the library. Call <cite>iu456_initialize_with_device_property</cite> when specify the EEPROM slave address or production data location address, calibartion data location address and the device to connect.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <cite>iu456_initialize_with_device_property</cite> function is supported on Windows platform only.</p>
+</div>
+<div class="section" id="initializing-and-shutting-down-the-library">
+<h2>Initializing and shutting down the library<a class="headerlink" href="#initializing-and-shutting-down-the-library" title="Permalink to this headline">¶</a></h2>
+<p>The <cite>iu456_initialize</cite> function must be called once before any other call to the library. The user can supply <cite>on_arrival</cite> and <cite>on_removal</cite> callbacks that will be respectively called when a compatible device is plugged in or removed.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <cite>on_arrival</cite> callback will be called for devices already plugged in when the <cite>iu456_initialize</cite> function is called.</p>
+</div>
+<p>To release the library, the user must call the <cite>iu456_shutdown</cite> function after the last call to the library.</p>
+<div class="highlight-c"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
+
+<span class="cp">#include</span> <span class="cpf">&quot;iu456/iu456.h&quot;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">iu456_error_details_t</span> <span class="n">error_details</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">iu456_initialize</span><span class="p">(</span><span class="n">nullptr</span><span class="p">,</span> <span class="n">nullptr</span><span class="p">,</span> <span class="n">nullptr</span><span class="p">,</span> <span class="n">nullptr</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">error_details</span><span class="p">))</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Failed initialize library: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">error_details</span><span class="p">.</span><span class="n">message</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">iu456_shutdown</span><span class="p">(</span><span class="o">&amp;</span><span class="n">error_details</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="section" id="initializing-with-device-property-and-shutting-down-the-library">
+<h2>Initializing with device property and shutting down the library<a class="headerlink" href="#initializing-with-device-property-and-shutting-down-the-library" title="Permalink to this headline">¶</a></h2>
+<p>The <cite>iu456_initialize_with_device_property</cite> function must be called once before any other call to the library. The user can supply <cite>on_arrival</cite> and <cite>on_removal</cite> callbacks that will be respectively called when a compatible device is plugged in or removed.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <cite>on_arrival</cite> callback will be called for devices already plugged in when the <cite>iu456_initialize_with_device_property</cite> function is called.</p>
+</div>
+<p>To release the library, the user must call the <cite>iu456_shutdown</cite> function after the last call to the library.</p>
+<div class="highlight-c"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
+
+<span class="cp">#include</span> <span class="cpf">&quot;iu456/iu456.h&quot;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">iu456_error_details_t</span> <span class="n">error_details</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">uint8_t</span><span class="o">&gt;</span> <span class="n">eeprom_slave_address</span><span class="p">{</span> <span class="mh">0x50</span><span class="p">,</span> <span class="mh">0x51</span><span class="p">,</span> <span class="mh">0x52</span><span class="p">,</span> <span class="mh">0x53</span><span class="p">,</span> <span class="mh">0x56</span> <span class="p">};</span>
+    <span class="k">static</span> <span class="k">const</span> <span class="kt">int32_t</span> <span class="n">eeprom_production_address</span> <span class="o">=</span> <span class="mh">0x00000000</span><span class="p">;</span>
+    <span class="k">static</span> <span class="k">const</span> <span class="kt">int32_t</span> <span class="n">eeprom_calibration_address</span> <span class="o">=</span> <span class="mh">0x00000040</span><span class="p">;</span>
+    <span class="k">static</span> <span class="k">const</span> <span class="kt">int</span> <span class="n">specify_device_nunmber</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">iu456_initialize_with_device_property</span><span class="p">(</span><span class="n">nullptr</span><span class="p">,</span> <span class="n">nullptr</span><span class="p">,</span> <span class="n">nullptr</span><span class="p">,</span> <span class="n">nullptr</span><span class="p">,</span> <span class="n">eeprom_slave_address</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span> <span class="n">static_cast</span><span class="o">&lt;</span><span class="kt">uint32_t</span><span class="o">&gt;</span><span class="p">(</span><span class="n">eeprom_slave_address</span><span class="p">.</span><span class="n">size</span><span class="p">()),</span> <span class="n">eeprom_production_address</span><span class="p">,</span> <span class="n">eeprom_calibration_address</span><span class="p">,</span> <span class="n">specify_device_nunmber</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">error_details</span><span class="p">))</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Failed initialize library: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">error_details</span><span class="p">.</span><span class="n">message</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">iu456_shutdown</span><span class="p">(</span><span class="o">&amp;</span><span class="n">error_details</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="enumerating_devices.html" class="btn btn-neutral float-right" title="Enumerating devices">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="state_of_library.html" class="btn btn-neutral" title="State of the library"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright  2018 Sony Semiconductor Solutions Corporation.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.5',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

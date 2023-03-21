@@ -1,0 +1,1863 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>API Reference &mdash; IU456 Library 1.5 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="IU456 Library 1.5 documentation" href="../../index.html"/>
+        <link rel="up" title="C API" href="../../c.html"/>
+        <link rel="next" title="Hardware failure handling" href="../../hardware_failure_handling.html"/>
+        <link rel="prev" title="Sample" href="sample.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../../index.html" class="fa fa-home"> IU456 Library</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Library Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../overview.html#main-features">Main features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../overview.html#minimum-requirements">Minimum requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../overview.html#concurrent-access">Concurrent access</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../physical_setup.html">Physical setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../physical_setup.html#imx456">IMX456</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../physical_setup.html#imx316">IMX316</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../physical_setup.html#imx516">IMX516</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../physical_setup.html#ssp-500-dip-sw-setting">SSP-500 DIP SW setting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../physical_setup.html#microsd-memory-card">microSD memory card</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../physical_setup.html#usb-3-0">USB 3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../physical_setup.html#power-supply">Power supply</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installing the library</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../install.html#windows">Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../install.html#imx456-imx316-imx516-sony-mini-kit">IMX456/IMX316/IMX516 Sony Mini-Kit</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../output_format.html">Output formats and units</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../output_format.html#the-unambiguous-range">The unambiguous range</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../output_format.html#the-coordinate-system">The coordinate system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../output_format.html#the-depth-map">The depth map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../output_format.html#the-x-and-y-maps">The <cite>x</cite> and <cite>y</cite> maps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../output_format.html#the-confidence-map">The confidence map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../output_format.html#the-lens-intrinsics">The lens intrinsics</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../c.html">C API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="state_of_library.html">State of the library</a></li>
+<li class="toctree-l2"><a class="reference internal" href="initializing_library.html">Library initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="enumerating_devices.html">Enumerating devices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instantiating.html">Instantiating a camera</a></li>
+<li class="toctree-l2"><a class="reference internal" href="device_information.html">Getting device information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interacting_with_configurations.html">Interacting with available configurations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_stream.html">Getting the stream out of the device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="device_removal_notification.html">Getting device removal notification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="filtering.html">Depth filtering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adjustable_frame_rate.html">Adjustable frame rate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adjustable_exposure_time.html">Adjustable exposure time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_raw_calibration.html">Getting the raw calibration data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="building_the_sample.html">Building the sample</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sample.html">Sample</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">API Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../hardware_failure_handling.html">Hardware failure handling</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../hardware_failure_handling.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../hardware_failure_handling.html#streaming-failure">Streaming failure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../hardware_failure_handling.html#laser-temperature-outside-operational-range">Laser temperature outside operational range</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../hardware_failure_handling.html#laser-temperature-outside-spec-range">Laser temperature outside spec range</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../known_limitations.html">Known Limitations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../known_limitations.html#streaming">Streaming</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../known_limitations.html#stability">Stability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../known_limitations.html#api">API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../known_limitations.html#feature-dependence">Feature dependence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../known_limitations.html#hardware-dependence">Hardware dependence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../known_limitations.html#mode-dependence">Mode dependence</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../supported_hardware.html">Supported hardware</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../supported_hardware.html#imx456-es1-sony-mini-kit">IMX456 (ES1) Sony Mini-Kit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../supported_hardware.html#imx456-es2-sony-mini-kit">IMX456 (ES2) Sony Mini-Kit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../supported_hardware.html#imx316-sony-mini-kit">IMX316 Sony Mini-Kit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../supported_hardware.html#imx516-sony-mini-kit">IMX516 Sony Mini-Kit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../supported_hardware.html#imx456es2-modules-for-automotive-mx519-mx520">IMX456ES2 modules for AutoMotive(MX519/MX520)</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">IU456 Library</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../c.html">C API</a> &raquo;</li>
+      
+    <li>API Reference</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="../../_sources/c/usb/api_reference.rst.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="api-reference">
+<span id="id1"></span><h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="iu456-h">
+<span id="id2"></span><h2>iu456.h<a class="headerlink" href="#iu456-h" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="index-of-functions">
+<h3>Index of functions<a class="headerlink" href="#index-of-functions" title="Permalink to this headline">¶</a></h3>
+<table class="hlist"><tr><td><ul class="simple">
+<li><a class="reference internal" href="#_CPPv216iu456_initialize27iu456_on_arrival_callback_t27iu456_on_removal_callback_tPvPKcP21iu456_error_details_t" title="iu456_initialize"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_initialize()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv237iu456_initialize_with_device_property27iu456_on_arrival_callback_t27iu456_on_removal_callback_tPvPKcPK7uint8_t8uint32_tiiiP21iu456_error_details_t" title="iu456_initialize_with_device_property"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_initialize_with_device_property()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv214iu456_shutdownP21iu456_error_details_t" title="iu456_shutdown"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_shutdown()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv217iu456_get_versionv" title="iu456_get_version"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_get_version()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv221iu456_get_device_listPPPK14iu456_device_tP6size_tP21iu456_error_details_t" title="iu456_get_device_list"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_get_device_list()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv225iu456_release_device_listPPK14iu456_device_t" title="iu456_release_device_list"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_release_device_list()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv220iu456_release_devicePK14iu456_device_t" title="iu456_release_device"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_release_device()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv212iu456_createPP14iu456_handle_tPK14iu456_device_t34iu456_on_device_removal_callback_tPvP21iu456_error_details_t" title="iu456_create"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_create()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv213iu456_destroyP14iu456_handle_tP21iu456_error_details_t" title="iu456_destroy"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_destroy()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv211iu456_startP14iu456_handle_tP21iu456_error_details_t" title="iu456_start"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_start()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv210iu456_stopP14iu456_handle_tP21iu456_error_details_t" title="iu456_stop"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_stop()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv220iu456_get_last_frameP14iu456_handle_tPPK13iu456_frame_t7int32_tP21iu456_error_details_t" title="iu456_get_last_frame"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_get_last_frame()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv223iu456_get_serial_numberP14iu456_handle_tPPKcP21iu456_error_details_t" title="iu456_get_serial_number"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_get_serial_number()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv221iu456_release_pointerPKv" title="iu456_release_pointer"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_release_pointer()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv220iu456_get_prv_numberP14iu456_handle_tP8uint32_tP21iu456_error_details_t" title="iu456_get_prv_number"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_get_prv_number()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv222iu456_get_prv_number64P14iu456_handle_tP8uint64_tP21iu456_error_details_t" title="iu456_get_prv_number64"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_get_prv_number64()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv221iu456_get_software_idP14iu456_handle_tP8uint32_tP21iu456_error_details_t" title="iu456_get_software_id"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_get_software_id()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv228iu456_get_configuration_listP14iu456_handle_tPPPK26iu456_configuration_info_tP6size_tP21iu456_error_details_t" title="iu456_get_configuration_list"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_get_configuration_list()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv231iu456_get_current_configurationP14iu456_handle_tPPK26iu456_configuration_info_tP21iu456_error_details_t" title="iu456_get_current_configuration"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_get_current_configuration()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv227iu456_set_configuration_uidP14iu456_handle_tiP21iu456_error_details_t" title="iu456_set_configuration_uid"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_set_configuration_uid()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv219iu456_set_filteringP14iu456_handle_t22iu456_property_state_tP21iu456_error_details_t" title="iu456_set_filtering"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_set_filtering()</span></code></a></li>
+</ul>
+</td><td><ul class="simple">
+<li><a class="reference internal" href="#_CPPv233iu456_set_int16_depth_calculationP14iu456_handle_t22iu456_property_state_tP21iu456_error_details_t" title="iu456_set_int16_depth_calculation"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_set_int16_depth_calculation()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv233iu456_set_float_depth_calculationP14iu456_handle_t22iu456_property_state_tP21iu456_error_details_t" title="iu456_set_float_depth_calculation"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_set_float_depth_calculation()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv230iu456_set_confidence_filteringP14iu456_handle_t22iu456_property_state_tP21iu456_error_details_t" title="iu456_set_confidence_filtering"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_set_confidence_filtering()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv220iu456_set_frame_rateP14iu456_handle_tfP21iu456_error_details_t" title="iu456_set_frame_rate"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_set_frame_rate()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv226iu456_get_frame_rate_rangeP14iu456_handle_tiPfPfP21iu456_error_details_t" title="iu456_get_frame_rate_range"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_get_frame_rate_range()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv231iu456_update_default_frame_rateP14iu456_handle_tifP21iu456_error_details_t" title="iu456_update_default_frame_rate"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_update_default_frame_rate()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv233iu456_update_default_trigger_modeP14iu456_handle_ti20iu456_trigger_mode_tP21iu456_error_details_t" title="iu456_update_default_trigger_mode"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_update_default_trigger_mode()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv235iu456_update_default_trigger_factorP14iu456_handle_tii24iu456_trigger_sampling_tP21iu456_error_details_t" title="iu456_update_default_trigger_factor"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_update_default_trigger_factor()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv234iu456_update_default_trigger_delayP14iu456_handle_tifP21iu456_error_details_t" title="iu456_update_default_trigger_delay"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_update_default_trigger_delay()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv230iu456_get_trigger_factor_rangeP14iu456_handle_tiPiPiP21iu456_error_details_t" title="iu456_get_trigger_factor_range"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_get_trigger_factor_range()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv229iu456_get_trigger_delay_rangeP14iu456_handle_tiPfPfP21iu456_error_details_t" title="iu456_get_trigger_delay_range"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_get_trigger_delay_range()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv223iu456_set_auto_exposureP14iu456_handle_ti22iu456_property_state_tP21iu456_error_details_t" title="iu456_set_auto_exposure"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_set_auto_exposure()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv227iu456_set_auto_exposure_roiP14iu456_handle_tiiiiiP21iu456_error_details_t" title="iu456_set_auto_exposure_roi"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_set_auto_exposure_roi()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv223iu456_set_exposure_timeP14iu456_handle_tiP21iu456_error_details_t" title="iu456_set_exposure_time"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_set_exposure_time()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv228iu456_get_exposure_time_listP14iu456_handle_tiPPKiP6size_tP21iu456_error_details_t" title="iu456_get_exposure_time_list"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_get_exposure_time_list()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv234iu456_update_default_exposure_timeP14iu456_handle_tiiP21iu456_error_details_t" title="iu456_update_default_exposure_time"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_update_default_exposure_time()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv222iu456_get_uid_for_modeP14iu456_handle_tiiPiP21iu456_error_details_t" title="iu456_get_uid_for_mode"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_get_uid_for_mode()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv232iu456_set_x_and_y_property_stateP14iu456_handle_t22iu456_property_state_tP21iu456_error_details_t" title="iu456_set_x_and_y_property_state"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_set_x_and_y_property_state()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv235iu456_set_update_uid_property_stateP14iu456_handle_t22iu456_property_state_tP21iu456_error_details_t" title="iu456_set_update_uid_property_state"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_set_update_uid_property_state()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv230iu456_get_raw_calibration_dataP14iu456_handle_tPPK7uint8_tP6size_tP21iu456_error_details_t" title="iu456_get_raw_calibration_data"><code class="xref cpp cpp-func docutils literal"><span class="pre">iu456_get_raw_calibration_data()</span></code></a></li>
+</ul>
+</td></tr></table>
+</div>
+<div class="section" id="file-content">
+<h3>File content<a class="headerlink" href="#file-content" title="Permalink to this headline">¶</a></h3>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Defines</p>
+<dl class="macro">
+<dt id="c.SOFTKINETIC_IU456_LIBRARY_API_H">
+<span class="target" id="a00002_1a54575f15a8a3227a6c1f4f88be9c33e0"></span><code class="descname">SOFTKINETIC_IU456_LIBRARY_API_H</code><a class="headerlink" href="#c.SOFTKINETIC_IU456_LIBRARY_API_H" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Typedefs</p>
+<dl class="type">
+<dt id="_CPPv214iu456_handle_t">
+<span id="iu456_handle_t"></span><span class="target" id="a00002_1a16b245340ae64ba77c829d6de8bbb071"></span><em class="property">typedef </em><em class="property">struct</em> iu456_handle <code class="descname">iu456_handle_t</code><a class="headerlink" href="#_CPPv214iu456_handle_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Functions</p>
+<dl class="function">
+<dt id="_CPPv216iu456_initialize27iu456_on_arrival_callback_t27iu456_on_removal_callback_tPvPKcP21iu456_error_details_t">
+<span id="iu456_initialize__iu456_on_arrival_callback_t.iu456_on_removal_callback_t.voidP.cCP.iu456_error_details_tP"></span><span class="target" id="a00002_1a0f61584b639ff19a65ca0cc5e9534286"></span>bool <code class="descname">iu456_initialize</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv227iu456_on_arrival_callback_t" title="iu456_on_arrival_callback_t">iu456_on_arrival_callback_t</a> <em>on_arrival_callback</em>, <a class="reference internal" href="#_CPPv227iu456_on_removal_callback_t" title="iu456_on_removal_callback_t">iu456_on_removal_callback_t</a> <em>on_removal_callback</em>, void *<em>user_data</em>, <em class="property">const</em> char *<em>path_to_bundle</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv216iu456_initialize27iu456_on_arrival_callback_t27iu456_on_removal_callback_tPvPKcP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Initializes the library. </p>
+<p>This function initializes the library. The user can also supply callbacks to be triggered whenever a compatible device is plugged in or removed. The user has also the ability to define where the ‘data’ folder will be located once installed.</p>
+<p><dl class="docutils">
+<dt><strong>Note</strong></dt>
+<dd>This function should be called before any other call to the library.</dd>
+<dt><strong>Note</strong></dt>
+<dd>The ‘on_arrival_callback’ will be also called for devices already plugged in.</dd>
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">on_arrival_callback</span></code>: [in]a callback called whenever a new device is plugged in; could be passed as NULL. </li>
+<li><code class="docutils literal"><span class="pre">on_removal_callback</span></code>: [in]a callback called whenever a device is unplugged; could be passed as NULL. </li>
+<li><code class="docutils literal"><span class="pre">user_data</span></code>: [in]a pointer that will be passed as second argument to both on_arrival_callback and on_removal_callback; could be passed as NULL. </li>
+<li><code class="docutils literal"><span class="pre">path_to_bundle</span></code>: [in]path to the zip or directory containing configuration data. If NULL, the builtin data will be used. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv237iu456_initialize_with_device_property27iu456_on_arrival_callback_t27iu456_on_removal_callback_tPvPKcPK7uint8_t8uint32_tiiiP21iu456_error_details_t">
+<span id="iu456_initialize_with_device_property__iu456_on_arrival_callback_t.iu456_on_removal_callback_t.voidP.cCP.uint8_tCP.uint32_t.i.i.i.iu456_error_details_tP"></span><span class="target" id="a00002_1a51127f86ae9366ef259dbc88ad2e4468"></span>bool <code class="descname">iu456_initialize_with_device_property</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv227iu456_on_arrival_callback_t" title="iu456_on_arrival_callback_t">iu456_on_arrival_callback_t</a> <em>on_arrival_callback</em>, <a class="reference internal" href="#_CPPv227iu456_on_removal_callback_t" title="iu456_on_removal_callback_t">iu456_on_removal_callback_t</a> <em>on_removal_callback</em>, void *<em>user_data</em>, <em class="property">const</em> char *<em>path_to_bundle</em>, <em class="property">const</em> uint8_t *<em>rom_slave_address</em>, uint32_t <em>number_of_address</em>, int <em>production_address</em>, int <em>calibration_address</em>, int <em>device_index</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv237iu456_initialize_with_device_property27iu456_on_arrival_callback_t27iu456_on_removal_callback_tPvPKcPK7uint8_t8uint32_tiiiP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Initializes the library with device property. </p>
+<p>This function initializes the library using device property. The user can also supply callbacks to be triggered whenever a compatible device is plugged in or removed. The user has also the ability to define where the ‘data’ folder will be located once installed. The user can also supply EEPROM salve address and where the production data and calibration data located on th EEPROM. The user can also select one from multiple devices.</p>
+<p><dl class="docutils">
+<dt><strong>Note</strong></dt>
+<dd>This function should be called before any other call to the library.</dd>
+<dt><strong>Note</strong></dt>
+<dd>The ‘on_arrival_callback’ will be also called for devices already plugged in.</dd>
+<dt><strong>Note</strong></dt>
+<dd>When using ‘device_index’, ‘on_arrival_callback’ after initialize is disabled, ‘on_removal_callback’ is valid only for the selected device.</dd>
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">on_arrival_callback</span></code>: [in]a callback called whenever a new device is plugged in; could be passed as NULL. </li>
+<li><code class="docutils literal"><span class="pre">on_removal_callback</span></code>: [in]a callback called whenever a device is unplugged; could be passed as NULL. </li>
+<li><code class="docutils literal"><span class="pre">user_data</span></code>: [in]a pointer that will be passed as second argument to both on_arrival_callback and on_removal_callback; could be passed as NULL. </li>
+<li><code class="docutils literal"><span class="pre">path_to_bundle</span></code>: [in]path to the zip or directory containing configuration data. If NULL, the builtin data will be used. </li>
+<li><code class="docutils literal"><span class="pre">rom_slave_address</span></code>: [in]a pointer that the rom slave adresses, If NULL, the default value will be used. </li>
+<li><code class="docutils literal"><span class="pre">number_of_address</span></code>: [in]element count of rom_slave_address, If 0, the default eeprom slave address will be used. </li>
+<li><code class="docutils literal"><span class="pre">production_address</span></code>: [in]a production data location address on the EEPROM, can be passed as -1 for default location address. </li>
+<li><code class="docutils literal"><span class="pre">calibration_address</span></code>: [in]a calibration data location address on the EEPROM, can be passed as -1 for default location address. </li>
+<li><code class="docutils literal"><span class="pre">device_index</span></code>: [in]the index of specified device to initialize; can be passed as -1 for connecting all devices. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv214iu456_shutdownP21iu456_error_details_t">
+<span id="iu456_shutdown__iu456_error_details_tP"></span><span class="target" id="a00002_1a9df2e67b9d01f75d388da02c003234e6"></span>bool <code class="descname">iu456_shutdown</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv214iu456_shutdownP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Shuts down the library. </p>
+<p><dl class="docutils">
+<dt><strong>Note</strong></dt>
+<dd>This function should be called after any other call to the library.</dd>
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv217iu456_get_versionv">
+<span id="iu456_get_version"></span><span class="target" id="a00002_1a6e905aef7228b3276de7b38b4d66a1b8"></span><a class="reference internal" href="#_CPPv215iu456_version_t" title="iu456_version_t">iu456_version_t</a> <code class="descname">iu456_get_version</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv217iu456_get_versionv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Returns the library version. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the library version. </dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv221iu456_get_device_listPPPK14iu456_device_tP6size_tP21iu456_error_details_t">
+<span id="iu456_get_device_list__iu456_device_tCPPP.sP.iu456_error_details_tP"></span><span class="target" id="a00002_1a7c6a4b4e76636e580e931afa968e02fb"></span>bool <code class="descname">iu456_get_device_list</code><span class="sig-paren">(</span><em class="property">const</em> <a class="reference internal" href="#_CPPv214iu456_device_t" title="iu456_device_t">iu456_device_t</a> ***<em>device_array</em>, size_t *<em>number_of_elements</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv221iu456_get_device_listPPPK14iu456_device_tP6size_tP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>List already connected devices. </p>
+<p><dl class="docutils">
+<dt><strong>Note</strong></dt>
+<dd>The allocation of the <em>device_array</em> is done in the library and the ownership is transfered to the client which should call <em><a class="reference internal" href="#a00002_1ad3675c50556c10f86f3dd162b8fb4b34"><span class="std std-ref">iu456_release_device()</span></a></em> for each element in the array and <em><a class="reference internal" href="#a00002_1a6ebf71fa312f3e11a7b7aa9b1e05353e"><span class="std std-ref">iu456_release_device_list()</span></a></em> for the array itself.</dd>
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">device_array</span></code>: [out]pointer to an unallocated <em><a class="reference internal" href="#a00007"><span class="std std-ref">iu456_device_t</span></a> **</em>. </li>
+<li><code class="docutils literal"><span class="pre">number_of_elements</span></code>: [out]pointer to a <em>size_t</em> which will hold the length of <em>device_array</em>. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv225iu456_release_device_listPPK14iu456_device_t">
+<span id="iu456_release_device_list__iu456_device_tCPP"></span><span class="target" id="a00002_1a6ebf71fa312f3e11a7b7aa9b1e05353e"></span>void <code class="descname">iu456_release_device_list</code><span class="sig-paren">(</span><em class="property">const</em> <a class="reference internal" href="#_CPPv214iu456_device_t" title="iu456_device_t">iu456_device_t</a> **<em>device_array</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv225iu456_release_device_listPPK14iu456_device_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Release a device array. </p>
+<p><dl class="docutils">
+<dt><strong>Note</strong></dt>
+<dd>This function only deallocate the array itself not the elements in the array. client should call <em><a class="reference internal" href="#a00002_1ad3675c50556c10f86f3dd162b8fb4b34"><span class="std std-ref">iu456_release_device()</span></a></em> for each element in the array.</dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">device_array</span></code>: [in]the device list to release. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv220iu456_release_devicePK14iu456_device_t">
+<span id="iu456_release_device__iu456_device_tCP"></span><span class="target" id="a00002_1ad3675c50556c10f86f3dd162b8fb4b34"></span>void <code class="descname">iu456_release_device</code><span class="sig-paren">(</span><em class="property">const</em> <a class="reference internal" href="#_CPPv214iu456_device_t" title="iu456_device_t">iu456_device_t</a> *<em>device</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv220iu456_release_devicePK14iu456_device_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Release a device. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">device</span></code>: [in]the device list to release. </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv212iu456_createPP14iu456_handle_tPK14iu456_device_t34iu456_on_device_removal_callback_tPvP21iu456_error_details_t">
+<span id="iu456_create__iu456_handle_tPP.iu456_device_tCP.iu456_on_device_removal_callback_t.voidP.iu456_error_details_tP"></span><span class="target" id="a00002_1a43ae92fa05dcda008119043f0d55b801"></span>bool <code class="descname">iu456_create</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv214iu456_handle_t" title="iu456_handle_t">iu456_handle_t</a> **<em>handle</em>, <em class="property">const</em> <a class="reference internal" href="#_CPPv214iu456_device_t" title="iu456_device_t">iu456_device_t</a> *<em>device</em>, <a class="reference internal" href="#_CPPv234iu456_on_device_removal_callback_t" title="iu456_on_device_removal_callback_t">iu456_on_device_removal_callback_t</a> <em>on_removal_callback</em>, void *<em>user_data</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv212iu456_createPP14iu456_handle_tPK14iu456_device_t34iu456_on_device_removal_callback_tPvP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct a device object handle. </p>
+<p>This function instantiates a specific device. The user can supply a callback that will be called whenever the said device is removed.</p>
+<p><dl class="docutils">
+<dt><strong>Note</strong></dt>
+<dd>The allocation of the object handle is done in the library and the ownership is transferred to the client which should call <em><a class="reference internal" href="#a00002_1a9a62b830714d1ffc6ea0b4a462194682"><span class="std std-ref">iu456_destroy()</span></a></em></dd>
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">handle</span></code>: [out]pointer to an unallocated object handle. </li>
+<li><code class="docutils literal"><span class="pre">device</span></code>: [in]pointer to a <em><a class="reference internal" href="#a00007"><span class="std std-ref">iu456_device_t</span></a> </em> object. </li>
+<li><code class="docutils literal"><span class="pre">on_removal_callback</span></code>: [in]a callback called whenever this device is unplugged; could be passed as NULL. </li>
+<li><code class="docutils literal"><span class="pre">user_data</span></code>: [in]a pointer that will be passed as argument to the on_removal_callback; could be passed as NULL. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv229iu456_create_with_data_bundlePP14iu456_handle_tPK14iu456_device_t34iu456_on_device_removal_callback_tPvPKcP21iu456_error_details_t">
+<span id="iu456_create_with_data_bundle__iu456_handle_tPP.iu456_device_tCP.iu456_on_device_removal_callback_t.voidP.cCP.iu456_error_details_tP"></span><span class="target" id="a00002_1a4069fb82e2c4f13995d22854bc7ad0ec"></span>bool <code class="descname">iu456_create_with_data_bundle</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv214iu456_handle_t" title="iu456_handle_t">iu456_handle_t</a> **<em>handle</em>, <em class="property">const</em> <a class="reference internal" href="#_CPPv214iu456_device_t" title="iu456_device_t">iu456_device_t</a> *<em>device</em>, <a class="reference internal" href="#_CPPv234iu456_on_device_removal_callback_t" title="iu456_on_device_removal_callback_t">iu456_on_device_removal_callback_t</a> <em>on_removal_callback</em>, void *<em>user_data</em>, <em class="property">const</em> char *<em>path_to_bundle</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv229iu456_create_with_data_bundlePP14iu456_handle_tPK14iu456_device_t34iu456_on_device_removal_callback_tPvPKcP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct a device object handle using an external data bundle. </p>
+<p>This function instantiates a specific device. The user can supply a callback that will be called whenever the said device is removed.</p>
+<p><dl class="docutils">
+<dt><strong>Note</strong></dt>
+<dd>The allocation of the object handle is done in the library and the ownership is transferred to the client which should call <em><a class="reference internal" href="#a00002_1a9a62b830714d1ffc6ea0b4a462194682"><span class="std std-ref">iu456_destroy()</span></a></em></dd>
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">handle</span></code>: [out]pointer to an unallocated object handle. </li>
+<li><code class="docutils literal"><span class="pre">device</span></code>: [in]pointer to a <em><a class="reference internal" href="#a00007"><span class="std std-ref">iu456_device_t</span></a> </em> object. </li>
+<li><code class="docutils literal"><span class="pre">on_removal_callback</span></code>: [in]a callback called whenever this device is unplugged; could be passed as NULL. </li>
+<li><code class="docutils literal"><span class="pre">user_data</span></code>: [in]a pointer that will be passed as argument to the on_removal_callback; could be passed as NULL. </li>
+<li><code class="docutils literal"><span class="pre">path_to_bundle</span></code>: [in]the path to the data bundle; could be passed as NULL. In this case the same data as the one set during iu456_initialize will be used. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv213iu456_destroyP14iu456_handle_tP21iu456_error_details_t">
+<span id="iu456_destroy__iu456_handle_tP.iu456_error_details_tP"></span><span class="target" id="a00002_1a9a62b830714d1ffc6ea0b4a462194682"></span>bool <code class="descname">iu456_destroy</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv214iu456_handle_t" title="iu456_handle_t">iu456_handle_t</a> *<em>handle</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv213iu456_destroyP14iu456_handle_tP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Destruct a device object handle. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">handle</span></code>: [in]pointer to an already allocated object handle. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv211iu456_startP14iu456_handle_tP21iu456_error_details_t">
+<span id="iu456_start__iu456_handle_tP.iu456_error_details_tP"></span><span class="target" id="a00002_1aa620a110ea3b42f2aa3cd08df490d816"></span>bool <code class="descname">iu456_start</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv214iu456_handle_t" title="iu456_handle_t">iu456_handle_t</a> *<em>handle</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv211iu456_startP14iu456_handle_tP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Start the streaming. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">handle</span></code>: [in]pointer to an already allocated object handle. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv210iu456_stopP14iu456_handle_tP21iu456_error_details_t">
+<span id="iu456_stop__iu456_handle_tP.iu456_error_details_tP"></span><span class="target" id="a00002_1acd0aeffc43a878ecb0fc117c734bb547"></span>bool <code class="descname">iu456_stop</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv214iu456_handle_t" title="iu456_handle_t">iu456_handle_t</a> *<em>handle</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv210iu456_stopP14iu456_handle_tP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Stop the streaming. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">handle</span></code>: [in]pointer to an already allocated object handle. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv220iu456_get_last_frameP14iu456_handle_tPPK13iu456_frame_t7int32_tP21iu456_error_details_t">
+<span id="iu456_get_last_frame__iu456_handle_tP.iu456_frame_tCPP.int32_t.iu456_error_details_tP"></span><span class="target" id="a00002_1a80dee2415671dcf46cf07e2e67e458e8"></span>bool <code class="descname">iu456_get_last_frame</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv214iu456_handle_t" title="iu456_handle_t">iu456_handle_t</a> *<em>handle</em>, <em class="property">const</em> <a class="reference internal" href="#_CPPv213iu456_frame_t" title="iu456_frame_t">iu456_frame_t</a> **<em>frame_data</em>, int32_t <em>timeout</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv220iu456_get_last_frameP14iu456_handle_tPPK13iu456_frame_t7int32_tP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get data for the next frame. </p>
+<p>This function will wait for the next frame and populate the <em>frame_data</em> pointer with the new data. The client can pass a timeout in milliseconds after which the function will return if no new data has been received.</p>
+<p><dl class="docutils">
+<dt><strong>Note</strong></dt>
+<dd>The value of <em>frame_data</em> is guaranteed until the next call to <em><a class="reference internal" href="#a00002_1a80dee2415671dcf46cf07e2e67e458e8"><span class="std std-ref">iu456_get_last_frame()</span></a></em> or a call to <em><a class="reference internal" href="#a00002_1acd0aeffc43a878ecb0fc117c734bb547"><span class="std std-ref">iu456_stop()</span></a></em>.</dd>
+<dt><strong>Note</strong></dt>
+<dd>Even though an infinite timeout can be passed. The stream may be interrupted after a certain amount of time if the device is not streaming.</dd>
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">handle</span></code>: [in]pointer to an already allocated object handle. </li>
+<li><code class="docutils literal"><span class="pre">frame_data</span></code>: [out]pointer to an unallocated <em>const <a class="reference internal" href="#a00008"><span class="std std-ref">iu456_frame_t</span></a> *</em>. </li>
+<li><code class="docutils literal"><span class="pre">timeout</span></code>: [in]a timeout in milliseconds; can be passed as -1 for infinite timeout. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv223iu456_get_serial_numberP14iu456_handle_tPPKcP21iu456_error_details_t">
+<span id="iu456_get_serial_number__iu456_handle_tP.cCPP.iu456_error_details_tP"></span><span class="target" id="a00002_1abb515312891a9738a58cf054626a4226"></span>bool <code class="descname">iu456_get_serial_number</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv214iu456_handle_t" title="iu456_handle_t">iu456_handle_t</a> *<em>handle</em>, <em class="property">const</em> char **<em>serial_number</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv223iu456_get_serial_numberP14iu456_handle_tPPKcP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the serial number of the device. </p>
+<p><dl class="docutils">
+<dt><strong>Note</strong></dt>
+<dd>The allocation of the <em>serial_number</em> is done in the library and the ownership is transferred to the client which should call <em><a class="reference internal" href="#a00002_1a67dd95be9e2416c7ce04218987991054"><span class="std std-ref">iu456_release_pointer()</span></a></em></dd>
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">handle</span></code>: [in]pointer to an already allocated object handle. </li>
+<li><code class="docutils literal"><span class="pre">serial_number</span></code>: [out]pointer to an unallocated <em>const char*</em>. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv221iu456_release_pointerPKv">
+<span id="iu456_release_pointer__voidCP"></span><span class="target" id="a00002_1a67dd95be9e2416c7ce04218987991054"></span>bool <code class="descname">iu456_release_pointer</code><span class="sig-paren">(</span><em class="property">const</em> void *<em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv221iu456_release_pointerPKv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Release memory allocated by the library. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">data</span></code>: [in]the memory to release</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv220iu456_get_prv_numberP14iu456_handle_tP8uint32_tP21iu456_error_details_t">
+<span id="iu456_get_prv_number__iu456_handle_tP.uint32_tP.iu456_error_details_tP"></span><span class="target" id="a00002_1a61d39113adddd3d1a27025771e6fa41c"></span>bool <code class="descname">iu456_get_prv_number</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv214iu456_handle_t" title="iu456_handle_t">iu456_handle_t</a> *<em>handle</em>, uint32_t *<em>prv_number</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv220iu456_get_prv_numberP14iu456_handle_tP8uint32_tP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the First 32bit of PRV number of the device. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">handle</span></code>: [in]pointer to an already allocated object handle. </li>
+<li><code class="docutils literal"><span class="pre">prv_number</span></code>: [out]pointer to a <em>uint32_t</em>. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv222iu456_get_prv_number64P14iu456_handle_tP8uint64_tP21iu456_error_details_t">
+<span id="iu456_get_prv_number64__iu456_handle_tP.uint64_tP.iu456_error_details_tP"></span><span class="target" id="a00002_1a0d2e977d80bb5630ef030552b4f71572"></span>bool <code class="descname">iu456_get_prv_number64</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv214iu456_handle_t" title="iu456_handle_t">iu456_handle_t</a> *<em>handle</em>, uint64_t *<em>prv_number</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv222iu456_get_prv_number64P14iu456_handle_tP8uint64_tP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the full PRV number of the device. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">handle</span></code>: [in]pointer to an already allocated object handle. </li>
+<li><code class="docutils literal"><span class="pre">prv_number</span></code>: [out]pointer to a <em>uint64_t</em>. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv221iu456_get_software_idP14iu456_handle_tP8uint32_tP21iu456_error_details_t">
+<span id="iu456_get_software_id__iu456_handle_tP.uint32_tP.iu456_error_details_tP"></span><span class="target" id="a00002_1ae03b87295b64db557a5483849daea664"></span>bool <code class="descname">iu456_get_software_id</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv214iu456_handle_t" title="iu456_handle_t">iu456_handle_t</a> *<em>handle</em>, uint32_t *<em>software_id</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv221iu456_get_software_idP14iu456_handle_tP8uint32_tP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the software_id of the device. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">handle</span></code>: [in]pointer to an already allocated object handle. </li>
+<li><code class="docutils literal"><span class="pre">software_id</span></code>: [out]pointer to a <em>uint32_t</em>. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv228iu456_get_configuration_listP14iu456_handle_tPPPK26iu456_configuration_info_tP6size_tP21iu456_error_details_t">
+<span id="iu456_get_configuration_list__iu456_handle_tP.iu456_configuration_info_tCPPP.sP.iu456_error_details_tP"></span><span class="target" id="a00002_1a6f2276da28fd1dbb544bddd00997724b"></span>bool <code class="descname">iu456_get_configuration_list</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv214iu456_handle_t" title="iu456_handle_t">iu456_handle_t</a> *<em>handle</em>, <em class="property">const</em> <a class="reference internal" href="#_CPPv226iu456_configuration_info_t" title="iu456_configuration_info_t">iu456_configuration_info_t</a> ***<em>configuration_list</em>, size_t *<em>number_of_entries</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv228iu456_get_configuration_listP14iu456_handle_tPPPK26iu456_configuration_info_tP6size_tP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>List available configurations. </p>
+<p><dl class="docutils">
+<dt><strong>Note</strong></dt>
+<dd>The allocation of the <em>configuration_list</em> is done in the library and the ownership is transfered to the client which should call <em><a class="reference internal" href="#a00002_1a67dd95be9e2416c7ce04218987991054"><span class="std std-ref">iu456_release_pointer()</span></a></em>.</dd>
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">handle</span></code>: [in]pointer to an already allocated object handle. </li>
+<li><code class="docutils literal"><span class="pre">configuration_list</span></code>: [out]pointer to an unallocated <em><a class="reference internal" href="#a00009"><span class="std std-ref">iu456_configuration_info_t</span></a> **</em>. </li>
+<li><code class="docutils literal"><span class="pre">number_of_entries</span></code>: [out]pointer to a <em>size_t</em> which will hold the length of <em>configuration_list</em>. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv231iu456_get_current_configurationP14iu456_handle_tPPK26iu456_configuration_info_tP21iu456_error_details_t">
+<span id="iu456_get_current_configuration__iu456_handle_tP.iu456_configuration_info_tCPP.iu456_error_details_tP"></span><span class="target" id="a00002_1aa7c42766b3c1e007836871e8342b30f4"></span>bool <code class="descname">iu456_get_current_configuration</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv214iu456_handle_t" title="iu456_handle_t">iu456_handle_t</a> *<em>handle</em>, <em class="property">const</em> <a class="reference internal" href="#_CPPv226iu456_configuration_info_t" title="iu456_configuration_info_t">iu456_configuration_info_t</a> **<em>configuration</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv231iu456_get_current_configurationP14iu456_handle_tPPK26iu456_configuration_info_tP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get information about the currently selected configuration. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">handle</span></code>: [in]pointer to an already allocated object handle. </li>
+<li><code class="docutils literal"><span class="pre">configuration</span></code>: [out]pointer to an unallocated <em><a class="reference internal" href="#a00009"><span class="std std-ref">iu456_configuration_info_t</span></a> *</em>. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv227iu456_set_configuration_uidP14iu456_handle_tiP21iu456_error_details_t">
+<span id="iu456_set_configuration_uid__iu456_handle_tP.i.iu456_error_details_tP"></span><span class="target" id="a00002_1afa01555284d6da32e831c9b82634e57c"></span>bool <code class="descname">iu456_set_configuration_uid</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv214iu456_handle_t" title="iu456_handle_t">iu456_handle_t</a> *<em>handle</em>, int <em>configuration_uid</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv227iu456_set_configuration_uidP14iu456_handle_tiP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Select the mode uid to be used. </p>
+<p>If the device is not in a streaming state, this function will set the configuration to be used whenever <em><a class="reference internal" href="#a00002_1aa620a110ea3b42f2aa3cd08df490d816"><span class="std std-ref">iu456_start()</span></a></em> is called. Otherwise, the mode in which the camera is running will be changed without interrupting the stream.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">handle</span></code>: [in]pointer to an already allocated object handle. </li>
+<li><code class="docutils literal"><span class="pre">configuration_uid</span></code>: [in]the mode uid to use. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv219iu456_set_filteringP14iu456_handle_t22iu456_property_state_tP21iu456_error_details_t">
+<span id="iu456_set_filtering__iu456_handle_tP.iu456_property_state_t.iu456_error_details_tP"></span><span class="target" id="a00002_1ac2dc774b5af9a8b9828874f9390639f1"></span>bool <code class="descname">iu456_set_filtering</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv214iu456_handle_t" title="iu456_handle_t">iu456_handle_t</a> *<em>handle</em>, <a class="reference internal" href="#_CPPv222iu456_property_state_t" title="iu456_property_state_t">iu456_property_state_t</a> <em>state</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv219iu456_set_filteringP14iu456_handle_t22iu456_property_state_tP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Select whether the depth map should be filtered or not. </p>
+<p>This function can only be used when the device is not in a streaming state.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">handle</span></code>: [in]pointer to an already allocated object handle. </li>
+<li><code class="docutils literal"><span class="pre">state</span></code>: [in]whether the filtering is enabled or not. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv233iu456_set_int16_depth_calculationP14iu456_handle_t22iu456_property_state_tP21iu456_error_details_t">
+<span id="iu456_set_int16_depth_calculation__iu456_handle_tP.iu456_property_state_t.iu456_error_details_tP"></span><span class="target" id="a00002_1a242ee9a2ccb918ab2f8546b16562b592"></span>bool <code class="descname">iu456_set_int16_depth_calculation</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv214iu456_handle_t" title="iu456_handle_t">iu456_handle_t</a> *<em>handle</em>, <a class="reference internal" href="#_CPPv222iu456_property_state_t" title="iu456_property_state_t">iu456_property_state_t</a> <em>state</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv233iu456_set_int16_depth_calculationP14iu456_handle_t22iu456_property_state_tP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Select whether the int16_t type depth map should be calculated or not. </p>
+<p>This function can only be used when the device is not in a streaming state.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">handle</span></code>: [in]pointer to an already allocated object handle. </li>
+<li><code class="docutils literal"><span class="pre">state</span></code>: [in]whether the filtering is enabled or not. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv233iu456_set_float_depth_calculationP14iu456_handle_t22iu456_property_state_tP21iu456_error_details_t">
+<span id="iu456_set_float_depth_calculation__iu456_handle_tP.iu456_property_state_t.iu456_error_details_tP"></span><span class="target" id="a00002_1a2a3df5f4101fe342886dfb70d54ad7c6"></span>bool <code class="descname">iu456_set_float_depth_calculation</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv214iu456_handle_t" title="iu456_handle_t">iu456_handle_t</a> *<em>handle</em>, <a class="reference internal" href="#_CPPv222iu456_property_state_t" title="iu456_property_state_t">iu456_property_state_t</a> <em>state</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv233iu456_set_float_depth_calculationP14iu456_handle_t22iu456_property_state_tP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Select whether the float type depth map should be calculated or not. </p>
+<p>This function can only be used when the device is not in a streaming state.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">handle</span></code>: [in]pointer to an already allocated object handle. </li>
+<li><code class="docutils literal"><span class="pre">state</span></code>: [in]whether the filtering is enabled or not. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv230iu456_set_confidence_filteringP14iu456_handle_t22iu456_property_state_tP21iu456_error_details_t">
+<span id="iu456_set_confidence_filtering__iu456_handle_tP.iu456_property_state_t.iu456_error_details_tP"></span><span class="target" id="a00002_1a94bba3cdc2743fbc0ca5984ea8f8e2ee"></span>bool <code class="descname">iu456_set_confidence_filtering</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv214iu456_handle_t" title="iu456_handle_t">iu456_handle_t</a> *<em>handle</em>, <a class="reference internal" href="#_CPPv222iu456_property_state_t" title="iu456_property_state_t">iu456_property_state_t</a> <em>state</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv230iu456_set_confidence_filteringP14iu456_handle_t22iu456_property_state_tP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Select whether the confidence map should be outputted filtered or not. </p>
+<p>This function can only be used when the device is not in a streaming state.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">handle</span></code>: [in]pointer to an already allocated object handle. </li>
+<li><code class="docutils literal"><span class="pre">state</span></code>: [in]whether the filtering is enabled or not. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv220iu456_set_frame_rateP14iu456_handle_tfP21iu456_error_details_t">
+<span id="iu456_set_frame_rate__iu456_handle_tP.float.iu456_error_details_tP"></span><span class="target" id="a00002_1a5e04ac14670a7647fd565daa4c61e8e4"></span>bool <code class="descname">iu456_set_frame_rate</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv214iu456_handle_t" title="iu456_handle_t">iu456_handle_t</a> *<em>handle</em>, float <em>desired</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv220iu456_set_frame_rateP14iu456_handle_tfP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Adjust the frame rate at which the device runs. </p>
+<p>This function only works when the device is in a streaming state. This value should be in the range returned by <em><a class="reference internal" href="#a00002_1a165e9431755895a58833efcc06a0d510"><span class="std std-ref">iu456_get_frame_rate_range()</span></a></em>.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error</dd>
+<dt><strong>See</strong></dt>
+<dd><em><a class="reference internal" href="#a00002_1a43d86d79ae861965158600d9546a6da9"><span class="std std-ref">iu456_update_default_frame_rate()</span></a></em>, <em><a class="reference internal" href="#a00002_1a165e9431755895a58833efcc06a0d510"><span class="std std-ref">iu456_get_frame_rate_range</span></a></em> </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">handle</span></code>: [in]pointer to an already allocated object handle. </li>
+<li><code class="docutils literal"><span class="pre">desired</span></code>: [in]the desired frame rate. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv226iu456_get_frame_rate_rangeP14iu456_handle_tiPfPfP21iu456_error_details_t">
+<span id="iu456_get_frame_rate_range__iu456_handle_tP.i.floatP.floatP.iu456_error_details_tP"></span><span class="target" id="a00002_1a165e9431755895a58833efcc06a0d510"></span>bool <code class="descname">iu456_get_frame_rate_range</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv214iu456_handle_t" title="iu456_handle_t">iu456_handle_t</a> *<em>handle</em>, int <em>configuration_uid</em>, float *<em>minimum</em>, float *<em>maximum</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv226iu456_get_frame_rate_rangeP14iu456_handle_tiPfPfP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the minimum and maximum frame rate for a given configuration. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error</dd>
+<dt><strong>See</strong></dt>
+<dd><em><a class="reference internal" href="#a00002_1a43d86d79ae861965158600d9546a6da9"><span class="std std-ref">iu456_update_default_frame_rate()</span></a></em>, <em><a class="reference internal" href="#a00002_1a5e04ac14670a7647fd565daa4c61e8e4"><span class="std std-ref">iu456_set_frame_rate</span></a></em> </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">handle</span></code>: [in]pointer to an already allocated object handle. </li>
+<li><code class="docutils literal"><span class="pre">configuration_uid</span></code>: [in]the configuration uid. </li>
+<li><code class="docutils literal"><span class="pre">minimum</span></code>: [out]pointer to a float that will be filled with the minimum frame rate. </li>
+<li><code class="docutils literal"><span class="pre">maximum</span></code>: [out]pointer to a float that will be filled with the maximum frame rate. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv231iu456_update_default_frame_rateP14iu456_handle_tifP21iu456_error_details_t">
+<span id="iu456_update_default_frame_rate__iu456_handle_tP.i.float.iu456_error_details_tP"></span><span class="target" id="a00002_1a43d86d79ae861965158600d9546a6da9"></span>bool <code class="descname">iu456_update_default_frame_rate</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv214iu456_handle_t" title="iu456_handle_t">iu456_handle_t</a> *<em>handle</em>, int <em>configuration_uid</em>, float <em>desired</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv231iu456_update_default_frame_rateP14iu456_handle_tifP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Update the default frame rate for a given mode. </p>
+<p>This value should be in the range returned by <em><a class="reference internal" href="#a00002_1a165e9431755895a58833efcc06a0d510"><span class="std std-ref">iu456_get_frame_rate_range()</span></a></em>.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error</dd>
+<dt><strong>See</strong></dt>
+<dd><em><a class="reference internal" href="#a00002_1a5e04ac14670a7647fd565daa4c61e8e4"><span class="std std-ref">iu456_set_frame_rate()</span></a></em>, <em><a class="reference internal" href="#a00002_1a165e9431755895a58833efcc06a0d510"><span class="std std-ref">iu456_get_frame_rate_range</span></a></em> </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">handle</span></code>: [in]pointer to an already allocated object handle. </li>
+<li><code class="docutils literal"><span class="pre">configuration_uid</span></code>: [in]the configuration uid for which to update the default. </li>
+<li><code class="docutils literal"><span class="pre">desired</span></code>: [in]the default frame rate. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv223iu456_set_auto_exposureP14iu456_handle_ti22iu456_property_state_tP21iu456_error_details_t">
+<span id="iu456_set_auto_exposure__iu456_handle_tP.i.iu456_property_state_t.iu456_error_details_tP"></span><span class="target" id="a00002_1a0e2fb5caf1f71c62b11f534e7d6282bd"></span>bool <code class="descname">iu456_set_auto_exposure</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv214iu456_handle_t" title="iu456_handle_t">iu456_handle_t</a> *<em>handle</em>, int <em>configuration_uid</em>, <a class="reference internal" href="#_CPPv222iu456_property_state_t" title="iu456_property_state_t">iu456_property_state_t</a> <em>state</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv223iu456_set_auto_exposureP14iu456_handle_ti22iu456_property_state_tP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Select whether the auto exposure should be enabled or not for a given configuration. </p>
+<p>When the auto exposure is enabled, the exposure cannot be controlled using iu456_set_exposure_time anymore</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">handle</span></code>: [in]pointer to an already allocated object handle. </li>
+<li><code class="docutils literal"><span class="pre">configuration_uid</span></code>: [in]the configuration uid for which to enable or disable the auto exposure. </li>
+<li><code class="docutils literal"><span class="pre">state</span></code>: [in]whether the auto exposure is enabled or not. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv227iu456_set_auto_exposure_roiP14iu456_handle_tiiiiiP21iu456_error_details_t">
+<span id="iu456_set_auto_exposure_roi__iu456_handle_tP.i.i.i.i.i.iu456_error_details_tP"></span><span class="target" id="a00002_1af8ce09f260fc2370f63fbe82ffeb8709"></span>bool <code class="descname">iu456_set_auto_exposure_roi</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv214iu456_handle_t" title="iu456_handle_t">iu456_handle_t</a> *<em>handle</em>, int <em>configuration_uid</em>, int <em>x</em>, int <em>y</em>, int <em>width</em>, int <em>height</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv227iu456_set_auto_exposure_roiP14iu456_handle_tiiiiiP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set the region of interest (ROI) that is taken into acount to control the exposure for a given configuration. </p>
+<p>By default, the ROI is set to the full frame.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">handle</span></code>: [in]pointer to an already allocated object handle. </li>
+<li><code class="docutils literal"><span class="pre">configuration_uid</span></code>: [in]the configuration uid for which to update the auto exposure ROI. </li>
+<li><code class="docutils literal"><span class="pre">x</span></code>: [in]the x coordinate of the ROI’s top left corner. </li>
+<li><code class="docutils literal"><span class="pre">y</span></code>: [in]the y coordinate of the ROI’s top left corner. </li>
+<li><code class="docutils literal"><span class="pre">width</span></code>: [in]the ROI’s width. </li>
+<li><code class="docutils literal"><span class="pre">height</span></code>: [in]the ROI’s height. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv233iu456_update_default_trigger_modeP14iu456_handle_ti20iu456_trigger_mode_tP21iu456_error_details_t">
+<span id="iu456_update_default_trigger_mode__iu456_handle_tP.i.iu456_trigger_mode_t.iu456_error_details_tP"></span><span class="target" id="a00002_1af8dc5dde431a8cb6e27d4de0f3cd37c3"></span>bool <code class="descname">iu456_update_default_trigger_mode</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv214iu456_handle_t" title="iu456_handle_t">iu456_handle_t</a> *<em>handle</em>, int <em>configuration_uid</em>, <a class="reference internal" href="#_CPPv220iu456_trigger_mode_t" title="iu456_trigger_mode_t">iu456_trigger_mode_t</a> <em>trigger_mode</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv233iu456_update_default_trigger_modeP14iu456_handle_ti20iu456_trigger_mode_tP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Change the trigger mode of the sensor. </p>
+<p>The sensor is configured in free-running mode by default.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">handle</span></code>: [in]pointer to an already allocated object handle. </li>
+<li><code class="docutils literal"><span class="pre">configuration_uid</span></code>: [in]the configuration uid for which to update the default. </li>
+<li><code class="docutils literal"><span class="pre">trigger_mode</span></code>: [in]the trigger mode. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv235iu456_update_default_trigger_factorP14iu456_handle_tii24iu456_trigger_sampling_tP21iu456_error_details_t">
+<span id="iu456_update_default_trigger_factor__iu456_handle_tP.i.i.iu456_trigger_sampling_t.iu456_error_details_tP"></span><span class="target" id="a00002_1a52475df38327e0298714fa445541f5c2"></span>bool <code class="descname">iu456_update_default_trigger_factor</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv214iu456_handle_t" title="iu456_handle_t">iu456_handle_t</a> *<em>handle</em>, int <em>configuration_uid</em>, int <em>number_of_frames</em>, <a class="reference internal" href="#_CPPv224iu456_trigger_sampling_t" title="iu456_trigger_sampling_t">iu456_trigger_sampling_t</a> <em>sampling_mode</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv235iu456_update_default_trigger_factorP14iu456_handle_tii24iu456_trigger_sampling_tP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Specify the trigger upsampling or downsampling factor. </p>
+<p>When choosing <em>iu456_trigger_sampling_downsample</em>, <em>number_of_frames</em> specifies the number of triggers to be ignored. For instance if <em>number_of_frames</em> is equal to 1, the trigger frequency will be halved.</p>
+<p>When choosing <em>iu456_trigger_sampling_upsample</em>, <em>number_of_frames</em> specifies the number of frames to capture between 2 triggers. For instance if <em>number_of_frames</em> is equal to 2, the trigger frequency will be doubled.</p>
+<p>The default values are 1 frame and iu456_trigger_sampling_upsample.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error</dd>
+<dt><strong>See</strong></dt>
+<dd><em><a class="reference internal" href="#a00002_1a48ebac6c6868b1352bcdd20d0ba75549"><span class="std std-ref">iu456_update_default_trigger_delay</span></a></em>, <em><a class="reference internal" href="#a00002_1ae881535afea7b56ce15e8a974169605d"><span class="std std-ref">iu456_get_trigger_factor_range</span></a></em> </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">handle</span></code>: [in]pointer to an already allocated object handle. </li>
+<li><code class="docutils literal"><span class="pre">configuration_uid</span></code>: [in]the configuration uid for which to update the default. </li>
+<li><code class="docutils literal"><span class="pre">number_of_frames</span></code>: [in]the number of frames to capture. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv234iu456_update_default_trigger_delayP14iu456_handle_tifP21iu456_error_details_t">
+<span id="iu456_update_default_trigger_delay__iu456_handle_tP.i.float.iu456_error_details_tP"></span><span class="target" id="a00002_1a48ebac6c6868b1352bcdd20d0ba75549"></span>bool <code class="descname">iu456_update_default_trigger_delay</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv214iu456_handle_t" title="iu456_handle_t">iu456_handle_t</a> *<em>handle</em>, int <em>configuration_uid</em>, float <em>delay</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv234iu456_update_default_trigger_delayP14iu456_handle_tifP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Specify the delay between the external vsync pad and the internal frame start. </p>
+<p>The default value is 0 seconds.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error</dd>
+<dt><strong>See</strong></dt>
+<dd><em><a class="reference internal" href="#a00002_1a52475df38327e0298714fa445541f5c2"><span class="std std-ref">iu456_update_default_trigger_factor()</span></a></em>, <em><a class="reference internal" href="#a00002_1aa3a3cd4e0ae89b455de3c9b3966adb1a"><span class="std std-ref">iu456_get_trigger_delay_range()</span></a></em> </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">handle</span></code>: [in]pointer to an already allocated object handle. </li>
+<li><code class="docutils literal"><span class="pre">configuration_uid</span></code>: [in]the configuration uid for which to update the default. </li>
+<li><code class="docutils literal"><span class="pre">delay</span></code>: [in]the delay in seconds. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv230iu456_get_trigger_factor_rangeP14iu456_handle_tiPiPiP21iu456_error_details_t">
+<span id="iu456_get_trigger_factor_range__iu456_handle_tP.i.iP.iP.iu456_error_details_tP"></span><span class="target" id="a00002_1ae881535afea7b56ce15e8a974169605d"></span>bool <code class="descname">iu456_get_trigger_factor_range</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv214iu456_handle_t" title="iu456_handle_t">iu456_handle_t</a> *<em>handle</em>, int <em>configuration_uid</em>, int *<em>minimum</em>, int *<em>maximum</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv230iu456_get_trigger_factor_rangeP14iu456_handle_tiPiPiP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the minimum and maximum number of frames for trigger frequency upsampling and downsampling. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error</dd>
+<dt><strong>See</strong></dt>
+<dd><em><a class="reference internal" href="#a00002_1a52475df38327e0298714fa445541f5c2"><span class="std std-ref">iu456_update_default_trigger_factor()</span></a></em>, <em><a class="reference internal" href="#a00002_1a48ebac6c6868b1352bcdd20d0ba75549"><span class="std std-ref">iu456_update_default_trigger_delay</span></a></em> </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">handle</span></code>: [in]pointer to an already allocated object handle. </li>
+<li><code class="docutils literal"><span class="pre">configuration_uid</span></code>: [in]the configuration uid. </li>
+<li><code class="docutils literal"><span class="pre">minimum</span></code>: [out]pointer to an int that will be filled with the minimum number of frames. </li>
+<li><code class="docutils literal"><span class="pre">maximum</span></code>: [out]pointer to an int that will be filled with the maximum number of frames. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv229iu456_get_trigger_delay_rangeP14iu456_handle_tiPfPfP21iu456_error_details_t">
+<span id="iu456_get_trigger_delay_range__iu456_handle_tP.i.floatP.floatP.iu456_error_details_tP"></span><span class="target" id="a00002_1aa3a3cd4e0ae89b455de3c9b3966adb1a"></span>bool <code class="descname">iu456_get_trigger_delay_range</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv214iu456_handle_t" title="iu456_handle_t">iu456_handle_t</a> *<em>handle</em>, int <em>configuration_uid</em>, float *<em>minimum</em>, float *<em>maximum</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv229iu456_get_trigger_delay_rangeP14iu456_handle_tiPfPfP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the minimum and maximum delay in second. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error</dd>
+<dt><strong>See</strong></dt>
+<dd><em><a class="reference internal" href="#a00002_1a52475df38327e0298714fa445541f5c2"><span class="std std-ref">iu456_update_default_trigger_factor()</span></a></em>, <em><a class="reference internal" href="#a00002_1a48ebac6c6868b1352bcdd20d0ba75549"><span class="std std-ref">iu456_update_default_trigger_delay</span></a></em> </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">handle</span></code>: [in]pointer to an already allocated object handle. </li>
+<li><code class="docutils literal"><span class="pre">configuration_uid</span></code>: [in]the configuration uid. </li>
+<li><code class="docutils literal"><span class="pre">minimum</span></code>: [out]pointer to a float that will be filled with the minimum delay in seconds. </li>
+<li><code class="docutils literal"><span class="pre">maximum</span></code>: [out]pointer to a float that will be filled with the maximum delay in seconds. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv223iu456_set_exposure_timeP14iu456_handle_tiP21iu456_error_details_t">
+<span id="iu456_set_exposure_time__iu456_handle_tP.i.iu456_error_details_tP"></span><span class="target" id="a00002_1a6d31f21b8640925a6dc7ff4139ea0d42"></span>bool <code class="descname">iu456_set_exposure_time</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv214iu456_handle_t" title="iu456_handle_t">iu456_handle_t</a> *<em>handle</em>, int <em>exposure_time</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv223iu456_set_exposure_timeP14iu456_handle_tiP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Adjust the exposure time of the currently running mode. </p>
+<p>This function only works when the device is in a streaming state. This value should be in the range returned by <em><a class="reference internal" href="#a00002_1a069c2d3276126d3cfc39b6b17502ff7d"><span class="std std-ref">iu456_get_exposure_time_list()</span></a></em>.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error</dd>
+<dt><strong>See</strong></dt>
+<dd><em><a class="reference internal" href="#a00002_1a32defcbd39aeba3c91b51bdd92c12f4e"><span class="std std-ref">iu456_update_default_exposure_time()</span></a></em>, <em><a class="reference internal" href="#a00002_1a069c2d3276126d3cfc39b6b17502ff7d"><span class="std std-ref">iu456_get_exposure_time_list</span></a></em> </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">handle</span></code>: [in]pointer to an already allocated object handle. </li>
+<li><code class="docutils literal"><span class="pre">exposure_time</span></code>: [in]the desired exposure time in microseconds. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv228iu456_get_exposure_time_listP14iu456_handle_tiPPKiP6size_tP21iu456_error_details_t">
+<span id="iu456_get_exposure_time_list__iu456_handle_tP.i.iCPP.sP.iu456_error_details_tP"></span><span class="target" id="a00002_1a069c2d3276126d3cfc39b6b17502ff7d"></span>bool <code class="descname">iu456_get_exposure_time_list</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv214iu456_handle_t" title="iu456_handle_t">iu456_handle_t</a> *<em>handle</em>, int <em>configuration_uid</em>, <em class="property">const</em> int **<em>values</em>, size_t *<em>length</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv228iu456_get_exposure_time_listP14iu456_handle_tiPPKiP6size_tP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get a list of supported exposure time range for a given configuration. </p>
+<p>The list consists of three exposure time, minimum, typical, and maximum. Exposure times are expressed in microseconds.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error</dd>
+<dt><strong>See</strong></dt>
+<dd><em><a class="reference internal" href="#a00002_1a32defcbd39aeba3c91b51bdd92c12f4e"><span class="std std-ref">iu456_update_default_exposure_time()</span></a></em>, <em><a class="reference internal" href="#a00002_1a5e04ac14670a7647fd565daa4c61e8e4"><span class="std std-ref">iu456_set_frame_rate</span></a></em> </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">handle</span></code>: [in]pointer to an already allocated object handle. </li>
+<li><code class="docutils literal"><span class="pre">configuration_uid</span></code>: [in]the configuration uid. </li>
+<li><code class="docutils literal"><span class="pre">values</span></code>: [out]pointer to an unallocated array of int. </li>
+<li><code class="docutils literal"><span class="pre">length</span></code>: [out]pointer to a size_t holding the length of the array. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv234iu456_update_default_exposure_timeP14iu456_handle_tiiP21iu456_error_details_t">
+<span id="iu456_update_default_exposure_time__iu456_handle_tP.i.i.iu456_error_details_tP"></span><span class="target" id="a00002_1a32defcbd39aeba3c91b51bdd92c12f4e"></span>bool <code class="descname">iu456_update_default_exposure_time</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv214iu456_handle_t" title="iu456_handle_t">iu456_handle_t</a> *<em>handle</em>, int <em>configuration_uid</em>, int <em>desired</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv234iu456_update_default_exposure_timeP14iu456_handle_tiiP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Update the default exposure time for a given mode. </p>
+<p>This value should be in the range returned by <em><a class="reference internal" href="#a00002_1a069c2d3276126d3cfc39b6b17502ff7d"><span class="std std-ref">iu456_get_exposure_time_list()</span></a></em>.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error</dd>
+<dt><strong>See</strong></dt>
+<dd><em><a class="reference internal" href="#a00002_1a5e04ac14670a7647fd565daa4c61e8e4"><span class="std std-ref">iu456_set_frame_rate()</span></a></em>, <em><a class="reference internal" href="#a00002_1a069c2d3276126d3cfc39b6b17502ff7d"><span class="std std-ref">iu456_get_exposure_time_list</span></a></em> </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">handle</span></code>: [in]pointer to an already allocated object handle. </li>
+<li><code class="docutils literal"><span class="pre">configuration_uid</span></code>: [in]the configuration uid for which to update the default. </li>
+<li><code class="docutils literal"><span class="pre">desired</span></code>: [in]the default exposure time. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv222iu456_get_uid_for_modeP14iu456_handle_tiiPiP21iu456_error_details_t">
+<span id="iu456_get_uid_for_mode__iu456_handle_tP.i.i.iP.iu456_error_details_tP"></span><span class="target" id="a00002_1a36d9ec2a04a713365bc1de3f0def269b"></span>bool <code class="descname">iu456_get_uid_for_mode</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv214iu456_handle_t" title="iu456_handle_t">iu456_handle_t</a> *<em>handle</em>, int <em>mode_id</em>, int <em>fps</em>, int *<em>uid_to_use</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv222iu456_get_uid_for_modeP14iu456_handle_tiiPiP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the uid matching the mode defined in the specifications. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">handle</span></code>: [in]pointer to an already allocated object handle. </li>
+<li><code class="docutils literal"><span class="pre">mode_id</span></code>: [in]the mode id as stated in the datasheet. </li>
+<li><code class="docutils literal"><span class="pre">fps</span></code>: [in]the nominal frame rate of the matching mode. </li>
+<li><code class="docutils literal"><span class="pre">uid_to_use</span></code>: [out]the configuration uid to use in all other APIs. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv232iu456_set_x_and_y_property_stateP14iu456_handle_t22iu456_property_state_tP21iu456_error_details_t">
+<span id="iu456_set_x_and_y_property_state__iu456_handle_tP.iu456_property_state_t.iu456_error_details_tP"></span><span class="target" id="a00002_1a5b80cdd3fbb3fc3429cb215dfe3952e5"></span>bool <code class="descname">iu456_set_x_and_y_property_state</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv214iu456_handle_t" title="iu456_handle_t">iu456_handle_t</a> *<em>handle</em>, <a class="reference internal" href="#_CPPv222iu456_property_state_t" title="iu456_property_state_t">iu456_property_state_t</a> <em>state</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv232iu456_set_x_and_y_property_stateP14iu456_handle_t22iu456_property_state_tP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Whether the x and y maps are computed or not. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">handle</span></code>: [in]pointer to an already allocated object handle. </li>
+<li><code class="docutils literal"><span class="pre">state</span></code>: [in]the state of the property. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv235iu456_set_update_uid_property_stateP14iu456_handle_t22iu456_property_state_tP21iu456_error_details_t">
+<span id="iu456_set_update_uid_property_state__iu456_handle_tP.iu456_property_state_t.iu456_error_details_tP"></span><span class="target" id="a00002_1a76fb31141fc30ff1b4f79a6db885704b"></span>bool <code class="descname">iu456_set_update_uid_property_state</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv214iu456_handle_t" title="iu456_handle_t">iu456_handle_t</a> *<em>handle</em>, <a class="reference internal" href="#_CPPv222iu456_property_state_t" title="iu456_property_state_t">iu456_property_state_t</a> <em>state</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv235iu456_set_update_uid_property_stateP14iu456_handle_t22iu456_property_state_tP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Select whether the update uid in frame or not. </p>
+<p>This function can only be used when the device is not in a streaming state.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">handle</span></code>: [in]pointer to an already allocated object handle. </li>
+<li><code class="docutils literal"><span class="pre">state</span></code>: [in]the state of the property. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv230iu456_get_raw_calibration_dataP14iu456_handle_tPPK7uint8_tP6size_tP21iu456_error_details_t">
+<span id="iu456_get_raw_calibration_data__iu456_handle_tP.uint8_tCPP.sP.iu456_error_details_tP"></span><span class="target" id="a00002_1a810e474dbc5eeb9cf9bdde6715c0fc2f"></span>bool <code class="descname">iu456_get_raw_calibration_data</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv214iu456_handle_t" title="iu456_handle_t">iu456_handle_t</a> *<em>handle</em>, <em class="property">const</em> uint8_t **<em>data</em>, size_t *<em>length</em>, <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> *<em>error_details</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv230iu456_get_raw_calibration_dataP14iu456_handle_tPPK7uint8_tP6size_tP21iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the raw calibration data of the device. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>true if the operation performed correctly or false otherwise with the eventual error details object handle holding an error code and a message explaining the underlying error </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal"><span class="pre">handle</span></code>: [in]pointer to an already allocated object handle. </li>
+<li><code class="docutils literal"><span class="pre">data</span></code>: [out]pointer to a <em>const uint8_t *</em>. </li>
+<li><code class="docutils literal"><span class="pre">length</span></code>: [out]pointer to a <em>size_t</em>. </li>
+<li><code class="docutils literal"><span class="pre">error_details</span></code>: [out]error details object handle; could be passed as NULL.</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+</div>
+</div>
+</div>
+<div class="section" id="types-h">
+<span id="id3"></span><h2>types.h<a class="headerlink" href="#types-h" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="index-of-types">
+<h3>Index of types<a class="headerlink" href="#index-of-types" title="Permalink to this headline">¶</a></h3>
+<table class="hlist"><tr><td><ul class="simple">
+<li><a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t"><code class="xref cpp cpp-class docutils literal"><span class="pre">iu456_error_details_t</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv215iu456_version_t" title="iu456_version_t"><code class="xref cpp cpp-class docutils literal"><span class="pre">iu456_version_t</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv214iu456_device_t" title="iu456_device_t"><code class="xref cpp cpp-class docutils literal"><span class="pre">iu456_device_t</span></code></a></li>
+</ul>
+</td><td><ul class="simple">
+<li><a class="reference internal" href="#_CPPv218iu456_intrinsics_t" title="iu456_intrinsics_t"><code class="xref cpp cpp-class docutils literal"><span class="pre">iu456_intrinsics_t</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv226iu456_configuration_info_t" title="iu456_configuration_info_t"><code class="xref cpp cpp-class docutils literal"><span class="pre">iu456_configuration_info_t</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv213iu456_frame_t" title="iu456_frame_t"><code class="xref cpp cpp-class docutils literal"><span class="pre">iu456_frame_t</span></code></a></li>
+</ul>
+</td></tr></table>
+</div>
+<div class="section" id="id4">
+<h3>File content<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p>Declaration of the Frame Grabbers API types </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Defines</p>
+<dl class="macro">
+<dt id="c.SOFTKINETIC_IU456_LIBRARY_API_TYPES_H_INCLUDED_">
+<span class="target" id="a00001_1a8285aad806bae33af5fafffba8898c80"></span><code class="descname">SOFTKINETIC_IU456_LIBRARY_API_TYPES_H_INCLUDED_</code><a class="headerlink" href="#c.SOFTKINETIC_IU456_LIBRARY_API_TYPES_H_INCLUDED_" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Typedefs</p>
+<dl class="type">
+<dt id="_CPPv221iu456_error_details_t">
+<span id="iu456_error_details_t"></span><span class="target" id="a00001_1a2227e0f81eed6cd69da40888bbe978fa"></span><em class="property">typedef </em><em class="property">struct</em> <a class="reference internal" href="#_CPPv221iu456_error_details_t" title="iu456_error_details_t">iu456_error_details_t</a> <code class="descname">iu456_error_details_t</code><a class="headerlink" href="#_CPPv221iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Error details object to provide additional information regarding an error. </p>
+<p><dl class="docutils">
+<dt><strong>Note</strong></dt>
+<dd>This type of object is client allocated and passed along to the API functions to obtain error details if desired. </dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="type">
+<dt id="_CPPv215iu456_version_t">
+<span id="iu456_version_t"></span><span class="target" id="a00001_1a87668d46fd3b3c23d699ad2d58712468"></span><em class="property">typedef </em><em class="property">struct</em> <a class="reference internal" href="#_CPPv215iu456_version_t" title="iu456_version_t">iu456_version_t</a> <code class="descname">iu456_version_t</code><a class="headerlink" href="#_CPPv215iu456_version_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Library version object to provide version information. </p>
+</dd></dl>
+
+<dl class="type">
+<dt id="_CPPv214iu456_device_t">
+<span id="iu456_device_t"></span><span class="target" id="a00001_1acd3de6a44b85e2e7e844f0518ed84877"></span><em class="property">typedef </em><em class="property">struct</em> <a class="reference internal" href="#_CPPv214iu456_device_t" title="iu456_device_t">iu456_device_t</a> <code class="descname">iu456_device_t</code><a class="headerlink" href="#_CPPv214iu456_device_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>An object reprensenting a physical device. </p>
+</dd></dl>
+
+<dl class="type">
+<dt id="_CPPv218iu456_intrinsics_t">
+<span id="iu456_intrinsics_t"></span><span class="target" id="a00001_1a306df267bc67a28975fcc5fdf6affec7"></span><em class="property">typedef </em><em class="property">struct</em> <a class="reference internal" href="#_CPPv218iu456_intrinsics_t" title="iu456_intrinsics_t">iu456_intrinsics_t</a> <code class="descname">iu456_intrinsics_t</code><a class="headerlink" href="#_CPPv218iu456_intrinsics_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>An object reprensenting the lens model of the module. </p>
+</dd></dl>
+
+<dl class="type">
+<dt id="_CPPv226iu456_configuration_info_t">
+<span id="iu456_configuration_info_t"></span><span class="target" id="a00001_1a48ffe38d68faf2134f2953ab101e4a9d"></span><em class="property">typedef </em><em class="property">struct</em> <a class="reference internal" href="#_CPPv226iu456_configuration_info_t" title="iu456_configuration_info_t">iu456_configuration_info_t</a> <code class="descname">iu456_configuration_info_t</code><a class="headerlink" href="#_CPPv226iu456_configuration_info_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>An object providing additional information of a mode. </p>
+</dd></dl>
+
+<dl class="type">
+<dt id="_CPPv216iu456_raw_data_t">
+<span id="iu456_raw_data_t"></span><span class="target" id="a00001_1aab043021855fe899f20a9a04379c47f8"></span><em class="property">typedef </em><em class="property">struct</em> <a class="reference internal" href="#_CPPv216iu456_raw_data_t" title="iu456_raw_data_t">iu456_raw_data_t</a> <code class="descname">iu456_raw_data_t</code><a class="headerlink" href="#_CPPv216iu456_raw_data_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>An object providing the data for a input raw data. </p>
+<p>This structure holds the pixel data and embedded data of the raw data separately. In the case that you have the data conforms to this structure, you can reduce the copying process for reordering by using this structure. </p>
+</dd></dl>
+
+<dl class="type">
+<dt id="_CPPv213iu456_frame_t">
+<span id="iu456_frame_t"></span><span class="target" id="a00001_1ac617efffa67eaa65f3192811eea1b57d"></span><em class="property">typedef </em><em class="property">struct</em> <a class="reference internal" href="#_CPPv213iu456_frame_t" title="iu456_frame_t">iu456_frame_t</a> <code class="descname">iu456_frame_t</code><a class="headerlink" href="#_CPPv213iu456_frame_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>An object providing the data for a received frame. </p>
+<p>This structure holds the post processed depth and confidence as well as other meta data linked to the frame itself.</p>
+<p>The confidence map reflects the quality of the data at a given pixel. The greater this value is, the lesser noise the data will have.</p>
+<p>The depth map is the cartesian depth expressed in millimeters and uses values greater than 32000 to flag invalid values.</p>
+<p>The x and y pointers provides access to the first 2 cartesian coordinates. This means that when using (x, y, depth), one gets a list of 3d vertices in camera space. Note that x and y maps are optional (see <em><a class="reference internal" href="#a00002_1a5b80cdd3fbb3fc3429cb215dfe3952e5"><span class="std std-ref">iu456_set_x_and_y_property_state()</span></a></em>). When disabled, these 2 pointers will be set to nullptr. </p>
+</dd></dl>
+
+<dl class="type">
+<dt id="_CPPv234iu456_on_device_removal_callback_t">
+<span id="iu456_on_device_removal_callback_t"></span><span class="target" id="a00001_1a2d5a53ad1ccf74ddd3ec1841593d17a0"></span><em class="property">typedef </em><code class="descname">iu456_on_device_removal_callback_t</code><a class="headerlink" href="#_CPPv234iu456_on_device_removal_callback_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Callable used to notify whenever a device has been removed. </p>
+</dd></dl>
+
+<dl class="type">
+<dt id="_CPPv227iu456_on_arrival_callback_t">
+<span id="iu456_on_arrival_callback_t"></span><span class="target" id="a00001_1af91f91c93a85933e8760e876034f696d"></span><em class="property">typedef </em><code class="descname">iu456_on_arrival_callback_t</code><a class="headerlink" href="#_CPPv227iu456_on_arrival_callback_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Callable used to notify whenever a new device has been added. </p>
+</dd></dl>
+
+<dl class="type">
+<dt id="_CPPv227iu456_on_removal_callback_t">
+<span id="iu456_on_removal_callback_t"></span><span class="target" id="a00001_1a2a3d692ba045282823f52adec3940501"></span><em class="property">typedef </em><code class="descname">iu456_on_removal_callback_t</code><a class="headerlink" href="#_CPPv227iu456_on_removal_callback_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Callable used to notify whenever a new device has been removed. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Enums</p>
+<dl class="type">
+<dt id="_CPPv213iu456_error_t">
+<span id="iu456_error_t"></span><span class="target" id="a00001_1aeac8e97927f5300a3cedd8d8916bfff1"></span><em class="property">enum </em><code class="descname">iu456_error_t</code><a class="headerlink" href="#_CPPv213iu456_error_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>IU456 Library API error codes. </p>
+<p><em>Values:</em></p>
+<dl class="member">
+<dt id="_CPPv219iu456_error_success">
+<span id="iu456_error_success"></span><span class="target" id="a00001_1aeac8e97927f5300a3cedd8d8916bfff1a8620aeffe010e9ed9cd3b9e19c4a781c"></span><code class="descname">iu456_error_success</code> = 0<a class="headerlink" href="#_CPPv219iu456_error_success" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Everything went fine except the weather. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv219iu456_error_generic">
+<span id="iu456_error_generic"></span><span class="target" id="a00001_1aeac8e97927f5300a3cedd8d8916bfff1acc1e48db2d0a010d19ea737dab86dfc5"></span><code class="descname">iu456_error_generic</code> = -1<a class="headerlink" href="#_CPPv219iu456_error_generic" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Generic error - we’re afraid of the unknown. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv233iu456_error_invalid_object_handle">
+<span id="iu456_error_invalid_object_handle"></span><span class="target" id="a00001_1aeac8e97927f5300a3cedd8d8916bfff1ad3e251e393dfa7e4186df542ff15b548"></span><code class="descname">iu456_error_invalid_object_handle</code> = -2<a class="headerlink" href="#_CPPv233iu456_error_invalid_object_handle" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Invalid handle object. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv233iu456_error_null_pointer_argument">
+<span id="iu456_error_null_pointer_argument"></span><span class="target" id="a00001_1aeac8e97927f5300a3cedd8d8916bfff1a38090ec0018e5d30d3a90b53ab66772d"></span><code class="descname">iu456_error_null_pointer_argument</code> = -3<a class="headerlink" href="#_CPPv233iu456_error_null_pointer_argument" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>NULL pointer argument. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv219iu456_error_timeout">
+<span id="iu456_error_timeout"></span><span class="target" id="a00001_1aeac8e97927f5300a3cedd8d8916bfff1a9902e7b97e2a48a19daf690ef5257ace"></span><code class="descname">iu456_error_timeout</code> = -4<a class="headerlink" href="#_CPPv219iu456_error_timeout" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>timeout </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv223iu456_error_overheating">
+<span id="iu456_error_overheating"></span><span class="target" id="a00001_1aeac8e97927f5300a3cedd8d8916bfff1a752fd8cac9886499c631a40783ef601d"></span><code class="descname">iu456_error_overheating</code> = -5<a class="headerlink" href="#_CPPv223iu456_error_overheating" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>device is overheating </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv224iu456_error_out_of_range">
+<span id="iu456_error_out_of_range"></span><span class="target" id="a00001_1aeac8e97927f5300a3cedd8d8916bfff1a4ab6996901ba19fbfa7368ceb934f689"></span><code class="descname">iu456_error_out_of_range</code> = -6<a class="headerlink" href="#_CPPv224iu456_error_out_of_range" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>out of range error </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv233iu456_error_hardware_unresponsive">
+<span id="iu456_error_hardware_unresponsive"></span><span class="target" id="a00001_1aeac8e97927f5300a3cedd8d8916bfff1a472f19618bb3eeb7ae4d136a2586949b"></span><code class="descname">iu456_error_hardware_unresponsive</code> = -7<a class="headerlink" href="#_CPPv233iu456_error_hardware_unresponsive" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Device is unresponsive. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv228iu456_error_mode_fps_overrun">
+<span id="iu456_error_mode_fps_overrun"></span><span class="target" id="a00001_1aeac8e97927f5300a3cedd8d8916bfff1ae8acc6427bc88117f0b56415ff7a01e7"></span><code class="descname">iu456_error_mode_fps_overrun</code> = -8<a class="headerlink" href="#_CPPv228iu456_error_mode_fps_overrun" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Overrun of the mode fps. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv227iu456_error_invalid_rawdata">
+<span id="iu456_error_invalid_rawdata"></span><span class="target" id="a00001_1aeac8e97927f5300a3cedd8d8916bfff1afd76022e2ef44dca646d6ef6722c3808"></span><code class="descname">iu456_error_invalid_rawdata</code> = -9<a class="headerlink" href="#_CPPv227iu456_error_invalid_rawdata" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Invalid raw data. </p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="type">
+<dt id="_CPPv222iu456_property_state_t">
+<span id="iu456_property_state_t"></span><span class="target" id="a00001_1ad92649a58aca0d54b83e323cb72a7c54"></span><em class="property">enum </em><code class="descname">iu456_property_state_t</code><a class="headerlink" href="#_CPPv222iu456_property_state_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The state of a property. </p>
+<p><em>Values:</em></p>
+<dl class="member">
+<dt id="_CPPv229iu456_property_state_disabled">
+<span id="iu456_property_state_disabled"></span><span class="target" id="a00001_1ad92649a58aca0d54b83e323cb72a7c54a083ce9bd5a8ebc8b42b9062a60468dc8"></span><code class="descname">iu456_property_state_disabled</code> = 0<a class="headerlink" href="#_CPPv229iu456_property_state_disabled" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Disabled. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv228iu456_property_state_enabled">
+<span id="iu456_property_state_enabled"></span><span class="target" id="a00001_1ad92649a58aca0d54b83e323cb72a7c54a35b3db0944ea624abcd82388aaa944a0"></span><code class="descname">iu456_property_state_enabled</code> = 1<a class="headerlink" href="#_CPPv228iu456_property_state_enabled" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Enabled. </p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="type">
+<dt id="_CPPv220iu456_trigger_mode_t">
+<span id="iu456_trigger_mode_t"></span><span class="target" id="a00001_1ab03a8c76ec6323b9e573d6acb8f3a0ae"></span><em class="property">enum </em><code class="descname">iu456_trigger_mode_t</code><a class="headerlink" href="#_CPPv220iu456_trigger_mode_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The trigger mode of the sensor. </p>
+<p><em>Values:</em></p>
+<dl class="member">
+<dt id="_CPPv231iu456_trigger_mode_free_running">
+<span id="iu456_trigger_mode_free_running"></span><span class="target" id="a00001_1ab03a8c76ec6323b9e573d6acb8f3a0aea395dbaaa34e0c171a0e21be23a3a0573"></span><code class="descname">iu456_trigger_mode_free_running</code> = 0<a class="headerlink" href="#_CPPv231iu456_trigger_mode_free_running" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>the master timing generator is free running </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv239iu456_trigger_mode_externally_triggered">
+<span id="iu456_trigger_mode_externally_triggered"></span><span class="target" id="a00001_1ab03a8c76ec6323b9e573d6acb8f3a0aea19b7e3df0216330ef79d0ff7a0a3d232"></span><code class="descname">iu456_trigger_mode_externally_triggered</code> = 1<a class="headerlink" href="#_CPPv239iu456_trigger_mode_externally_triggered" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The master timing generator is triggered by a pin of the sensor chip. </p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="type">
+<dt id="_CPPv224iu456_trigger_sampling_t">
+<span id="iu456_trigger_sampling_t"></span><span class="target" id="a00001_1a8711640aaef2d07816b68dbe644f5475"></span><em class="property">enum </em><code class="descname">iu456_trigger_sampling_t</code><a class="headerlink" href="#_CPPv224iu456_trigger_sampling_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The type of sampling used when sensor is externally triggered. </p>
+<p><em>Values:</em></p>
+<dl class="member">
+<dt id="_CPPv233iu456_trigger_sampling_downsample">
+<span id="iu456_trigger_sampling_downsample"></span><span class="target" id="a00001_1a8711640aaef2d07816b68dbe644f5475ae89398756d408a17d58ebb97c9343fa9"></span><code class="descname">iu456_trigger_sampling_downsample</code> = 0<a class="headerlink" href="#_CPPv233iu456_trigger_sampling_downsample" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Downsample the trigger frequency. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv231iu456_trigger_sampling_upsample">
+<span id="iu456_trigger_sampling_upsample"></span><span class="target" id="a00001_1a8711640aaef2d07816b68dbe644f5475a7f0c65cd1eefcb718a89477170ca3e69"></span><code class="descname">iu456_trigger_sampling_upsample</code> = 1<a class="headerlink" href="#_CPPv231iu456_trigger_sampling_upsample" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Upsample the trigger frequency. </p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="type">
+<dt id="_CPPv227iu456_transformation_mode_t">
+<span id="iu456_transformation_mode_t"></span><span class="target" id="a00001_1a5ca902a1ed18a02a5012abab8c476222"></span><em class="property">enum </em><code class="descname">iu456_transformation_mode_t</code><a class="headerlink" href="#_CPPv227iu456_transformation_mode_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p><em>Values:</em></p>
+<dl class="member">
+<dt id="_CPPv233iu456_transformation_mode_default">
+<span id="iu456_transformation_mode_default"></span><span class="target" id="a00001_1a5ca902a1ed18a02a5012abab8c476222aeb6948326316556f8fafd832909993f2"></span><code class="descname">iu456_transformation_mode_default</code> = 0<a class="headerlink" href="#_CPPv233iu456_transformation_mode_default" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>No Transformation. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv234iu456_transformation_mode_mirror_h">
+<span id="iu456_transformation_mode_mirror_h"></span><span class="target" id="a00001_1a5ca902a1ed18a02a5012abab8c476222a57fc73ee408fc419e5174ab06b6302c1"></span><code class="descname">iu456_transformation_mode_mirror_h</code> = 1<a class="headerlink" href="#_CPPv234iu456_transformation_mode_mirror_h" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Mirror horizontally. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv234iu456_transformation_mode_mirror_v">
+<span id="iu456_transformation_mode_mirror_v"></span><span class="target" id="a00001_1a5ca902a1ed18a02a5012abab8c476222ad61e67bdede36cde23a00dd54185bc41"></span><code class="descname">iu456_transformation_mode_mirror_v</code> = 2<a class="headerlink" href="#_CPPv234iu456_transformation_mode_mirror_v" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Mirror vertically. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv230iu456_transformation_mode_flip">
+<span id="iu456_transformation_mode_flip"></span><span class="target" id="a00001_1a5ca902a1ed18a02a5012abab8c476222a50aae698e8af07521998e7801c311b6f"></span><code class="descname">iu456_transformation_mode_flip</code> = 3<a class="headerlink" href="#_CPPv230iu456_transformation_mode_flip" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Flip. </p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<dl class="class">
+<dt id="_CPPv221iu456_error_details_t">
+<span class="target" id="a00005"></span><em class="property">struct </em><code class="descname">iu456_error_details_t</code><a class="headerlink" href="#_CPPv221iu456_error_details_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><em>#include &lt;types.h&gt;</em><p>Error details object to provide additional information regarding an error. </p>
+<p><dl class="docutils">
+<dt><strong>Note</strong></dt>
+<dd>This type of object is client allocated and passed along to the API functions to obtain error details if desired. </dd>
+</dl>
+</p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="member">
+<dt id="_CPPv24code">
+<span id="code__iu456_error_t"></span><span class="target" id="a00005_1af2ea708e97b26c6e46f346cfe804ecc8"></span><a class="reference internal" href="#_CPPv213iu456_error_t" title="iu456_error_t">iu456_error_t</a> <code class="descname">code</code><a class="headerlink" href="#_CPPv24code" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Error code. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv27message">
+<span id="message__cCP"></span><span class="target" id="a00005_1a254bf0858da09c96a48daf64404eb4f8"></span><em class="property">const</em> char *<code class="descname">message</code><a class="headerlink" href="#_CPPv27message" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Error specific message. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv215iu456_version_t">
+<span class="target" id="a00006"></span><em class="property">struct </em><code class="descname">iu456_version_t</code><a class="headerlink" href="#_CPPv215iu456_version_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><em>#include &lt;types.h&gt;</em><p>Library version object to provide version information. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="member">
+<dt id="_CPPv25major">
+<span id="major__i"></span><span class="target" id="a00006_1ac8947941479c38403a09c14a60b03f01"></span>int <code class="descname">major</code><a class="headerlink" href="#_CPPv25major" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The major. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv25minor">
+<span id="minor__i"></span><span class="target" id="a00006_1aec7b96885baf2e6f10efbdef9d935a0b"></span>int <code class="descname">minor</code><a class="headerlink" href="#_CPPv25minor" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The minor. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv25patch">
+<span id="patch__i"></span><span class="target" id="a00006_1a48843924eb2b9ecec5a10291d3588966"></span>int <code class="descname">patch</code><a class="headerlink" href="#_CPPv25patch" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The patch. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv25stage">
+<span id="stage__cCP"></span><span class="target" id="a00006_1abc7bc3229343855e2fd2e6c0b48b233a"></span><em class="property">const</em> char *<code class="descname">stage</code><a class="headerlink" href="#_CPPv25stage" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The stage. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv214iu456_device_t">
+<span class="target" id="a00007"></span><em class="property">struct </em><code class="descname">iu456_device_t</code><a class="headerlink" href="#_CPPv214iu456_device_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><em>#include &lt;types.h&gt;</em><p>An object reprensenting a physical device. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="member">
+<dt id="_CPPv23vid">
+<span id="vid__i"></span><span class="target" id="a00007_1af1cae64e47ec410dab67cb572e4acd36"></span>int <code class="descname">vid</code><a class="headerlink" href="#_CPPv23vid" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The vendor id of the SSP-500. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv23pid">
+<span id="pid__i"></span><span class="target" id="a00007_1af500917c052066b40cf47f96b43c607b"></span>int <code class="descname">pid</code><a class="headerlink" href="#_CPPv23pid" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The product id of the SSP-500. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv28revision">
+<span id="revision__i"></span><span class="target" id="a00007_1a6b42544b6b9bc54463c81e7290141ab4"></span>int <code class="descname">revision</code><a class="headerlink" href="#_CPPv28revision" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The revision of the SSP-500. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv23prv">
+<span id="prv__i"></span><span class="target" id="a00007_1a0879821f36946a7707c2f2bc3e6f75b6"></span>int <code class="descname">prv</code><a class="headerlink" href="#_CPPv23prv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The PRV number of the module. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv213serial_number">
+<span id="serial_number__cCP"></span><span class="target" id="a00007_1a23109f77330eff26a715ac91ad376e40"></span><em class="property">const</em> char *<code class="descname">serial_number</code><a class="headerlink" href="#_CPPv213serial_number" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The serial number of the module. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv212control_path">
+<span id="control_path__cCP"></span><span class="target" id="a00007_1a37a50eaef6fe6da6a978d5d5d16cecca"></span><em class="property">const</em> char *<code class="descname">control_path</code><a class="headerlink" href="#_CPPv212control_path" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The path to the control interface on the host. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv211stream_path">
+<span id="stream_path__cCP"></span><span class="target" id="a00007_1a30c9a11d6c4a3c444f949e8138eeb544"></span><em class="property">const</em> char *<code class="descname">stream_path</code><a class="headerlink" href="#_CPPv211stream_path" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The path to the stream interface on the host. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv218iu456_intrinsics_t">
+<span class="target" id="a00011"></span><em class="property">struct </em><code class="descname">iu456_intrinsics_t</code><a class="headerlink" href="#_CPPv218iu456_intrinsics_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><em>#include &lt;types.h&gt;</em><p>An object reprensenting the lens model of the module. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="member">
+<dt id="_CPPv22fx">
+<span id="fx__float"></span><span class="target" id="a00011_1a3ebaeeb2af54ad4cb13f0fb25c78a639"></span>float <code class="descname">fx</code><a class="headerlink" href="#_CPPv22fx" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The focal length along the horizontal axis in pixel unit. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv22fy">
+<span id="fy__float"></span><span class="target" id="a00011_1a49e77bf673d6b57520e348f4e34df5e3"></span>float <code class="descname">fy</code><a class="headerlink" href="#_CPPv22fy" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The focal length along the vertical axis in pixel unit. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv22cx">
+<span id="cx__float"></span><span class="target" id="a00011_1a6067f2d853b5521ca0162bd2770da5cf"></span>float <code class="descname">cx</code><a class="headerlink" href="#_CPPv22cx" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The position of the central point along the horizontal axis. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv22cy">
+<span id="cy__float"></span><span class="target" id="a00011_1a6ac0a8c09e91acc33bc9b451a3d4bcab"></span>float <code class="descname">cy</code><a class="headerlink" href="#_CPPv22cy" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The position of the central point along the vertical axis. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv22k1">
+<span id="k1__float"></span><span class="target" id="a00011_1a1414fec601b89b592f3c5c21ae2f6d19"></span>float <code class="descname">k1</code><a class="headerlink" href="#_CPPv22k1" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The first radial distortion coefficient of the Brown-Conrady model. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv22k2">
+<span id="k2__float"></span><span class="target" id="a00011_1a3d0ed5cd804881f475c023cc7a8ae525"></span>float <code class="descname">k2</code><a class="headerlink" href="#_CPPv22k2" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The second radial distortion coefficient of the Brown-Conrady model. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv22k3">
+<span id="k3__float"></span><span class="target" id="a00011_1adc5653e60425fc42b91d1891987c2f4d"></span>float <code class="descname">k3</code><a class="headerlink" href="#_CPPv22k3" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The third radial distortion coefficient of the Brown-Conrady model. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv22p1">
+<span id="p1__float"></span><span class="target" id="a00011_1a37c96b33f506eef039e9bcfb6e591197"></span>float <code class="descname">p1</code><a class="headerlink" href="#_CPPv22p1" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The first tangential distortion coefficient of the Brown-Conrady model. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv22p2">
+<span id="p2__float"></span><span class="target" id="a00011_1aee2214de575f7c6752b0c76dcf1b7979"></span>float <code class="descname">p2</code><a class="headerlink" href="#_CPPv22p2" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The second tangential distortion coefficient of the Brown-Conrady model. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv226iu456_configuration_info_t">
+<span class="target" id="a00009"></span><em class="property">struct </em><code class="descname">iu456_configuration_info_t</code><a class="headerlink" href="#_CPPv226iu456_configuration_info_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><em>#include &lt;types.h&gt;</em><p>An object providing additional information of a mode. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="member">
+<dt id="_CPPv213is_calibrated">
+<span id="is_calibrated__b"></span><span class="target" id="a00009_1a0d373c021f952fd119ac0c50a9503623"></span>bool <code class="descname">is_calibrated</code><a class="headerlink" href="#_CPPv213is_calibrated" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Whether calibrated data is available in the device or not. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv23uid">
+<span id="uid__i"></span><span class="target" id="a00009_1a60a34315f460179939054acaf3ed8163"></span>int <code class="descname">uid</code><a class="headerlink" href="#_CPPv23uid" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The unique id of the configuration. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv25width">
+<span id="width__i"></span><span class="target" id="a00009_1a2474a5474cbff19523a51eb1de01cda4"></span>int <code class="descname">width</code><a class="headerlink" href="#_CPPv25width" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The width of the output maps. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv26height">
+<span id="height__i"></span><span class="target" id="a00009_1ad12fc34ce789bce6c8a05d8a17138534"></span>int <code class="descname">height</code><a class="headerlink" href="#_CPPv26height" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The height of the output maps. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv210frame_rate">
+<span id="frame_rate__float"></span><span class="target" id="a00009_1af600e5603e0f0b15dbc34f0b954f9239"></span>float <code class="descname">frame_rate</code><a class="headerlink" href="#_CPPv210frame_rate" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The expected rate at which frames are streamed. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv217unambiguous_range">
+<span id="unambiguous_range__float"></span><span class="target" id="a00009_1ad1a9824c106d5e97deb44a58926ac73a"></span>float <code class="descname">unambiguous_range</code><a class="headerlink" href="#_CPPv217unambiguous_range" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The unambiguous range. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv210intrinsics">
+<span id="intrinsics__iu456_intrinsics_tCP"></span><span class="target" id="a00009_1a059264baf47e5b6a0104fa37b06573dd"></span><em class="property">const</em> <em class="property">struct</em> <a class="reference internal" href="#_CPPv218iu456_intrinsics_t" title="iu456_intrinsics_t">iu456_intrinsics_t</a> *<code class="descname">intrinsics</code><a class="headerlink" href="#_CPPv210intrinsics" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The pinhole and Brown-Conrady model of the lens. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv24name">
+<span id="name__cCP"></span><span class="target" id="a00009_1a8f8f80d37794cde9472343e4487ba3eb"></span><em class="property">const</em> char *<code class="descname">name</code><a class="headerlink" href="#_CPPv24name" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The name of the mode. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv216iu456_raw_data_t">
+<span class="target" id="a00012"></span><em class="property">struct </em><code class="descname">iu456_raw_data_t</code><a class="headerlink" href="#_CPPv216iu456_raw_data_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><em>#include &lt;types.h&gt;</em><p>An object providing the data for a input raw data. </p>
+<p>This structure holds the pixel data and embedded data of the raw data separately. In the case that you have the data conforms to this structure, you can reduce the copying process for reordering by using this structure. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="member">
+<dt id="_CPPv210pixel_data">
+<span id="pixel_data__uint8_tP"></span><span class="target" id="a00012_1a19cee2372bd10380ca6adef3b9101c7b"></span>uint8_t *<code class="descname">pixel_data</code><a class="headerlink" href="#_CPPv210pixel_data" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>pixel data pointer </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv217pixel_data_length">
+<span id="pixel_data_length__s"></span><span class="target" id="a00012_1a80d25a248ca3cbd89c275d5db22a0ddc"></span>size_t <code class="descname">pixel_data_length</code><a class="headerlink" href="#_CPPv217pixel_data_length" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>pixel data length </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv28embedded">
+<span id="embedded__uint8_tP"></span><span class="target" id="a00012_1ac0b6acd3a715eb506e2614e4a9931ee4"></span>uint8_t *<code class="descname">embedded</code><a class="headerlink" href="#_CPPv28embedded" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>embedded data pointer </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv215embedded_length">
+<span id="embedded_length__s"></span><span class="target" id="a00012_1a82342d41c89586122a8a4852e062c24b"></span>size_t <code class="descname">embedded_length</code><a class="headerlink" href="#_CPPv215embedded_length" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>embedded data length </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv213iu456_frame_t">
+<span class="target" id="a00008"></span><em class="property">struct </em><code class="descname">iu456_frame_t</code><a class="headerlink" href="#_CPPv213iu456_frame_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><em>#include &lt;types.h&gt;</em><p>An object providing the data for a received frame. </p>
+<p>This structure holds the post processed depth and confidence as well as other meta data linked to the frame itself.</p>
+<p>The confidence map reflects the quality of the data at a given pixel. The greater this value is, the lesser noise the data will have.</p>
+<p>The depth map is the cartesian depth expressed in millimeters and uses values greater than 32000 to flag invalid values.</p>
+<p>The x and y pointers provides access to the first 2 cartesian coordinates. This means that when using (x, y, depth), one gets a list of 3d vertices in camera space. Note that x and y maps are optional (see <em><a class="reference internal" href="#a00002_1a5b80cdd3fbb3fc3429cb215dfe3952e5"><span class="std std-ref">iu456_set_x_and_y_property_state()</span></a></em>). When disabled, these 2 pointers will be set to nullptr. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="member">
+<dt id="_CPPv28frame_id">
+<span id="frame_id__int32_t"></span><span class="target" id="a00008_1a3c76c49917d70d798d922cbe578e6b6a"></span>int32_t <code class="descname">frame_id</code><a class="headerlink" href="#_CPPv28frame_id" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>A counter provided by the module. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv29timestamp">
+<span id="timestamp__int64_t"></span><span class="target" id="a00008_1a8a591d341723df9496cda98e225b25b4"></span>int64_t <code class="descname">timestamp</code><a class="headerlink" href="#_CPPv29timestamp" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The time in microseconds since an unspecified point in time at which the sample was received. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv218configuration_info">
+<span id="configuration_info__iu456_configuration_info_tCP"></span><span class="target" id="a00008_1a5f528e3b3efa31c390f1258588d2f5a6"></span><em class="property">const</em> <em class="property">struct</em> <a class="reference internal" href="#_CPPv226iu456_configuration_info_t" title="iu456_configuration_info_t">iu456_configuration_info_t</a> *<code class="descname">configuration_info</code><a class="headerlink" href="#_CPPv218configuration_info" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>A pointer to additional information about the mode that was used to capture this frame. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv23raw">
+<span id="raw__uint8_tCP"></span><span class="target" id="a00008_1a810012501c5d3f6bc84396b5fa27c743"></span><em class="property">const</em> uint8_t *<code class="descname">raw</code><a class="headerlink" href="#_CPPv23raw" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>An opaque pointer. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv210raw_length">
+<span id="raw_length__s"></span><span class="target" id="a00008_1a515f5f521d7360dbfd035afeaa95ab55"></span>size_t <code class="descname">raw_length</code><a class="headerlink" href="#_CPPv210raw_length" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The length of the raw array. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv210confidence">
+<span id="confidence__int16_tCP"></span><span class="target" id="a00008_1a3072fb34e36490f55dac5cff49303ad1"></span><em class="property">const</em> int16_t *<code class="descname">confidence</code><a class="headerlink" href="#_CPPv210confidence" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>A pointer to the confidence map. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv217confidence_length">
+<span id="confidence_length__s"></span><span class="target" id="a00008_1a5faa474de67b12d2e1f5c6c53363758f"></span>size_t <code class="descname">confidence_length</code><a class="headerlink" href="#_CPPv217confidence_length" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The number of elements in the confidence map array. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv25depth">
+<span id="depth__int16_tCP"></span><span class="target" id="a00008_1a84469c8303a77b7023f94194d910175c"></span><em class="property">const</em> int16_t *<code class="descname">depth</code><a class="headerlink" href="#_CPPv25depth" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>A pointer to the depth map in millimeters. The values greater than 32000 is used to flag invalid values as follows:<ul class="simple">
+<li>32001: Invalid pixels due to de-aliasing failure</li>
+<li>32002: Saturated pixels</li>
+<li>others: reserved </li>
+</ul>
+</p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv212depth_length">
+<span id="depth_length__s"></span><span class="target" id="a00008_1ae2c59de734ea7edcf5df007d34a44d95"></span>size_t <code class="descname">depth_length</code><a class="headerlink" href="#_CPPv212depth_length" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The number of elements in the depth map array. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv21x">
+<span id="x__int16_tCP"></span><span class="target" id="a00008_1a23be04415f17dabfe2b04d8147dead95"></span><em class="property">const</em> int16_t *<code class="descname">x</code><a class="headerlink" href="#_CPPv21x" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>A pointer to an array holding the cartesian position in millimeters of the pixel along the x axis. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv28x_length">
+<span id="x_length__s"></span><span class="target" id="a00008_1af308fb24265f7c20e861f2a10fa5bd06"></span>size_t <code class="descname">x_length</code><a class="headerlink" href="#_CPPv28x_length" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The number of elements in the x array. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv21y">
+<span id="y__int16_tCP"></span><span class="target" id="a00008_1a2dbe7f0145c15f8ee0c2a7ec7d1d2342"></span><em class="property">const</em> int16_t *<code class="descname">y</code><a class="headerlink" href="#_CPPv21y" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>A pointer to an array holding the cartesian position in millimeters of the pixel along the y axis. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv28y_length">
+<span id="y_length__s"></span><span class="target" id="a00008_1a4e6f92d03544df588e4e48d48b11414f"></span>size_t <code class="descname">y_length</code><a class="headerlink" href="#_CPPv28y_length" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The number of elements in the y array. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv211depth_float">
+<span id="depth_float__floatCP"></span><span class="target" id="a00008_1aefa277d8a4bae061bc83cf808a4b1e5a"></span><em class="property">const</em> float *<code class="descname">depth_float</code><a class="headerlink" href="#_CPPv211depth_float" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>A pointer to the depth map in millimeters (float type). The values greater than 32000 is used to flag invalid values as follows:<ul class="simple">
+<li>32001: Invalid pixels due to de-aliasing failure</li>
+<li>32002: Saturated pixels</li>
+<li>others: reserved </li>
+</ul>
+</p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv218depth_float_length">
+<span id="depth_float_length__s"></span><span class="target" id="a00008_1ab7275c12c96c5af9bc4363ccba7abc62"></span>size_t <code class="descname">depth_float_length</code><a class="headerlink" href="#_CPPv218depth_float_length" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The number of elements in the depth map array. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv27x_float">
+<span id="x_float__floatCP"></span><span class="target" id="a00008_1a38f4e606e3402f199655c4c68b6be28e"></span><em class="property">const</em> float *<code class="descname">x_float</code><a class="headerlink" href="#_CPPv27x_float" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>A pointer to an array holding the cartesian position in millimeters of the pixel along the x axis(float type) </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv214x_float_length">
+<span id="x_float_length__s"></span><span class="target" id="a00008_1ae5f43731203df66d3a127e02cf42d20b"></span>size_t <code class="descname">x_float_length</code><a class="headerlink" href="#_CPPv214x_float_length" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The number of elements in the x_float array. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv27y_float">
+<span id="y_float__floatCP"></span><span class="target" id="a00008_1ace599413414980c5a1de5d053a2530e0"></span><em class="property">const</em> float *<code class="descname">y_float</code><a class="headerlink" href="#_CPPv27y_float" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>A pointer to an array holding the cartesian position in millimeters of the pixel along the y axis(float type) </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv214y_float_length">
+<span id="y_float_length__s"></span><span class="target" id="a00008_1a22f5a7d1b37074ca42843012c2ab35e4"></span>size_t <code class="descname">y_float_length</code><a class="headerlink" href="#_CPPv214y_float_length" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The number of elements in the y_float array. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv217laser_temperature">
+<span id="laser_temperature__float"></span><span class="target" id="a00008_1af24b5aac2a44e9d46bc48392bb899dc0"></span>float <code class="descname">laser_temperature</code><a class="headerlink" href="#_CPPv217laser_temperature" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The laser temperature in celsius, acquire the temperature from the top component of the frame. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv28exposure">
+<span id="exposure__i"></span><span class="target" id="a00008_1ad0f6e250d16eec5bd6b5b1ea35d916cb"></span>int <code class="descname">exposure</code><a class="headerlink" href="#_CPPv28exposure" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The exposure time in microseconds. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv217low_accuracy_data">
+<span id="low_accuracy_data__b"></span><span class="target" id="a00008_1a4587123863b0bd264e56f702ce67378a"></span>bool <code class="descname">low_accuracy_data</code><a class="headerlink" href="#_CPPv217low_accuracy_data" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Whether the data were acquired with an out of spec temperature. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv218sensor_temperature">
+<span id="sensor_temperature__float"></span><span class="target" id="a00008_1a7bc6a6abdd9e53086a9233f50f91d220"></span>float <code class="descname">sensor_temperature</code><a class="headerlink" href="#_CPPv218sensor_temperature" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The sensor temperature in celsius, the temperature is average of all components of the frame. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv222error_information_type">
+<span id="error_information_type__uint32_t"></span><span class="target" id="a00008_1a759d0840d73b23d443e2e0bc02982c13"></span>uint32_t <code class="descname">error_information_type</code><a class="headerlink" href="#_CPPv222error_information_type" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The datatype of error information field<ul class="simple">
+<li>0x00: none</li>
+<li>0x01: ErrorMonitor for CXA4016/S6674</li>
+<li>0x02: ErrorMonitor1 for CXA4026</li>
+<li>0x03: ErrorMonitor2 for CXA4026</li>
+<li>0x10: APC2_CHECK_DATA[9:8], APC1_CHECK_DATA[9:8], PD_H2[9:8]</li>
+<li>0x11: APC2_CHECK_DATA[7:0] </li>
+</ul>
+</p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv217error_information">
+<span id="error_information__uint32_t"></span><span class="target" id="a00008_1ad57a128ac9bb6b39a90ac08564d61100"></span>uint32_t <code class="descname">error_information</code><a class="headerlink" href="#_CPPv217error_information" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The error information, it’s format depend on the error_information_type. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../../hardware_failure_handling.html" class="btn btn-neutral float-right" title="Hardware failure handling">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="sample.html" class="btn btn-neutral" title="Sample"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright  2018 Sony Semiconductor Solutions Corporation.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.5',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

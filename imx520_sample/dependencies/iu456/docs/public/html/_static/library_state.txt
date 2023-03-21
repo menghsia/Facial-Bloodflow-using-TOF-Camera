@@ -1,0 +1,25 @@
+@startuml
+hide empty description
+
+[*] --> INITIALIZED: iu456_initialize()
+[*] --> INITIALIZED: iu456_initialize_with_device_property()
+INITIALIZED --> [*]: iu456_iu456_shutdown()
+
+INITIALIZED --> STANDBY: iu456_create()
+STANDBY --> INITIALIZED: iu456_destroy()
+
+STANDBY --> STREAMING: iu456_start()
+STREAMING --> STANDBY: iu456_stop()
+
+' In case of the device has disconnected.
+STREAMING --> DEVICE_DISCONNECTED_IN_STREAMING: [device disconnect]
+STANDBY --> DEVICE_DISCONNECTED_IN_STANDBY: [device disconnect]
+DEVICE_DISCONNECTED_IN_STREAMING --> DEVICE_DISCONNECTED_IN_STANDBY: iu456_stop()
+DEVICE_DISCONNECTED_IN_STANDBY --> INITIALIZED: iu456_destroy()
+
+' In case of the detected hardware failure.
+STREAMING --> DETECTED_HARDWARE_FAILURE: [hardware failure]
+DETECTED_HARDWARE_FAILURE --> STANDBY: iu456_stop()
+
+
+@enduml

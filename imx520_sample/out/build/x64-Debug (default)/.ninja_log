@@ -1,0 +1,22 @@
+# ninja log v5
+1	1237	6794490566863805	CMakeFiles/imx520_sample.dir/sources/main.cpp.obj	1d979c43e9f46644
+0	7	0	clean	8c45b54705a541e8
+2	479	6782363939534969	../../../.build/output/imx520_sample.exe	6dcb11f421ea241c
+1	224	6795130605181442	build.ninja	dfdc424a9a940b63
+2	224	6795130605181442	build.ninja	dfdc424a9a940b63
+1	1711	6795148326847025	CMakeFiles/imx520_sample.dir/sources/main.cpp.obj	1d979c43e9f46644
+1712	2368	6795148330038426	../../../.build/output/imx520_sample.exe	9ab8e0df0d302d33
+0	8	0	clean	ca20ad35778315c3
+1	1197	6795153201295473	CMakeFiles/imx520_sample.dir/sources/main.cpp.obj	1d979c43e9f46644
+1198	1457	6795153202448235	../../../.build/output/imx520_sample.exe	9ab8e0df0d302d33
+0	12	0	clean	ca20ad35778315c3
+1	1207	6795159121493905	CMakeFiles/imx520_sample.dir/sources/main.cpp.obj	1d979c43e9f46644
+1208	1473	6795159122755608	../../../.build/output/imx520_sample.exe	9ab8e0df0d302d33
+0	12	0	clean	ca20ad35778315c3
+1	1442	6795176552180004	CMakeFiles/imx520_sample.dir/sources/main.cpp.obj	1d979c43e9f46644
+1443	1708	6795176553300715	../../../.build/output/imx520_sample.exe	9ab8e0df0d302d33
+2	1660	6795235938422541	CMakeFiles/imx520_sample.dir/sources/main.cpp.obj	1d979c43e9f46644
+1	495	6795236537378518	../../../.build/output/imx520_sample.exe	9ab8e0df0d302d33
+2	1587	6796256369687502	CMakeFiles/imx520_sample.dir/sources/main.cpp.obj	1d979c43e9f46644
+2	990	6796256457918015	CMakeFiles/imx520_sample.dir/sources/main.cpp.obj	1d979c43e9f46644
+2	775	6796257073675338	../../../.build/output/imx520_sample.exe	9ab8e0df0d302d33

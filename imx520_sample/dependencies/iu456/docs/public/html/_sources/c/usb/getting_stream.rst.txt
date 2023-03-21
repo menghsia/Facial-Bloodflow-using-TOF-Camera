@@ -1,0 +1,124 @@
+Getting the stream out of the device
+====================================
+
+The `iu456_frame_t*` object allows to retrieve a number of information:
+
+* `frame_id`: the frame id.
+* `timestamp`: the time stamp at which the frame was captured expressed in microseconds since some unspecified starting point.
+* `configuration_info`: a pointer to a `iu456_configuration_info_t` object holding some information about the current mode in use.
+* `raw`: a pointer to a uint8_t array holding the raw data received from the sensor.
+* `raw_length`: the number of elements in the `raw` buffer.
+* `confidence`: a pointer to an int16_t array holding the confidence map.
+* `confidence_length`: the number of elements in the `confidence` buffer.
+* `depth`: a pointer to an int16_t array holding the depth map.
+* `depth_length`: the number of elements in the `depth` buffer.
+* `x`: a pointer to an int16_t array holding the x map.
+* `x_length`: the number of elements in the `x` buffer.
+* `y`: a pointer to an int16_t array holding the y map.
+* `y_length`: the number of elements in the `y` buffer.
+* `depth_float`: a pointer to an float array holding the depth map.
+* `depth_float_length`: the number of elements in the `depth_float` buffer.
+* `x_float`: a pointer to an float array holding the x map.
+* `x_float_length`: the number of elements in the `x_float` buffer.
+* `y_float`: a pointer to an float array holding the y map.
+* `y_float_length`: the number of elements in the `y_float` buffer.
+* `laser_temperature`: the laser temperature expressed in celsius degrees.
+* `exposure`: the exposure time in microseconds.  
+* `low_accuracy_data`: whether the data have been acquired with a temperature out of specifications.
+* `sensor_temperature`: The sensor temperature expressed in celsius.
+* `error_information_type`: The datatype of error information field (0:none, 1:KLDD).
+* `error_information`: The error information, it's format depend on the error_information_type.
+
+By default, it outpus the depth, x and y as both int and float precision.
+You can disable the each one by following APIs, if you don't need. The disabled length indicates 0.
+
+* iu456_set_int16_depth_calculation
+* iu456_set_float_depth_calculation
+
+Code sample
+-----------
+
+.. warning:: The `iu456_start` and `iu456_stop` functions must be called from the same thread.
+
+.. code-block:: c
+    :linenos:
+
+
+    #include <iostream>
+
+    #include "iu456/iu456.h"
+
+    int main()
+    {
+        iu456_error_details_t error_details;
+
+        if (!iu456_initialize(nullptr, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed initialize library: " << error_details.message << std::endl;
+            return -1;
+        }
+
+        iu456_handle_t* handle = nullptr;
+
+        if (!iu456_create(&handle, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed to initialize device: " << error_details.message << std::endl;
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        std::cout << "Starting stream" << std::endl;
+        if (!iu456_start(handle, &error_details))
+        {
+            std::cerr << "Failed to start stream: " << error_details.message << std::endl;
+            iu456_destroy(handle, &error_details);
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        int counter = 0;
+        const iu456_frame_t* frame_data = nullptr;
+        while (counter < 25)
+        {
+            if (iu456_get_last_frame(handle, &frame_data, -1, &error_details))
+            {
+                std::cout << "Received frame " << counter << " with timestamp: " << frame_data->timestamp;
+                if (frame_data->configuration_info)
+                {
+                    std::cout << " with uid: 0x" << std::hex << frame_data->configuration_info->uid << std::dec << std::endl;
+                }
+                else
+                {
+                    std::cout << std::endl;
+                }
+                counter++;
+            }
+            else
+            {
+                if (error_details.code == iu456_error_timeout)
+                {
+                    std::cout << "Timeout" << std::endl;
+                    break;
+                }
+                else
+                {
+                    std::cout << error_details.message << std::endl;
+                    break;
+                }
+            }
+        }
+
+        if (!iu456_stop(handle, &error_details))
+        {
+            std::cerr << "Failed to stop stream: " << error_details.message << std::endl;
+            iu456_destroy(handle, &error_details);
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        iu456_destroy(handle, &error_details);
+        iu456_shutdown(&error_details);
+
+        return 0;
+    }
+

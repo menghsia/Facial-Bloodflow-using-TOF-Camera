@@ -1,0 +1,196 @@
+Adjustable frame rate
+=====================
+
+The latest hardware allows the user to control the frame rate at which a mode
+is running at. This allows the user to control the power consumption without
+affecting the quality of the data since only the frame dead time is adjusted.
+
+The frame rate can be adjusted to a value between approximately 4 FPS and the
+nominal frame rate of the mode.
+
+.. note:: Modes running nominally at less than 2 FPS cannot benefit from this
+    feature. This is because these modes are using a trigger mode incompatible
+    with this feature.
+
+The library allows the following operations:
+
+* To define the default frame rate for each mode.
+* To get the valid range for the frame rate for each mode.
+* To dynamically change the frame rate while the device is streaming.
+
+.. note:: Only one change is allowed between 2 consecutive frames. This is to
+    ensure the state of the device is correctly tracked.
+
+.. warning:: This functionality is only available for maintained hardware.
+    See :ref:`supported_hardware` section.
+
+
+Updating the default frame rate for a given mode
+-------------------------------------------------
+
+.. code-block:: c
+    :linenos:
+
+
+    #include <iostream>
+
+    #include "iu456/iu456.h"
+
+    int main()
+    {
+        iu456_error_details_t error_details;
+
+        if (!iu456_initialize(nullptr, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed initialize library: " << error_details.message << std::endl;
+            return -1;
+        }
+
+        iu456_handle_t* handle = nullptr;
+
+        if (!iu456_create(&handle, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed to initialize device: " << error_details.message << std::endl;
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        // Get the currently selected mode
+        // This is done just to have a valid mode to play with
+        const iu456_configuration_info_t* current_configuration = nullptr;
+        if (!iu456_get_current_configuration(handle, &current_configuration, &error_details))
+        {
+            std::cerr << "Failed to get current configuration" << std::endl;
+            iu456_destroy(handle, &error_details);
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        // Try to set the default frame rate to 10FPS
+        float desired = 10.0f;
+        if (!iu456_update_default_frame_rate(handle, current_configuration->uid, desired, &error_details))
+        {
+            std::cerr << "Failed to update default frame rate" << std::endl;
+            // Get the valid range
+            float minimum = 0.0f;
+            float maximum = 0.0f;
+            if (!iu456_get_frame_rate_range(handle, current_configuration->uid, &minimum, &maximum, &error_details))
+            {
+                std::cerr << "Failed to get frame rate range" << std::endl;
+            }
+            else
+            {
+                std::cerr << "Valid range is [" << minimum << ", " << maximum << "]" << std::endl;
+            }
+            iu456_destroy(handle, &error_details);
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        iu456_destroy(handle, &error_details);
+        iu456_shutdown(&error_details);
+
+        return 0;
+    }
+
+
+Adjusting dynamically the frame rate
+------------------------------------
+
+.. code-block:: c
+    :linenos:
+
+
+    #include <iostream>
+
+    #include "iu456/iu456.h"
+
+    int main()
+    {
+        iu456_error_details_t error_details;
+
+        if (!iu456_initialize(nullptr, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed initialize library: " << error_details.message << std::endl;
+            return -1;
+        }
+
+        iu456_handle_t* handle = nullptr;
+
+        if (!iu456_create(&handle, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed to initialize device: " << error_details.message << std::endl;
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        std::cout << "Starting stream" << std::endl;
+        if (!iu456_start(handle, &error_details))
+        {
+            std::cerr << "Failed to start stream: " << error_details.message << std::endl;
+            iu456_destroy(handle, &error_details);
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        int counter = 0;
+        const iu456_frame_t* frame_data = nullptr;
+        while (counter < 100)
+        {
+            if (!iu456_get_last_frame(handle, &frame_data, -1, &error_details))
+            {
+                // Break if we encounter any error
+                break;
+            }
+
+            // Change the frame rate to 4 FPS when we have
+            // captured 50 frames
+            if (counter == 50)
+            {
+                const iu456_configuration_info_t* current_configuration = nullptr;
+                if (!iu456_get_current_configuration(handle, &current_configuration, &error_details))
+                {
+                    std::cerr << "Failed to get current configuration" << std::endl;
+                    iu456_destroy(handle, &error_details);
+                    iu456_shutdown(&error_details);
+                    return -1;
+                }
+
+                float desired = 4.0f;
+                if (!iu456_set_frame_rate(handle, desired, &error_details))
+                {
+                    std::cerr << "Failed to set frame rate" << std::endl;
+                    // Get the valid range
+                    float minimum = 0.0f;
+                    float maximum = 0.0f;
+                    if (!iu456_get_frame_rate_range(handle, current_configuration->uid, &minimum, &maximum, &error_details))
+                    {
+                        std::cerr << "Failed to get frame rate range" << std::endl;
+                    }
+                    else
+                    {
+                        std::cerr << "Valid range is [" << minimum << ", " << maximum << "]" << std::endl;
+                    }
+                    iu456_destroy(handle, &error_details);
+                    iu456_shutdown(&error_details);
+                    return -1;
+                }
+            }
+            counter++;
+        }
+
+        if (!iu456_stop(handle, &error_details))
+        {
+            std::cerr << "Failed to stop stream: " << error_details.message << std::endl;
+            iu456_destroy(handle, &error_details);
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        iu456_destroy(handle, &error_details);
+        iu456_shutdown(&error_details);
+
+        return 0;
+    }
+
+

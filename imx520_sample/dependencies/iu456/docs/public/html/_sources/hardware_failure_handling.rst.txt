@@ -1,0 +1,52 @@
+.. _hardware_failure_handling:
+
+
+Hardware failure handling
+=========================
+
+Overview
+--------
+
+We try to address 2 types of situations:
+
+* The module is operational in a specific range of temperatures [-10, 75 degrees](IMX456) / [-10, 95 degrees](IMX316) / [-10, 100 degrees](IMX516).
+  If the laser temperature is outside this range, the module will be powered down and the user
+  notified that the module is running outside the operational range.
+* To prevent unsupervised run of the module in case of hardware failure, we want to apply the
+  same recipe as above in the case no frame is received after some time. Here
+  we assume that in the case of hardware failure, the streaming will be impacted and thus detecting
+  a streaming failure is likely to catch most of the hardware failures.
+
+.. note::
+	The only way to recover from an emergency shutdown event is to restart the client application.
+
+
+Streaming failure
+-----------------
+
+In order to detect streaming failures, the library uses a timeout of 10 seconds. This assumes that no
+module configuration will stream at a rate lower than 1FPS.
+
+If the timeout is reached, the library calls the emergency shutdown function and stops
+fetching data from the device. The error is propagated to the end user via the get_last_frame function.
+
+
+Laser temperature outside operational range
+-------------------------------------------
+
+In this context we want to check whether the laser temperature remains within the operational range
+of the module.
+
+This check is done once the laser temperature measurements become stable, i.e. about 200ms after the
+streaming has been started.
+
+If the laser temperature is outside the operational range, the device is powered down and the user
+notified in the same way as the streaming failure case.
+
+
+Laser temperature outside spec range
+------------------------------------
+
+This check is performed in the same way as above. The only difference is that the device operation
+is not interrupted and the `low_accuracy_data` flag is just set in the meta data. This information
+is propagated to the end user via the `iu456_frame_data_t` object.

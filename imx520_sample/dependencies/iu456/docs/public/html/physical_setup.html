@@ -1,0 +1,357 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Physical setup &mdash; IU456 Library 1.5 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="IU456 Library 1.5 documentation" href="index.html"/>
+        <link rel="next" title="Installing the library" href="install.html"/>
+        <link rel="prev" title="Library Overview" href="overview.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="index.html" class="fa fa-home"> IU456 Library</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Library Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#main-features">Main features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#minimum-requirements">Minimum requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#concurrent-access">Concurrent access</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Physical setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#imx456">IMX456</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#imx316">IMX316</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#imx516">IMX516</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ssp-500-dip-sw-setting">SSP-500 DIP SW setting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#microsd-memory-card">microSD memory card</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usb-3-0">USB 3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#power-supply">Power supply</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing the library</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="install.html#windows">Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install.html#imx456-imx316-imx516-sony-mini-kit">IMX456/IMX316/IMX516 Sony Mini-Kit</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="output_format.html">Output formats and units</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="output_format.html#the-unambiguous-range">The unambiguous range</a></li>
+<li class="toctree-l2"><a class="reference internal" href="output_format.html#the-coordinate-system">The coordinate system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="output_format.html#the-depth-map">The depth map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="output_format.html#the-x-and-y-maps">The <cite>x</cite> and <cite>y</cite> maps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="output_format.html#the-confidence-map">The confidence map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="output_format.html#the-lens-intrinsics">The lens intrinsics</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="c.html">C API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/state_of_library.html">State of the library</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/initializing_library.html">Library initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/enumerating_devices.html">Enumerating devices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/instantiating.html">Instantiating a camera</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/device_information.html">Getting device information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/interacting_with_configurations.html">Interacting with available configurations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/getting_stream.html">Getting the stream out of the device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/device_removal_notification.html">Getting device removal notification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/filtering.html">Depth filtering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/adjustable_frame_rate.html">Adjustable frame rate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/adjustable_exposure_time.html">Adjustable exposure time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/getting_raw_calibration.html">Getting the raw calibration data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/building_the_sample.html">Building the sample</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/sample.html">Sample</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/api_reference.html">API Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_failure_handling.html">Hardware failure handling</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hardware_failure_handling.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hardware_failure_handling.html#streaming-failure">Streaming failure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hardware_failure_handling.html#laser-temperature-outside-operational-range">Laser temperature outside operational range</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hardware_failure_handling.html#laser-temperature-outside-spec-range">Laser temperature outside spec range</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="known_limitations.html">Known Limitations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="known_limitations.html#streaming">Streaming</a></li>
+<li class="toctree-l2"><a class="reference internal" href="known_limitations.html#stability">Stability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="known_limitations.html#api">API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="known_limitations.html#feature-dependence">Feature dependence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="known_limitations.html#hardware-dependence">Hardware dependence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="known_limitations.html#mode-dependence">Mode dependence</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="supported_hardware.html">Supported hardware</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="supported_hardware.html#imx456-es1-sony-mini-kit">IMX456 (ES1) Sony Mini-Kit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="supported_hardware.html#imx456-es2-sony-mini-kit">IMX456 (ES2) Sony Mini-Kit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="supported_hardware.html#imx316-sony-mini-kit">IMX316 Sony Mini-Kit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="supported_hardware.html#imx516-sony-mini-kit">IMX516 Sony Mini-Kit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="supported_hardware.html#imx456es2-modules-for-automotive-mx519-mx520">IMX456ES2 modules for AutoMotive(MX519/MX520)</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">IU456 Library</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Physical setup</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="_sources/physical_setup.rst.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="physical-setup">
+<h1>Physical setup<a class="headerlink" href="#physical-setup" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="imx456">
+<h2>IMX456<a class="headerlink" href="#imx456" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="single-illuminator">
+<h3>Single illuminator<a class="headerlink" href="#single-illuminator" title="Permalink to this headline">¶</a></h3>
+<img alt="IMX456_board" class="align-center" src="_images/board.png" />
+</div>
+<div class="section" id="four-illuminators">
+<h3>Four illuminators<a class="headerlink" href="#four-illuminators" title="Permalink to this headline">¶</a></h3>
+<img alt="IMX456_4l_board" class="align-center" src="_images/board_IMX456_4l.PNG" />
+</div>
+<div class="section" id="ssp-500">
+<h3>SSP-500<a class="headerlink" href="#ssp-500" title="Permalink to this headline">¶</a></h3>
+<img alt="IMX456_board_2" class="align-center" src="_images/led_dipsw.png" />
+</div>
+</div>
+<div class="section" id="imx316">
+<h2>IMX316<a class="headerlink" href="#imx316" title="Permalink to this headline">¶</a></h2>
+<img alt="IMX316_board" class="align-center" src="_images/board_IMX316.png" />
+</div>
+<div class="section" id="imx516">
+<h2>IMX516<a class="headerlink" href="#imx516" title="Permalink to this headline">¶</a></h2>
+<img alt="IMX516_board" class="align-center" src="_images/board_IMX516.png" />
+</div>
+<div class="section" id="ssp-500-dip-sw-setting">
+<h2>SSP-500 DIP SW setting<a class="headerlink" href="#ssp-500-dip-sw-setting" title="Permalink to this headline">¶</a></h2>
+<p>Change the DIPSW as the followng below.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="40%" />
+<col width="60%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>DIPSW=0x00-0x03</td>
+<td>are sample settings</td>
+</tr>
+<tr class="row-even"><td>DIPSW=0x04</td>
+<td>is configure for IMX456</td>
+</tr>
+<tr class="row-odd"><td>DIPSW=0x05</td>
+<td>is configure for IMX316</td>
+</tr>
+<tr class="row-even"><td>DIPSW=0x06, 0x07</td>
+<td>No Sensor configure</td>
+</tr>
+<tr class="row-odd"><td>DIPSW=0x08</td>
+<td>is configure for IMX516</td>
+</tr>
+<tr class="row-even"><td>DIPSW=0x09-0x15</td>
+<td>No Sensor configure</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="microsd-memory-card">
+<h2>microSD memory card<a class="headerlink" href="#microsd-memory-card" title="Permalink to this headline">¶</a></h2>
+<p>The configuration files for SSP-500 are loaded from the microSD memory card.
+Insert the microSD memory card into the connector.</p>
+</div>
+<div class="section" id="usb-3-0">
+<h2>USB 3.0<a class="headerlink" href="#usb-3-0" title="Permalink to this headline">¶</a></h2>
+<p>The IMX456/IMX316/IMX516 Sony Mini-Kit can be tested on any platform having USB 3.0 connectivity.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The micro USB port is reserved for future use and hence cannot be used to connect the device on a host at the moment.</p>
+</div>
+<ul>
+<li><p class="first">How to connect the board on the host</p>
+<blockquote>
+<div><p>To connect the board to the host, connect the data cable the host USB3.0 port.</p>
+</div></blockquote>
+</li>
+<li><p class="first">How to disconnect the board from the host</p>
+<blockquote>
+<div><p>To safely disconnect the board from the host, unplug the data cable from the USB3.0 port.</p>
+</div></blockquote>
+</li>
+</ul>
+</div>
+<div class="section" id="power-supply">
+<h2>Power supply<a class="headerlink" href="#power-supply" title="Permalink to this headline">¶</a></h2>
+<p>The IMX456/IMX316/IMX516 Sony Mini-Kit needs a AC adapter for the power supply.</p>
+<p>AC adapter input/output specifications:</p>
+<div class="section" id="id1">
+<h3>IMX456<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id2">
+<h4>Single illuminator<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><ul class="simple">
+<li>INPUT : AC100 - 240 V, 50/60 Hz, 0.6 A</li>
+<li>OUTPUT: DC12 V, 2 A</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="id3">
+<h4>Four illuminators<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><ul class="simple">
+<li>INPUT : AC100 - 240 V, 50/60 Hz, 0.6 A</li>
+<li>OUTPUT: DC12 V, 5 A</li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="imx316-imx516">
+<h3>IMX316/IMX516<a class="headerlink" href="#imx316-imx516" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li>INPUT : AC100 - 240 V, 50/60 Hz, 0.75 - 0.4 A</li>
+<li>OUTPUT: DC12 V, 3 A</li>
+</ul>
+</div></blockquote>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">When power is supplied , The LED[0] is flashing. After the configuration is completed , the LED stop flashing.The configuration takes for about 40 seconds.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="install.html" class="btn btn-neutral float-right" title="Installing the library">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="overview.html" class="btn btn-neutral" title="Library Overview"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright  2018 Sony Semiconductor Solutions Corporation.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.5',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,7 @@
+State,Descrition
+INITIALIZED,The library has been initialized.
+STANDBY,A device object handle has been constructed and the device has not been in a streaming state.
+STREAMING,The device is in a streaming state.
+DEVICE_DISCONNECTED_IN_STANDBY,The library detects that the device has been disconnected in the STANDBY status.
+DEVICE_DISCONNECTED_IN_STREAMING,The library detects that the device has been disconnected in the STREAMING status.
+DETECTED_HARDWARE_FAILURE,The library detects the hardware failure.

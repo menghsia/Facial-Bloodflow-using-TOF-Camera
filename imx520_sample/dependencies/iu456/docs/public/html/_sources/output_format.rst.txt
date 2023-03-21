@@ -1,0 +1,69 @@
+Output formats and units
+========================
+
+The unambiguous range
+---------------------
+
+The unambiguous range is given in meters. This is the distance after which the depth will wrap around. The unambiguous range depends on the configuration being used.
+
+The coordinate system
+---------------------
+
+The iu456 library is using a Right handed coordinate system:
+
+* The `+Z` points in the direction of the camera's optical axis
+* The `+X` points towards the right of the camera
+* The `+Y` points towards the bottom of the camera
+
+.. image:: _static/coordinate_system.png
+    :align: center
+    :alt: The iu456 library coordinate system
+
+The depth map
+-------------
+
+The depth map holds the cartesian depth in millimeters for each pixel of the image.
+
+.. note:: Values above 32000 millimeters are used to flag invalid pixels such as saturated pixels.
+
+The `x` and `y` maps
+--------------------
+
+The `x` and `y` maps hold respectively the cartesian x and cartesian y expressed in millimeters.
+
+.. note:: Invalid pixels will be assigned a value of 0 for both `x` and `y`. Hence to know whether a specific value is a legitimate (0,0) or not, the depth map must be checked.
+
+
+The confidence map
+------------------
+
+The confidence map holds the L1 norm of the Time of flight signal. This value is guaranteed to be positive.
+
+.. note:: In the case of saturated pixels, the confidence will be set to 0.
+
+
+The lens intrinsics
+-------------------
+
+The library is using both a `pinhole model <https://en.wikipedia.org/wiki/Pinhole_camera_model>`_ and the `Brown-Conrady model <https://en.wikipedia.org/wiki/Distortion_(optics)>`_ to convert radial depth to cartesian depth.
+
+
+Pinhole model parameters
+************************
+
+The library exposes the following parameters of the pinhole model used internally:
+
+* fx: the focal length in pixel unit along the x axis
+* fy: the focal length in pixel unit along the y axis
+* cx: the central point location within the frame in pixel unit along the x axis
+* cy: the central point location within the frame in pixel unit along the y axis
+
+
+Brown-Conrady model parameters
+******************************
+
+The library exposes the following parameters of the Brown-Conrady model used internally:
+
+* k1, k2, k3: respectively the first, second and third radial distortion coefficients
+* p1, p2: respectively the first and second tangential distortion coefficients
+

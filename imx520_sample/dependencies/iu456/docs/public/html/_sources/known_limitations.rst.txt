@@ -1,0 +1,144 @@
+Known Limitations
+=================
+
+Streaming
+---------
+
+* The depth value fluctuates during the first few frames.
+* In the `multi integtime` mode which is set the diference integration time for each micro frame , the integraiton time cannot be changed by set_exposure_time().
+
+Stability
+---------
+
+* The device may not be stable and a problem may occur such as the failure to start stream. Once this happens, the device should be turned off the power and on.
+
+* When the device is in standby mode, using the iu456_get_last_frame with an infinite timeout may return a timeout error whenever iu456_stop or iu456_set_configuration_uid is called.
+
+* The only way to recover from an emergency shutdown of the module (for example if the laser temperature reaches the maximum tolerated value) is to restart the client application.
+
+* In the unlikely event that the device stops sending data while in stream state, a deadlock may occur if one uses an infinite timeout in the iu456_get_last_frame function and tries to stop the streaming.
+
+* If the emergency shutdown is called when the mode is being changed (called iu456_set_configuration_uid function) while in the stream state, the following problems may occur.
+ * The iu456_set_configuration_uid function returns True even though the execution has finished in failure.
+ * The camera stops the stream due to emergency shutdown and will restart after that.
+ * The camera will not stop the stream even though the iu456_stop function is called. To stop the stream, call functions as following steps.
+  * Call the iu456_stop.
+  * Call the iu456_start.
+  * Call the iu456_stop again.
+
+API
+---
+
+The unsupported APls
+********************
+
+If the unsupported API is called , the API always returns an error.( iu456_error_generic = -1 )
+The following APIs are not supported.
+
+* `iu456_get_trigger_factor_range()`
+* `iu456_get_trigger_delay_range()`
+* `iu456_get_uid_for_mode()`
+* `iu456_update_default_exposure_time()`
+* `iu456_update_default_trigger_delay()`
+* `iu456_update_default_trigger_factor()`
+* `iu456_update_default_trigger_mode()`
+
+The Windows only supported APl
+********************
+
+The following API work Windows platform. On other platform, the API always returns an error.( iu456_error_generic = -1 )
+
+* `iu456_initialize_with_device_property()`
+
+The API that doesn't work
+*************************
+
+The following API does not work. It returens a invalid value or nothing.
+
+* `iu456_update_default_frame_rate()`
+
+The return values of API
+*************************
+
+* iu456_frame_t.depth,x,y ... There is an error of up to 1.5 mm with the value of each float member.(ex: depth_float)
+
+Feature dependence
+-------------------
+
+Auto Exposure
+********************
+* The overshoot/undershoot may occur.
+* It is necessary for 2 frames to feedback in some modes (EE0C and 5Exx).
+
+SW binning
+********************
+* iu456_get_configuration_list ... The width and height 'configuration_info_t` are incorrect for SW binning mode.
+* iu456_get_current_configuration ... The width and height in `configuration_info_t` are incorrect for SW binning mode.
+* sub-sampling = false : The depth/x/y values in each binning region are different due to Cartesian coordinate system conversion.
+
+Hardware dependence
+-------------------
+
+IMX316 Sony Mini-Kit
+******************************************
+
+* There is an error of about 40 mm for the depth from the ground trues.
+* The large depth deviation occurs at 1st frame [modes: FExx, EE01-06]
+
+IMX456 Sony Mini-Kit (Laser Driver: iC-HG)
+******************************************
+
+* The depth values is not stable for about one minute due to time lag of temperature correction.
+* The noise of depth is not good on modes 2004, 2005.
+* The depth changes due to exposure time on all modes
+* The saturation filling doesn't work on modes 100x
+
+Mode dependence
+-------------------
+
+* The frame rate as specified does not appear in following VGA modes when the filter is enabled.
+
++------+-----------+------------+
+| mode | filter on | filter off |
++------+-----------+------------+
+| 2000 | 40.9      | 60.1       |
++------+-----------+------------+
+| 2001 | 18.0      | 30.0       |
++------+-----------+------------+
+| 2002 | 37.3      | 60.1       |
++------+-----------+------------+
+| 2003 | 16.1      | 30.0       |
++------+-----------+------------+
+| 2004 | 41.4      | 60.1       |
++------+-----------+------------+
+| 2005 | 13.9      | 30.0       |
++------+-----------+------------+
+| 200A | 20        | 27.8       |
++------+-----------+------------+
+| 200B | 10        | 15.0       |
++------+-----------+------------+
+Core i5-6200U @ 2.3GHz 2.4GHz, 8GB
+
++------+-----------+------------+
+| 3000 | 52.3      | 60.1       |
++------+-----------+------------+
+| 3001 | 22.6      | 30.0       |
++------+-----------+------------+
+| 3002 | 53.8      | 60.1       |
++------+-----------+------------+
+| 3003 | 20.0      | 30.0       |
++------+-----------+------------+
+| 3004 | 53.0      | 60.1       |
++------+-----------+------------+
+| 3005 | 16.7      | 30.0       |
++------+-----------+------------+
+| 300A | 25.8      | 27.8       |
++------+-----------+------------+
+| 300B | 10.5      | 15.0       |
++------+-----------+------------+
+| 5E62 | 16.0      | 30.0       |
++------+-----------+------------+
+| 5E63 | 27.5      | 30.0       |
++------+-----------+------------+
+Core i7-5820K@3.30GHz, 16GB
+

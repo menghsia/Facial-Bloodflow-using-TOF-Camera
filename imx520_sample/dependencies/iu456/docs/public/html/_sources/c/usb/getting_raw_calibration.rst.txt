@@ -1,0 +1,52 @@
+Getting the raw calibration data
+================================
+
+The library allows to get the raw calibration data of the device.
+
+.. note:: If the library failed to read EEPROM during initialization (`iu456_initialize` or `iu456_initialize_with_device_property`), the raw calibration data is default data included in the library.
+
+.. code-block:: c
+    :linenos:
+
+
+    #include <iostream>
+
+    #include "iu456/iu456.h"
+
+    int main()
+    {
+        iu456_error_details_t error_details;
+        
+        if (!iu456_initialize(nullptr, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed initialize library: " << error_details.message << std::endl;
+            return -1;
+        }
+
+        iu456_handle_t* handle = nullptr;
+
+        if (!iu456_create(&handle, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed to initialize device: " << error_details.message << std::endl;
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        size_t length = 0;
+        const uint8_t* raw_calibration_data = nullptr;
+        if (!iu456_get_raw_calibration_data(handle, &raw_calibration_data, &length, &error_details))
+        {
+            std::cerr << "Failed to get raw calibration data" << std::endl;
+            iu456_destroy(handle, &error_details);
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        std::cout << "Received " << length << " bytes for raw calibration data" << std::endl;
+        iu456_release_pointer(raw_calibration_data);
+
+        iu456_destroy(handle, &error_details);
+        iu456_shutdown(&error_details);
+
+        return 0;
+    }

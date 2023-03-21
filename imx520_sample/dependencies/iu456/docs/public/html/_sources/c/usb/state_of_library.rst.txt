@@ -1,0 +1,16 @@
+State of the library
+====================
+
+The library has the following states.
+
+.. csv-table:: 
+    :header-rows: 1
+    :file: ../../_static/library_state_table.csv
+    
+.. uml:: ../../_static/library_state.txt
+
+The APIs can/cannot be called in the each status as below.
+
+.. csv-table:: 
+    :header-rows: 1
+    :file: ../../_static/API_state_table_public.csv

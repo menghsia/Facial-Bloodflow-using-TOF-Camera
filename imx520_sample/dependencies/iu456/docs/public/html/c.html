@@ -1,0 +1,298 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>C API &mdash; IU456 Library 1.5 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="IU456 Library 1.5 documentation" href="index.html"/>
+        <link rel="next" title="State of the library" href="c/usb/state_of_library.html"/>
+        <link rel="prev" title="Output formats and units" href="output_format.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="index.html" class="fa fa-home"> IU456 Library</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Library Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#main-features">Main features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#minimum-requirements">Minimum requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#concurrent-access">Concurrent access</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="physical_setup.html">Physical setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="physical_setup.html#imx456">IMX456</a></li>
+<li class="toctree-l2"><a class="reference internal" href="physical_setup.html#imx316">IMX316</a></li>
+<li class="toctree-l2"><a class="reference internal" href="physical_setup.html#imx516">IMX516</a></li>
+<li class="toctree-l2"><a class="reference internal" href="physical_setup.html#ssp-500-dip-sw-setting">SSP-500 DIP SW setting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="physical_setup.html#microsd-memory-card">microSD memory card</a></li>
+<li class="toctree-l2"><a class="reference internal" href="physical_setup.html#usb-3-0">USB 3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="physical_setup.html#power-supply">Power supply</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing the library</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="install.html#windows">Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install.html#imx456-imx316-imx516-sony-mini-kit">IMX456/IMX316/IMX516 Sony Mini-Kit</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="output_format.html">Output formats and units</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="output_format.html#the-unambiguous-range">The unambiguous range</a></li>
+<li class="toctree-l2"><a class="reference internal" href="output_format.html#the-coordinate-system">The coordinate system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="output_format.html#the-depth-map">The depth map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="output_format.html#the-x-and-y-maps">The <cite>x</cite> and <cite>y</cite> maps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="output_format.html#the-confidence-map">The confidence map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="output_format.html#the-lens-intrinsics">The lens intrinsics</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">C API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/state_of_library.html">State of the library</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/initializing_library.html">Library initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/enumerating_devices.html">Enumerating devices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/instantiating.html">Instantiating a camera</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/device_information.html">Getting device information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/interacting_with_configurations.html">Interacting with available configurations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/getting_stream.html">Getting the stream out of the device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/device_removal_notification.html">Getting device removal notification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/filtering.html">Depth filtering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/adjustable_frame_rate.html">Adjustable frame rate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/adjustable_exposure_time.html">Adjustable exposure time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/getting_raw_calibration.html">Getting the raw calibration data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/building_the_sample.html">Building the sample</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/sample.html">Sample</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/api_reference.html">API Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_failure_handling.html">Hardware failure handling</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hardware_failure_handling.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hardware_failure_handling.html#streaming-failure">Streaming failure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hardware_failure_handling.html#laser-temperature-outside-operational-range">Laser temperature outside operational range</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hardware_failure_handling.html#laser-temperature-outside-spec-range">Laser temperature outside spec range</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="known_limitations.html">Known Limitations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="known_limitations.html#streaming">Streaming</a></li>
+<li class="toctree-l2"><a class="reference internal" href="known_limitations.html#stability">Stability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="known_limitations.html#api">API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="known_limitations.html#feature-dependence">Feature dependence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="known_limitations.html#hardware-dependence">Hardware dependence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="known_limitations.html#mode-dependence">Mode dependence</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="supported_hardware.html">Supported hardware</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="supported_hardware.html#imx456-es1-sony-mini-kit">IMX456 (ES1) Sony Mini-Kit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="supported_hardware.html#imx456-es2-sony-mini-kit">IMX456 (ES2) Sony Mini-Kit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="supported_hardware.html#imx316-sony-mini-kit">IMX316 Sony Mini-Kit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="supported_hardware.html#imx516-sony-mini-kit">IMX516 Sony Mini-Kit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="supported_hardware.html#imx456es2-modules-for-automotive-mx519-mx520">IMX456ES2 modules for AutoMotive(MX519/MX520)</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">IU456 Library</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>C API</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="_sources/c.rst.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="c-api">
+<h1>C API<a class="headerlink" href="#c-api" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="c/usb/state_of_library.html">State of the library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="c/usb/initializing_library.html">Library initialization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/initializing_library.html#initializing-and-shutting-down-the-library">Initializing and shutting down the library</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/initializing_library.html#initializing-with-device-property-and-shutting-down-the-library">Initializing with device property and shutting down the library</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="c/usb/enumerating_devices.html">Enumerating devices</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/enumerating_devices.html#listing-connected-devices">Listing connected devices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/enumerating_devices.html#getting-new-device-connected-notifications">Getting new device connected notifications</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="c/usb/instantiating.html">Instantiating a camera</a></li>
+<li class="toctree-l1"><a class="reference internal" href="c/usb/device_information.html">Getting device information</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/device_information.html#getting-the-serial-number">Getting the serial number</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/device_information.html#getting-the-prv-number">Getting the prv number</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/device_information.html#getting-the-full-prv-number">Getting the full prv number</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/device_information.html#getting-the-software-id">Getting the software id</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="c/usb/interacting_with_configurations.html">Interacting with available configurations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/interacting_with_configurations.html#listing-available-configurations">Listing available configurations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/interacting_with_configurations.html#getting-the-currently-selected-configuration">Getting the currently selected configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/interacting_with_configurations.html#setting-the-current-configuration">Setting the current configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="c/usb/getting_stream.html">Getting the stream out of the device</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/getting_stream.html#code-sample">Code sample</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="c/usb/device_removal_notification.html">Getting device removal notification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="c/usb/filtering.html">Depth filtering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="c/usb/adjustable_frame_rate.html">Adjustable frame rate</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/adjustable_frame_rate.html#updating-the-default-frame-rate-for-a-given-mode">Updating the default frame rate for a given mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/adjustable_frame_rate.html#adjusting-dynamically-the-frame-rate">Adjusting dynamically the frame rate</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="c/usb/adjustable_exposure_time.html">Adjustable exposure time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/adjustable_exposure_time.html#updating-the-default-exposure-time-for-a-given-mode">Updating the default exposure time for a given mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/adjustable_exposure_time.html#adjusting-dynamically-the-exposure-time">Adjusting dynamically the exposure time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/adjustable_exposure_time.html#enabling-the-auto-exposure-function">Enabling the auto exposure function</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="c/usb/getting_raw_calibration.html">Getting the raw calibration data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="c/usb/building_the_sample.html">Building the sample</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/building_the_sample.html#building">Building</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/building_the_sample.html#running-the-sample">Running the sample</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="c/usb/sample.html">Sample</a></li>
+<li class="toctree-l1"><a class="reference internal" href="c/usb/api_reference.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/api_reference.html#iu456-h">iu456.h</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/api_reference.html#types-h">types.h</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="c/usb/state_of_library.html" class="btn btn-neutral float-right" title="State of the library">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="output_format.html" class="btn btn-neutral" title="Output formats and units"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright  2018 Sony Semiconductor Solutions Corporation.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.5',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

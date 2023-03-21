@@ -1,0 +1,51 @@
+Installing the library
+======================
+
+
+Windows
+-------
+
+Visual studio redistributables
+******************************
+
+The library has been compiled with Visual Studio 2015, the Visual Studio redistributables must be installed on the target computer.
+
+The redistributables can be found `here <https://www.microsoft.com/en-us/download/details.aspx?id=53840>`_.
+
+.. note::
+    There are high chances that these are already installed on your computer and thus you don't need to install them again.
+
+IMX456/IMX316/IMX516 Sony Mini-Kit
+----------------------------------
+
+Installing the required Mini-Kit USB controller (sGrabbler)
+***********************************************************
+
+1. The sGrabber needs the Visual C++ 2012 Redistributable Package(x64). The redistribution package is incompatible with another version (C++ 2015 redistribution package etc).
+   Download Visual C++ 2012 Redistributable Package(x64) here. `(English) <https://www.microsoft.com/en-US/download/details.aspx?id=30679>`_, `(Chinese) <https://www.microsoft.com/zh-CN/download/details.aspx?id=30679>`_, 
+   `(Japanese) <https://www.microsoft.com/ja-JP/download/details.aspx?id=30679>`_
+
+2. Uninstall sGrabber if an old version has already installed. 
+3. Run the installer by clicking '\sGrabber\sGrabber-Windows-x64-1.10.1.1.msi'.
+
+.. note:: There is a case that environment variable settings may not be reflected until PC is restarted. If it does not work normally , please reboot the PC.
+
+Installing the required Mini-Kit USB drivers
+********************************************
+
+1. Go to folder as below that SSP-500 driver installed.
+    `Windows7(64bit) : C:/Users/<UserName>/AppData/Local/Sony/sGrabber64\Driver/SSP500/x64_Win7Release`
+    `Windows8(64bit) : C:/Users/<UserName>/AppData/Local/Sony/sGrabber64\Driver/SSP500/x64_Win8Release`
+    `Windows10(64bit): C:/Users/<UserName>/AppData/Local/Sony/sGrabber64\Driver/SSP500/x64_Win10Release`
+   
+2. Install 'inf file' by using Right-Click menu.
+
+Uninstalling the required Mini-Kit drivers
+******************************************
+
+Run the uninstall shortcut from Windows start menu.
+(64bit version):[Start]->[sGrabber64-bit]->[Uninstall sGrabber].
+
+   * Click [Yes] Button.
+
+.. note:: Config files for device are not removed automatically. Please remove these manually.

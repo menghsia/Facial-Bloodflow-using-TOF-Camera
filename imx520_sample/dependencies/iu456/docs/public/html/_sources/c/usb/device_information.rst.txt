@@ -1,0 +1,193 @@
+Getting device information
+==========================
+
+Getting the serial number
+-------------------------
+
+.. code-block:: c
+    :linenos:
+
+
+    #include <iostream>
+
+    #include "iu456/iu456.h"
+
+    int main()
+    {
+        iu456_error_details_t error_details;
+        if (!iu456_initialize(nullptr, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed initialize library: " << error_details.message << std::endl;
+            return -1;
+        }
+
+        iu456_handle_t* handle = nullptr;
+
+        if (!iu456_create(&handle, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed to initialize device: " << error_details.message << std::endl;
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        const char* serial_number = nullptr;
+        if (!iu456_get_serial_number(handle, &serial_number, &error_details))
+        {
+            std::cerr << "Failed to get serial number" << std::endl;
+            iu456_destroy(handle, &error_details);
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        std::cout << "Serial number: " << serial_number << std::endl;
+        iu456_release_pointer(serial_number);
+
+        iu456_destroy(handle, &error_details);
+
+        iu456_shutdown(&error_details);
+        return 0;
+    }
+
+Getting the prv number
+----------------------
+
+
+.. code-block:: c
+    :linenos:
+
+
+    #include <iostream>
+
+    #include "iu456/iu456.h"
+
+    int main()
+    {
+        iu456_error_details_t error_details;
+        if (!iu456_initialize(nullptr, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed initialize library: " << error_details.message << std::endl;
+            return -1;
+        }
+
+        iu456_handle_t* handle = nullptr;
+
+        if (!iu456_create(&handle, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed to initialize device: " << error_details.message << std::endl;
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        uint32_t prv_number = 0;
+        if (!iu456_get_prv_number(handle, &prv_number, &error_details))
+        {
+            std::cerr << "Failed to get prv number" << std::endl;
+            iu456_destroy(handle, &error_details);
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        std::cout << "PRV number: " << prv_number << std::endl;
+
+        iu456_destroy(handle, &error_details);
+        iu456_shutdown(&error_details);
+
+        return 0;
+    }
+
+
+Getting the full prv number
+---------------------------
+
+
+.. code-block:: c
+    :linenos:
+
+
+    #include <iostream>
+
+    #include "iu456/iu456.h"
+
+    int main()
+    {
+        iu456_error_details_t error_details;
+        if (!iu456_initialize(nullptr, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed initialize library: " << error_details.message << std::endl;
+            return -1;
+        }
+
+        iu456_handle_t* handle = nullptr;
+
+        if (!iu456_create(&handle, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed to initialize device: " << error_details.message << std::endl;
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        uint64_t prv_number = 0;
+        if (!iu456_get_prv_number64(handle, &prv_number, &error_details))
+        {
+            std::cerr << "Failed to get prv number64" << std::endl;
+            iu456_destroy(handle, &error_details);
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        std::cout << "PRV number64: " << prv_number << std::endl;
+
+        iu456_destroy(handle, &error_details);
+        iu456_shutdown(&error_details);
+
+        return 0;
+    }
+
+
+Getting the software id
+-----------------------
+
+
+.. code-block:: c
+    :linenos:
+
+
+    #include <iostream>
+
+    #include "iu456/iu456.h"
+
+    int main()
+    {
+        iu456_error_details_t error_details;
+        if (!iu456_initialize(nullptr, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed initialize library: " << error_details.message << std::endl;
+            return -1;
+        }
+
+        iu456_handle_t* handle = nullptr;
+
+        if (!iu456_create(&handle, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed to initialize device: " << error_details.message << std::endl;
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        uint32_t software_id = 0;
+        if (!iu456_get_software_id(handle, &software_id, &error_details))
+        {
+            std::cerr << "Failed to get software id" << std::endl;
+            iu456_destroy(handle, &error_details);
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        std::cout << "software_id : " << software_id << std::endl;
+
+        iu456_destroy(handle, &error_details);
+        iu456_shutdown(&error_details);
+
+        return 0;
+    }
+

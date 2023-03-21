@@ -1,0 +1,698 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Index &mdash; IU456 Library 1.5 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="#"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="IU456 Library 1.5 documentation" href="index.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="index.html" class="fa fa-home"> IU456 Library</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Library Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#main-features">Main features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#minimum-requirements">Minimum requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#concurrent-access">Concurrent access</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="physical_setup.html">Physical setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="physical_setup.html#imx456">IMX456</a></li>
+<li class="toctree-l2"><a class="reference internal" href="physical_setup.html#imx316">IMX316</a></li>
+<li class="toctree-l2"><a class="reference internal" href="physical_setup.html#imx516">IMX516</a></li>
+<li class="toctree-l2"><a class="reference internal" href="physical_setup.html#ssp-500-dip-sw-setting">SSP-500 DIP SW setting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="physical_setup.html#microsd-memory-card">microSD memory card</a></li>
+<li class="toctree-l2"><a class="reference internal" href="physical_setup.html#usb-3-0">USB 3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="physical_setup.html#power-supply">Power supply</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing the library</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="install.html#windows">Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install.html#imx456-imx316-imx516-sony-mini-kit">IMX456/IMX316/IMX516 Sony Mini-Kit</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="output_format.html">Output formats and units</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="output_format.html#the-unambiguous-range">The unambiguous range</a></li>
+<li class="toctree-l2"><a class="reference internal" href="output_format.html#the-coordinate-system">The coordinate system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="output_format.html#the-depth-map">The depth map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="output_format.html#the-x-and-y-maps">The <cite>x</cite> and <cite>y</cite> maps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="output_format.html#the-confidence-map">The confidence map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="output_format.html#the-lens-intrinsics">The lens intrinsics</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="c.html">C API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/state_of_library.html">State of the library</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/initializing_library.html">Library initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/enumerating_devices.html">Enumerating devices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/instantiating.html">Instantiating a camera</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/device_information.html">Getting device information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/interacting_with_configurations.html">Interacting with available configurations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/getting_stream.html">Getting the stream out of the device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/device_removal_notification.html">Getting device removal notification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/filtering.html">Depth filtering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/adjustable_frame_rate.html">Adjustable frame rate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/adjustable_exposure_time.html">Adjustable exposure time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/getting_raw_calibration.html">Getting the raw calibration data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/building_the_sample.html">Building the sample</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/sample.html">Sample</a></li>
+<li class="toctree-l2"><a class="reference internal" href="c/usb/api_reference.html">API Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="hardware_failure_handling.html">Hardware failure handling</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hardware_failure_handling.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hardware_failure_handling.html#streaming-failure">Streaming failure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hardware_failure_handling.html#laser-temperature-outside-operational-range">Laser temperature outside operational range</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hardware_failure_handling.html#laser-temperature-outside-spec-range">Laser temperature outside spec range</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="known_limitations.html">Known Limitations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="known_limitations.html#streaming">Streaming</a></li>
+<li class="toctree-l2"><a class="reference internal" href="known_limitations.html#stability">Stability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="known_limitations.html#api">API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="known_limitations.html#feature-dependence">Feature dependence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="known_limitations.html#hardware-dependence">Hardware dependence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="known_limitations.html#mode-dependence">Mode dependence</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="supported_hardware.html">Supported hardware</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="supported_hardware.html#imx456-es1-sony-mini-kit">IMX456 (ES1) Sony Mini-Kit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="supported_hardware.html#imx456-es2-sony-mini-kit">IMX456 (ES2) Sony Mini-Kit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="supported_hardware.html#imx316-sony-mini-kit">IMX316 Sony Mini-Kit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="supported_hardware.html#imx516-sony-mini-kit">IMX516 Sony Mini-Kit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="supported_hardware.html#imx456es2-modules-for-automotive-mx519-mx520">IMX456ES2 modules for AutoMotive(MX519/MX520)</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">IU456 Library</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Index</li>
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+
+<h1 id="index">Index</h1>
+
+<div class="genindex-jumpbox">
+ <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
+ | <a href="#H"><strong>H</strong></a>
+ | <a href="#I"><strong>I</strong></a>
+ | <a href="#K"><strong>K</strong></a>
+ | <a href="#L"><strong>L</strong></a>
+ | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
+ | <a href="#P"><strong>P</strong></a>
+ | <a href="#R"><strong>R</strong></a>
+ | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
+ | <a href="#U"><strong>U</strong></a>
+ | <a href="#V"><strong>V</strong></a>
+ | <a href="#W"><strong>W</strong></a>
+ | <a href="#X"><strong>X</strong></a>
+ | <a href="#Y"><strong>Y</strong></a>
+ 
+</div>
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="c/usb/api_reference.html#_CPPv24code">code (C++ member)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv210confidence">confidence (C++ member)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv217confidence_length">confidence_length (C++ member)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="c/usb/api_reference.html#_CPPv218configuration_info">configuration_info (C++ member)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv212control_path">control_path (C++ member)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv22cx">cx (C++ member)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv22cy">cy (C++ member)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="c/usb/api_reference.html#_CPPv25depth">depth (C++ member)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv211depth_float">depth_float (C++ member)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="c/usb/api_reference.html#_CPPv218depth_float_length">depth_float_length (C++ member)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv212depth_length">depth_length (C++ member)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="c/usb/api_reference.html#_CPPv28embedded">embedded (C++ member)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv215embedded_length">embedded_length (C++ member)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="c/usb/api_reference.html#_CPPv217error_information">error_information (C++ member)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv222error_information_type">error_information_type (C++ member)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv28exposure">exposure (C++ member)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="c/usb/api_reference.html#_CPPv28frame_id">frame_id (C++ member)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv210frame_rate">frame_rate (C++ member)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="c/usb/api_reference.html#_CPPv22fx">fx (C++ member)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv22fy">fy (C++ member)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="c/usb/api_reference.html#_CPPv26height">height (C++ member)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="c/usb/api_reference.html#_CPPv210intrinsics">intrinsics (C++ member)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv213is_calibrated">is_calibrated (C++ member)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv226iu456_configuration_info_t">iu456_configuration_info_t (C++ class)</a>
+
+      <ul>
+        <li><a href="c/usb/api_reference.html#_CPPv226iu456_configuration_info_t">(C++ type)</a>
+</li>
+      </ul></li>
+      <li><a href="c/usb/api_reference.html#_CPPv212iu456_createPP14iu456_handle_tPK14iu456_device_t34iu456_on_device_removal_callback_tPvP21iu456_error_details_t">iu456_create (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv229iu456_create_with_data_bundlePP14iu456_handle_tPK14iu456_device_t34iu456_on_device_removal_callback_tPvPKcP21iu456_error_details_t">iu456_create_with_data_bundle (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv213iu456_destroyP14iu456_handle_tP21iu456_error_details_t">iu456_destroy (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv214iu456_device_t">iu456_device_t (C++ class)</a>
+
+      <ul>
+        <li><a href="c/usb/api_reference.html#_CPPv214iu456_device_t">(C++ type)</a>
+</li>
+      </ul></li>
+      <li><a href="c/usb/api_reference.html#_CPPv221iu456_error_details_t">iu456_error_details_t (C++ class)</a>
+
+      <ul>
+        <li><a href="c/usb/api_reference.html#_CPPv221iu456_error_details_t">(C++ type)</a>
+</li>
+      </ul></li>
+      <li><a href="c/usb/api_reference.html#_CPPv219iu456_error_generic">iu456_error_generic (C++ class)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv233iu456_error_hardware_unresponsive">iu456_error_hardware_unresponsive (C++ class)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv233iu456_error_invalid_object_handle">iu456_error_invalid_object_handle (C++ class)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv227iu456_error_invalid_rawdata">iu456_error_invalid_rawdata (C++ class)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv228iu456_error_mode_fps_overrun">iu456_error_mode_fps_overrun (C++ class)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv233iu456_error_null_pointer_argument">iu456_error_null_pointer_argument (C++ class)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv224iu456_error_out_of_range">iu456_error_out_of_range (C++ class)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv223iu456_error_overheating">iu456_error_overheating (C++ class)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv219iu456_error_success">iu456_error_success (C++ class)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv213iu456_error_t">iu456_error_t (C++ type)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv219iu456_error_timeout">iu456_error_timeout (C++ class)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv213iu456_frame_t">iu456_frame_t (C++ class)</a>
+
+      <ul>
+        <li><a href="c/usb/api_reference.html#_CPPv213iu456_frame_t">(C++ type)</a>
+</li>
+      </ul></li>
+      <li><a href="c/usb/api_reference.html#_CPPv228iu456_get_configuration_listP14iu456_handle_tPPPK26iu456_configuration_info_tP6size_tP21iu456_error_details_t">iu456_get_configuration_list (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv231iu456_get_current_configurationP14iu456_handle_tPPK26iu456_configuration_info_tP21iu456_error_details_t">iu456_get_current_configuration (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv221iu456_get_device_listPPPK14iu456_device_tP6size_tP21iu456_error_details_t">iu456_get_device_list (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv228iu456_get_exposure_time_listP14iu456_handle_tiPPKiP6size_tP21iu456_error_details_t">iu456_get_exposure_time_list (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv226iu456_get_frame_rate_rangeP14iu456_handle_tiPfPfP21iu456_error_details_t">iu456_get_frame_rate_range (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv220iu456_get_last_frameP14iu456_handle_tPPK13iu456_frame_t7int32_tP21iu456_error_details_t">iu456_get_last_frame (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv220iu456_get_prv_numberP14iu456_handle_tP8uint32_tP21iu456_error_details_t">iu456_get_prv_number (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv222iu456_get_prv_number64P14iu456_handle_tP8uint64_tP21iu456_error_details_t">iu456_get_prv_number64 (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv230iu456_get_raw_calibration_dataP14iu456_handle_tPPK7uint8_tP6size_tP21iu456_error_details_t">iu456_get_raw_calibration_data (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv223iu456_get_serial_numberP14iu456_handle_tPPKcP21iu456_error_details_t">iu456_get_serial_number (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv221iu456_get_software_idP14iu456_handle_tP8uint32_tP21iu456_error_details_t">iu456_get_software_id (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv229iu456_get_trigger_delay_rangeP14iu456_handle_tiPfPfP21iu456_error_details_t">iu456_get_trigger_delay_range (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv230iu456_get_trigger_factor_rangeP14iu456_handle_tiPiPiP21iu456_error_details_t">iu456_get_trigger_factor_range (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv222iu456_get_uid_for_modeP14iu456_handle_tiiPiP21iu456_error_details_t">iu456_get_uid_for_mode (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv217iu456_get_versionv">iu456_get_version (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv214iu456_handle_t">iu456_handle_t (C++ type)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv216iu456_initialize27iu456_on_arrival_callback_t27iu456_on_removal_callback_tPvPKcP21iu456_error_details_t">iu456_initialize (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv237iu456_initialize_with_device_property27iu456_on_arrival_callback_t27iu456_on_removal_callback_tPvPKcPK7uint8_t8uint32_tiiiP21iu456_error_details_t">iu456_initialize_with_device_property (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv218iu456_intrinsics_t">iu456_intrinsics_t (C++ class)</a>
+
+      <ul>
+        <li><a href="c/usb/api_reference.html#_CPPv218iu456_intrinsics_t">(C++ type)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="c/usb/api_reference.html#_CPPv227iu456_on_arrival_callback_t">iu456_on_arrival_callback_t (C++ type)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv234iu456_on_device_removal_callback_t">iu456_on_device_removal_callback_t (C++ type)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv227iu456_on_removal_callback_t">iu456_on_removal_callback_t (C++ type)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv229iu456_property_state_disabled">iu456_property_state_disabled (C++ class)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv228iu456_property_state_enabled">iu456_property_state_enabled (C++ class)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv222iu456_property_state_t">iu456_property_state_t (C++ type)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv216iu456_raw_data_t">iu456_raw_data_t (C++ class)</a>
+
+      <ul>
+        <li><a href="c/usb/api_reference.html#_CPPv216iu456_raw_data_t">(C++ type)</a>
+</li>
+      </ul></li>
+      <li><a href="c/usb/api_reference.html#_CPPv220iu456_release_devicePK14iu456_device_t">iu456_release_device (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv225iu456_release_device_listPPK14iu456_device_t">iu456_release_device_list (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv221iu456_release_pointerPKv">iu456_release_pointer (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv223iu456_set_auto_exposureP14iu456_handle_ti22iu456_property_state_tP21iu456_error_details_t">iu456_set_auto_exposure (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv227iu456_set_auto_exposure_roiP14iu456_handle_tiiiiiP21iu456_error_details_t">iu456_set_auto_exposure_roi (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv230iu456_set_confidence_filteringP14iu456_handle_t22iu456_property_state_tP21iu456_error_details_t">iu456_set_confidence_filtering (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv227iu456_set_configuration_uidP14iu456_handle_tiP21iu456_error_details_t">iu456_set_configuration_uid (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv223iu456_set_exposure_timeP14iu456_handle_tiP21iu456_error_details_t">iu456_set_exposure_time (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv219iu456_set_filteringP14iu456_handle_t22iu456_property_state_tP21iu456_error_details_t">iu456_set_filtering (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv233iu456_set_float_depth_calculationP14iu456_handle_t22iu456_property_state_tP21iu456_error_details_t">iu456_set_float_depth_calculation (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv220iu456_set_frame_rateP14iu456_handle_tfP21iu456_error_details_t">iu456_set_frame_rate (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv233iu456_set_int16_depth_calculationP14iu456_handle_t22iu456_property_state_tP21iu456_error_details_t">iu456_set_int16_depth_calculation (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv235iu456_set_update_uid_property_stateP14iu456_handle_t22iu456_property_state_tP21iu456_error_details_t">iu456_set_update_uid_property_state (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv232iu456_set_x_and_y_property_stateP14iu456_handle_t22iu456_property_state_tP21iu456_error_details_t">iu456_set_x_and_y_property_state (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv214iu456_shutdownP21iu456_error_details_t">iu456_shutdown (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv211iu456_startP14iu456_handle_tP21iu456_error_details_t">iu456_start (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv210iu456_stopP14iu456_handle_tP21iu456_error_details_t">iu456_stop (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv233iu456_transformation_mode_default">iu456_transformation_mode_default (C++ class)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv230iu456_transformation_mode_flip">iu456_transformation_mode_flip (C++ class)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv234iu456_transformation_mode_mirror_h">iu456_transformation_mode_mirror_h (C++ class)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv234iu456_transformation_mode_mirror_v">iu456_transformation_mode_mirror_v (C++ class)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv227iu456_transformation_mode_t">iu456_transformation_mode_t (C++ type)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv239iu456_trigger_mode_externally_triggered">iu456_trigger_mode_externally_triggered (C++ class)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv231iu456_trigger_mode_free_running">iu456_trigger_mode_free_running (C++ class)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv220iu456_trigger_mode_t">iu456_trigger_mode_t (C++ type)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv233iu456_trigger_sampling_downsample">iu456_trigger_sampling_downsample (C++ class)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv224iu456_trigger_sampling_t">iu456_trigger_sampling_t (C++ type)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv231iu456_trigger_sampling_upsample">iu456_trigger_sampling_upsample (C++ class)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv234iu456_update_default_exposure_timeP14iu456_handle_tiiP21iu456_error_details_t">iu456_update_default_exposure_time (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv231iu456_update_default_frame_rateP14iu456_handle_tifP21iu456_error_details_t">iu456_update_default_frame_rate (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv234iu456_update_default_trigger_delayP14iu456_handle_tifP21iu456_error_details_t">iu456_update_default_trigger_delay (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv235iu456_update_default_trigger_factorP14iu456_handle_tii24iu456_trigger_sampling_tP21iu456_error_details_t">iu456_update_default_trigger_factor (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv233iu456_update_default_trigger_modeP14iu456_handle_ti20iu456_trigger_mode_tP21iu456_error_details_t">iu456_update_default_trigger_mode (C++ function)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv215iu456_version_t">iu456_version_t (C++ class)</a>
+
+      <ul>
+        <li><a href="c/usb/api_reference.html#_CPPv215iu456_version_t">(C++ type)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="K">K</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="c/usb/api_reference.html#_CPPv22k1">k1 (C++ member)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="c/usb/api_reference.html#_CPPv22k2">k2 (C++ member)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv22k3">k3 (C++ member)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="c/usb/api_reference.html#_CPPv217laser_temperature">laser_temperature (C++ member)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="c/usb/api_reference.html#_CPPv217low_accuracy_data">low_accuracy_data (C++ member)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="M">M</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="c/usb/api_reference.html#_CPPv25major">major (C++ member)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="c/usb/api_reference.html#_CPPv27message">message (C++ member)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv25minor">minor (C++ member)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="c/usb/api_reference.html#_CPPv24name">name (C++ member)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="P">P</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="c/usb/api_reference.html#_CPPv22p1">p1 (C++ member)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv22p2">p2 (C++ member)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv25patch">patch (C++ member)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="c/usb/api_reference.html#_CPPv23pid">pid (C++ member)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv210pixel_data">pixel_data (C++ member)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv217pixel_data_length">pixel_data_length (C++ member)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv23prv">prv (C++ member)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="c/usb/api_reference.html#_CPPv23raw">raw (C++ member)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="c/usb/api_reference.html#_CPPv210raw_length">raw_length (C++ member)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv28revision">revision (C++ member)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="c/usb/api_reference.html#_CPPv218sensor_temperature">sensor_temperature (C++ member)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv213serial_number">serial_number (C++ member)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#c.SOFTKINETIC_IU456_LIBRARY_API_H">SOFTKINETIC_IU456_LIBRARY_API_H (C macro)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="c/usb/api_reference.html#c.SOFTKINETIC_IU456_LIBRARY_API_TYPES_H_INCLUDED_">SOFTKINETIC_IU456_LIBRARY_API_TYPES_H_INCLUDED_ (C macro)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv25stage">stage (C++ member)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv211stream_path">stream_path (C++ member)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="c/usb/api_reference.html#_CPPv29timestamp">timestamp (C++ member)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="U">U</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="c/usb/api_reference.html#_CPPv23uid">uid (C++ member)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="c/usb/api_reference.html#_CPPv217unambiguous_range">unambiguous_range (C++ member)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="c/usb/api_reference.html#_CPPv23vid">vid (C++ member)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="W">W</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="c/usb/api_reference.html#_CPPv25width">width (C++ member)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="X">X</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="c/usb/api_reference.html#_CPPv21x">x (C++ member)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv27x_float">x_float (C++ member)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="c/usb/api_reference.html#_CPPv214x_float_length">x_float_length (C++ member)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv28x_length">x_length (C++ member)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Y">Y</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="c/usb/api_reference.html#_CPPv21y">y (C++ member)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv27y_float">y_float (C++ member)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="c/usb/api_reference.html#_CPPv214y_float_length">y_float_length (C++ member)</a>
+</li>
+      <li><a href="c/usb/api_reference.html#_CPPv28y_length">y_length (C++ member)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+
+
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright  2018 Sony Semiconductor Solutions Corporation.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.5',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

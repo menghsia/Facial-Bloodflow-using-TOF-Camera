@@ -1,0 +1,42 @@
+Building the sample
+===================
+
+
+Building
+--------
+
+The samples can be built using `cmake <https://cmake.org/>`_.
+
+To generate the required files for compiling the sample, the following steps are required:
+
+* Install cmake
+* Create a folder where the makefiles/solution should be generated
+* Run cmake from the newly created folder with the following command:
+
+.. code-block:: none
+
+	cmake -DSK_PLATFORM_NAME=Windows_x64
+	      -DCMAKE_INSTALL_PREFIX="<install location>"
+	      -G "<cmake generator>" "<path to library>\samples\c"
+
+.. note:: The list of supported generators can be retrieved by issuing
+	the following command: `cmake --help`
+
+A typical command line on Windows could be:
+
+.. code-block:: none
+
+	cmake -DSK_PLATFORM_NAME=Windows_x64 -DCMAKE_INSTALL_PREFIX=".\dist" -G "Visual Studio 14 2015 Win64" ".\samples\c"
+
+Depending on the cmake generator used during the configuration:
+
+* Open the solution in your IDE and build the INSTALL target
+
+Running the sample
+------------------
+
+To run the sample, run the following command:
+
+.. code-block:: none
+
+	<install location>\bin\iu456_sample.exe

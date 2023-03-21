@@ -1,0 +1,64 @@
+Library Overview
+================
+
+The IU456 library provides an easy interface to use the IMX456/IMX316 cameras.
+
+Main features
+-------------
+
+Device discovery
+****************
+
+The library allows to:
+
+* List available devices
+* Get notifications whenever a new device is plugged in or removed
+
+Device configuration
+********************
+
+The library allows to:
+
+* List available modes and get some information about them such as resolution and lens intrinsics
+* Select an existing mode to be used
+
+Streaming
+*********
+
+The library allows to:
+
+* Get the depth map and vertices
+* Get the confidence
+
+
+Minimum requirements
+--------------------
+
+Configuration requirements for the library are as follow:
+
+* OS must either be Windows 8.1 or Windows 10 and must be 64-bit version. 
+* CPU must be 64-bit processors and must support at least `SSE4.2 <https://en.wikipedia.org/wiki/SSE4>`_.
+* A USB 3.0 Host controller
+
+Configuration requirements for the viewer are as follow:
+
+* OS must be 64-bit and either be Windows 8.1 or Windows 10.
+* CPU must be 64-bit processors and must support at least `SSE4.2 <https://en.wikipedia.org/wiki/SSE4>`_.
+* A USB 3.0 Host controller
+* OpenGL version 3.1 and later
+
+.. note:: Support on Windows 7 depends on the USB 3.0 Host Controller manufacturer and thus is not guaranteed on this system.
+
+
+
+Concurrent access
+-----------------
+
+The library is not meant to be used concurrently from multiple processes. This is because:
+
+* During initialization, the EEPROM of the device must be read in order to retrieve information
+  such as the device serial number and calibration data
+* When an instance is in use, it is expected that no other process will interfere while
+  interacting with the device (reading the EEPROM, configuring the sensor, handling the stream, ...)
+
+.. note:: Nothing will prevent this situation to occur. In such a case the device may not work as expected.

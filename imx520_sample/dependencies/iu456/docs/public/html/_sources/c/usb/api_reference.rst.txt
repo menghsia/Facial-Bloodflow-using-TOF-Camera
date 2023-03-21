@@ -1,0 +1,91 @@
+.. _api-reference:
+
+
+*****************
+API Reference
+*****************
+
+.. _iu456.h:
+
+iu456.h
+========
+
+Index of functions
+------------------
+
+.. hlist::
+
+    - :cpp:func:`iu456_initialize()`
+    - :cpp:func:`iu456_initialize_with_device_property()`
+    - :cpp:func:`iu456_shutdown()`
+    - :cpp:func:`iu456_get_version()`
+    - :cpp:func:`iu456_get_device_list()`
+    - :cpp:func:`iu456_release_device_list()`
+    - :cpp:func:`iu456_release_device()`
+    - :cpp:func:`iu456_create()`
+    - :cpp:func:`iu456_destroy()`
+    - :cpp:func:`iu456_start()`
+    - :cpp:func:`iu456_stop()`
+    - :cpp:func:`iu456_get_last_frame()`
+    - :cpp:func:`iu456_get_serial_number()`
+    - :cpp:func:`iu456_release_pointer()`
+    - :cpp:func:`iu456_get_prv_number()`
+    - :cpp:func:`iu456_get_prv_number64()`
+    - :cpp:func:`iu456_get_software_id()`
+    - :cpp:func:`iu456_get_configuration_list()`
+    - :cpp:func:`iu456_get_current_configuration()`
+    - :cpp:func:`iu456_set_configuration_uid()`
+    - :cpp:func:`iu456_set_filtering()`
+    - :cpp:func:`iu456_set_int16_depth_calculation`
+    - :cpp:func:`iu456_set_float_depth_calculation`
+    - :cpp:func:`iu456_set_confidence_filtering`
+    - :cpp:func:`iu456_set_frame_rate()`
+    - :cpp:func:`iu456_get_frame_rate_range()`
+    - :cpp:func:`iu456_update_default_frame_rate()`
+    - :cpp:func:`iu456_update_default_trigger_mode()`
+    - :cpp:func:`iu456_update_default_trigger_factor()`
+    - :cpp:func:`iu456_update_default_trigger_delay()`
+    - :cpp:func:`iu456_get_trigger_factor_range()`
+    - :cpp:func:`iu456_get_trigger_delay_range()`
+    - :cpp:func:`iu456_set_auto_exposure()`
+    - :cpp:func:`iu456_set_auto_exposure_roi()`
+    - :cpp:func:`iu456_set_exposure_time()`
+    - :cpp:func:`iu456_get_exposure_time_list()`
+    - :cpp:func:`iu456_update_default_exposure_time()`
+    - :cpp:func:`iu456_get_uid_for_mode()`
+    - :cpp:func:`iu456_set_x_and_y_property_state()`
+    - :cpp:func:`iu456_set_update_uid_property_state()`
+    - :cpp:func:`iu456_get_raw_calibration_data()`
+
+
+File content
+------------
+
+.. doxygenfile:: iu456.h
+
+
+
+.. _types.h:
+
+types.h
+==========
+
+Index of types
+--------------
+
+.. hlist::
+
+    - :cpp:class:`iu456_error_details_t`
+    - :cpp:class:`iu456_version_t`
+    - :cpp:class:`iu456_device_t`
+    - :cpp:class:`iu456_intrinsics_t`
+    - :cpp:class:`iu456_configuration_info_t`
+    - :cpp:class:`iu456_frame_t`
+
+
+
+File content
+------------
+
+.. doxygenfile:: types.h
+

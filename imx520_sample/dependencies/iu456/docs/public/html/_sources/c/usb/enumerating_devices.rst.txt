@@ -1,0 +1,118 @@
+Enumerating devices
+===================
+
+Listing connected devices
+-------------------------
+
+The library allows to retrieve some information about the connected devices.
+
+.. code-block:: c
+    :linenos:
+
+
+    #include <iostream>
+
+    #include "iu456/iu456.h"
+
+    int main()
+    {
+        iu456_error_details_t error_details;
+        if (!iu456_initialize(nullptr, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed initialize library: " << error_details.message << std::endl;
+            return -1;
+        }
+
+        const iu456_device_t** device_list = nullptr;
+        size_t number_of_devices = 0;
+
+        if (!iu456_get_device_list(&device_list, &number_of_devices, &error_details))
+        {
+            std::cerr << "Failed to get device list: " << error_details.message << std::endl;
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        for (size_t i = 0; i < number_of_devices; i++)
+        {
+            std::cout << "+++++++++++++++++++" << std::endl;
+            std::cout << std::hex << "0x" << device_list[i]->vid;
+            std::cout << " : 0x" << device_list[i]->pid << std::dec;
+            std::cout << " : " << device_list[i]->revision << std::endl;
+            std::cout << device_list[i]->prv << std::endl;
+            std::cout << device_list[i]->serial_number << std::endl;
+            iu456_release_device(device_list[i]);
+        }
+
+        iu456_release_device_list(device_list);
+        iu456_shutdown(&error_details);
+
+        return 0;
+    }
+
+Getting new device connected notifications
+------------------------------------------
+
+.. note:: The best option to detect which device has been unplugged is to look for either the `serial_number` or `control_path` values.
+
+.. note:: If one is interested to get a removal notification for an instantiated device, one can use the `on_device_removal` argument of the `iu456_create` (see :ref:`device_removal_notification`).
+
+.. code-block:: c
+    :linenos:
+
+
+    #include <iostream>
+
+    #include "iu456/iu456.h"
+    #include <chrono>
+    #include <thread>
+    #include <atomic>
+
+    void print_device(const iu456_device_t* device);
+
+    namespace
+    {
+        void handle_arrival(const iu456_device_t* device, void* user_data)
+        {
+            print_device(device);
+            iu456_release_device(device);
+            *reinterpret_cast<std::atomic_bool*>(user_data) = true;
+        }
+
+        void handle_removal(const iu456_device_t* device, void* user_data)
+        {
+            print_device(device);
+            iu456_release_device(device);
+        }
+    }
+
+    int main()
+    {
+        iu456_error_details_t error_details;
+        std::atomic_bool device_found = { false };
+
+        if (!iu456_initialize(handle_arrival, handle_removal, &device_found, nullptr, &error_details))
+        {
+            std::cerr << "Failed initialize library: " << error_details.message << std::endl;
+            return -1;
+        }
+
+        while (!device_found)
+        {
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
+
+        iu456_shutdown(&error_details);
+
+        return 0;
+    }
+
+    void print_device(const iu456_device_t* device)
+    {
+        std::cout << "+++++++++++++++++++" << std::endl;
+        std::cout << std::hex << "0x" << device->vid;
+        std::cout << " : 0x" << device->pid << std::dec;
+        std::cout << " : " << device->revision << std::endl;
+        std::cout << device->prv << std::endl;
+        std::cout << device->serial_number << std::endl;
+    }

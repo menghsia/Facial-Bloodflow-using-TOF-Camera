@@ -1,0 +1,295 @@
+Adjustable exposure time
+========================
+
+The latest hardware allows the user to control to a certain extent the exposure time
+of a given mode. This allows the user to change the exposure time to improve the S/N 
+ratio or to control the saturation of the sensor whenever the saturation is caused 
+by the active light itself.
+
+Various exposure time is available for each mode. The default exposure time of each
+mode corresponds to the maximum exposure time that can be safely used.
+
+.. note:: Reducing the exposure may affect the accuracy of the depth.
+
+The library allows the following operations:
+
+* To define the default exposure time for each mode.
+* To get a list of supported exposure time in microseconds.
+* To manually change the exposure time while the device is streaming.
+* To automatically adjust the exposure time according to the picture in specified roi
+  to enable the `iu456_auto_exposure` function.
+
+.. note:: When the auto exposure is enabled, the exposure cannot be controlled using 
+          iu456_set_exposure_time anymore.
+
+Updating the default exposure time for a given mode
+---------------------------------------------------
+
+.. code-block:: c
+    :linenos:
+
+
+    #include <iostream>
+
+    #include "iu456/iu456.h"
+
+    int main()
+    {
+        iu456_error_details_t error_details;
+
+        if (!iu456_initialize(nullptr, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed initialize library: " << error_details.message << std::endl;
+            return -1;
+        }
+
+        iu456_handle_t* handle = nullptr;
+
+        if (!iu456_create(&handle, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed to initialize device: " << error_details.message << std::endl;
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        // Get the currently selected mode
+        // This is done just to have a valid mode to play with
+        const iu456_configuration_info_t* current_configuration = nullptr;
+        if (!iu456_get_current_configuration(handle, &current_configuration, &error_details))
+        {
+            std::cerr << "Failed to get current configuration" << std::endl;
+            iu456_destroy(handle, &error_details);
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        // Get the list of supported exposure time
+        const int* values = nullptr;
+        size_t length = 0;
+        if (!iu456_get_exposure_time_list(handle, current_configuration->uid, &values, &length, nullptr))
+        {
+            std::cerr << "Failed to get the list of available exposure time" << std::endl;
+            iu456_destroy(handle, &error_details);
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        // Set the exposure time to the first available
+        if (!iu456_update_default_exposure_time(handle, current_configuration->uid, values[0], &error_details))
+        {
+            std::cerr << "Failed to update default exposure time" << std::endl;
+            iu456_destroy(handle, &error_details);
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        iu456_destroy(handle, &error_details);
+        iu456_shutdown(&error_details);
+
+        return 0;
+    }
+
+
+Adjusting dynamically the exposure time
+---------------------------------------
+
+.. code-block:: c
+    :linenos:
+
+
+    #include <iostream>
+
+    #include "iu456/iu456.h"
+
+    int main()
+    {
+        iu456_error_details_t error_details;
+
+        if (!iu456_initialize(nullptr, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed initialize library: " << error_details.message << std::endl;
+            return -1;
+        }
+
+        iu456_handle_t* handle = nullptr;
+
+        if (!iu456_create(&handle, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed to initialize device: " << error_details.message << std::endl;
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        std::cout << "Starting stream" << std::endl;
+        if (!iu456_start(handle, &error_details))
+        {
+            std::cerr << "Failed to start stream: " << error_details.message << std::endl;
+            iu456_destroy(handle, &error_details);
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        int counter = 0;
+        const iu456_frame_t* frame_data = nullptr;
+        while (counter < 100)
+        {
+            if (!iu456_get_last_frame(handle, &frame_data, -1, &error_details))
+            {
+                // Break if we encounter any error
+                break;
+            }
+
+            // Change the exposure time when we have
+            // captured 50 frames
+            if (counter == 50)
+            {
+                const iu456_configuration_info_t* configuration = nullptr;
+                if (!iu456_get_current_configuration(handle, &configuration, nullptr))
+                {
+                    std::cerr << "Failed to get current exposure time" << std::endl;
+                    iu456_destroy(handle, &error_details);
+                    iu456_shutdown(&error_details);
+                    return -1;
+                }
+
+                // Get the list of supported exposure time
+                const int* values = nullptr;
+                size_t length = 0;
+                if (!iu456_get_exposure_time_list(handle, configuration->uid, &values, &length, nullptr))
+                {
+                    std::cerr << "Failed to get the list of available exposure time" << std::endl;
+                    iu456_destroy(handle, &error_details);
+                    iu456_shutdown(&error_details);
+                    return -1;
+                }
+
+                // Set the exposure time to the first available
+                if (!iu456_set_exposure_time(handle, values[0], &error_details))
+                {
+                    std::cerr << "Failed to set exposure time" << std::endl;
+                    iu456_destroy(handle, &error_details);
+                    iu456_shutdown(&error_details);
+                    return -1;
+                }
+            }
+            counter++;
+        }
+
+        if (!iu456_stop(handle, &error_details))
+        {
+            std::cerr << "Failed to stop stream: " << error_details.message << std::endl;
+            iu456_destroy(handle, &error_details);
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        iu456_destroy(handle, &error_details);
+        iu456_shutdown(&error_details);
+
+        return 0;
+    }
+
+
+Enabling the auto exposure function
+---------------------------------------
+
+.. code-block:: c
+    :linenos:
+
+
+    #include <iostream>
+
+    #include "iu456/iu456.h"
+
+    int main()
+    {
+        iu456_error_details_t error_details;
+
+        if (!iu456_initialize(nullptr, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed initialize library: " << error_details.message << std::endl;
+            return -1;
+        }
+
+        iu456_handle_t* handle = nullptr;
+
+        if (!iu456_create(&handle, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed to initialize device: " << error_details.message << std::endl;
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        std::cout << "Starting stream" << std::endl;
+        if (!iu456_start(handle, &error_details))
+        {
+            std::cerr << "Failed to start stream: " << error_details.message << std::endl;
+            iu456_destroy(handle, &error_details);
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        int counter = 0;
+        const iu456_frame_t* frame_data = nullptr;
+        const iu456_configuration_info_t* configuration = nullptr;
+        while (counter < 150)
+        {
+            if (!iu456_get_last_frame(handle, &frame_data, -1, &error_details))
+            {
+                // Break if we encounter any error
+                break;
+            }
+
+            // Enable the auto exposure function when we have
+            // captured 50 frames
+            if (counter == 50)
+            {
+                if (!iu456_get_current_configuration(handle, &configuration, nullptr))
+                {
+                    std::cerr << "Failed to get current exposure time" << std::endl;
+                    iu456_destroy(handle, &error_details);
+                    iu456_shutdown(&error_details);
+                    return -1;
+                }
+
+                // Enable the auto exposure function
+                std::cout << "Enable the auto exposure time function" << std::endl;
+                if (!iu456_set_auto_exposure(handle, configuration->uid, iu456_property_state_enabled, nullptr))
+                {
+                    std::cerr << "Failed to set auto exposure" << std::endl;
+                    iu456_destroy(handle, &error_details);
+                    iu456_shutdown(&error_details);
+                    return -1;
+                }
+            }
+            // Disble the auto exposure function when we have
+            // captured 75 frames
+            if (counter == 75)
+            {
+                // Disable the auto exposure function
+                std::cout << "Disable the auto exposure time function" << std::endl;
+                if (!iu456_set_auto_exposure(handle, configuration->uid, iu456_property_state_disabled, nullptr))
+                {
+                    std::cerr << "Failed to set auto exposure" << std::endl;
+                    iu456_destroy(handle, &error_details);
+                    iu456_shutdown(&error_details);
+                    return -1;
+                }
+            }
+            counter++;
+        }
+
+        if (!iu456_stop(handle, &error_details))
+        {
+            std::cerr << "Failed to stop stream: " << error_details.message << std::endl;
+            iu456_destroy(handle, &error_details);
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        iu456_destroy(handle, &error_details);
+        iu456_shutdown(&error_details);
+
+        return 0;
+    }
+

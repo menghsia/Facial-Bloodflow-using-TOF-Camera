@@ -1,0 +1,43 @@
+Instantiating a camera
+======================
+
+The `iu456_create` function allows to instantiate a selected camera. If the `device` argument is passed as `nullptr`, the library picks the first connected device.
+
+The `iu456_destroy` function should be called to release the camera.
+
+.. note:: In the case the `device` argument is passed as `nullptr`, the `iu456_create` may take up to 5 seconds to return. This is a workaround for the fact that by default the device appears as a BootLoader device that requires us to upload the firmware before being re-enumerated as a iu456. The upload of the firmware being handled asynchronously, this is why we have to wait for some time before the real device appears.
+
+
+.. code-block:: c
+    :linenos:
+
+
+    #include <iostream>
+
+    #include "iu456/iu456.h"
+
+    int main()
+    {
+        iu456_error_details_t error_details;
+
+        if (!iu456_initialize(nullptr, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed initialize library: " << error_details.message << std::endl;
+            return -1;
+        }
+
+        iu456_handle_t* handle = nullptr;
+
+        if (!iu456_create(&handle, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed to initialize device: " << error_details.message << std::endl;
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        iu456_destroy(handle, &error_details);
+        iu456_shutdown(&error_details);
+
+        return 0;
+    }
+

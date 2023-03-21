@@ -1,0 +1,194 @@
+Interacting with available configurations
+=========================================
+
+The `iu456_configuration_info_t*` object allows to retrieve some information about the mode:
+
+* `is_calibrated`: indicates if calibration data has been loaded for this mode.
+* `uid`: the ID of the mode. This is the value that needs to be used to set the configuration.
+* `width`: the width of the outputs.
+* `height`: the height of the outputs.
+* `frame_rate`: the frame rate at which the mode runs.
+* `unambiguous_range`: the unambiguous range in meters.
+* `intrinsics`: the lens intrinsics.
+* `name`: the name of the mode.
+
+
+Listing available configurations
+--------------------------------
+
+.. code-block:: c
+    :linenos:
+
+
+    #include <iostream>
+
+    #include "iu456/iu456.h"
+
+    int main()
+    {
+        iu456_error_details_t error_details;
+
+        if (!iu456_initialize(nullptr, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed initialize library: " << error_details.message << std::endl;
+            return -1;
+        }
+
+        iu456_handle_t* handle = nullptr;
+
+        if (!iu456_create(&handle, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed to initialize device: " << error_details.message << std::endl;
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        const iu456_configuration_info_t** configuration_list = nullptr;
+        size_t number_of_configurations = 0;
+        if (!iu456_get_configuration_list(handle, &configuration_list, &number_of_configurations, &error_details))
+        {
+            std::cerr << "Failed to get configuration list" << std::endl;
+            iu456_destroy(handle, &error_details);
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        std::cout << "Available configurations: " << std::endl;
+        for (size_t c = 0; c < number_of_configurations; c++)
+        {
+            std::cout << "- \"" << configuration_list[c]->name << "\"" << std::endl;
+            std::cout << "\tis_calibrated: " << (configuration_list[c]->is_calibrated ? "yes" : "no") << std::endl;
+            std::cout << "\tuid: 0x" << std::hex << configuration_list[c]->uid << std::dec << std::endl;
+            std::cout << "\tresolution: " << configuration_list[c]->width << " x " << configuration_list[c]->height << std::endl;
+            std::cout << "\tframe rate: " << configuration_list[c]->frame_rate << std::endl;
+            std::cout << "\tunambiguous range: " << configuration_list[c]->unambiguous_range << " meters " << std::endl;
+            if (configuration_list[c]->intrinsics != nullptr)
+            {
+                std::cout << "\tintrinsics: ";
+                std::cout << "{fx: " << configuration_list[c]->intrinsics->fx << ",";
+                std::cout << " fy: " << configuration_list[c]->intrinsics->fy << ",";
+                std::cout << " cx: " << configuration_list[c]->intrinsics->cx << ",";
+                std::cout << " cy: " << configuration_list[c]->intrinsics->cy << ",";
+                std::cout << " k1: " << configuration_list[c]->intrinsics->k1 << ",";
+                std::cout << " k2: " << configuration_list[c]->intrinsics->k2 << ",";
+                std::cout << " k3: " << configuration_list[c]->intrinsics->k3 << ",";
+                std::cout << " p1: " << configuration_list[c]->intrinsics->p1 << ",";
+                std::cout << " p2: " << configuration_list[c]->intrinsics->p2 << "}" << std::endl;
+            }
+        }
+
+        iu456_release_pointer(configuration_list);
+
+        iu456_destroy(handle, &error_details);
+        iu456_shutdown(&error_details);
+
+        return 0;
+    }
+
+
+Getting the currently selected configuration
+--------------------------------------------
+
+.. code-block:: c
+    :linenos:
+
+
+    #include <iostream>
+
+    #include "iu456/iu456.h"
+
+    int main()
+    {
+        iu456_error_details_t error_details;
+
+        if (!iu456_initialize(nullptr, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed initialize library: " << error_details.message << std::endl;
+            return -1;
+        }
+
+        iu456_handle_t* handle = nullptr;
+
+        if (!iu456_create(&handle, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed to initialize device: " << error_details.message << std::endl;
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        const iu456_configuration_info_t* current_configuration = nullptr;
+        if (!iu456_get_current_configuration(handle, &current_configuration, &error_details))
+        {
+            std::cerr << "Failed to get current configuration" << std::endl;
+            iu456_destroy(handle, &error_details);
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        std::cout << "Current configuration uid: 0x" << std::hex << current_configuration->uid << std::dec << std::endl;
+
+        iu456_destroy(handle, &error_details);
+        iu456_shutdown(&error_details);
+
+        return 0;
+    }
+
+
+Setting the current configuration
+---------------------------------
+
+If the device is not in a streaming state, calling the `iu456_set_configuration_uid` function will set the configuration to be used whenever the `iu456_start` function is called. Otherwise, the mode in which the camera is running will be changed without interrupting the stream.
+
+.. code-block:: c
+    :linenos:
+
+
+    #include <iostream>
+
+    #include "iu456/iu456.h"
+
+    int main()
+    {
+        iu456_error_details_t error_details;
+
+        if (!iu456_initialize(nullptr, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed initialize library: " << error_details.message << std::endl;
+            return -1;
+        }
+
+        iu456_handle_t* handle = nullptr;
+
+        if (!iu456_create(&handle, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed to initialize device: " << error_details.message << std::endl;
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        const iu456_configuration_info_t** configuration_list = nullptr;
+        size_t number_of_configurations = 0;
+        if (!iu456_get_configuration_list(handle, &configuration_list, &number_of_configurations, &error_details))
+        {
+            std::cerr << "Failed to get configuration list" << std::endl;
+            iu456_destroy(handle, &error_details);
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        if (!iu456_set_configuration_uid(handle, configuration_list[0]->uid, &error_details))
+        {
+            std::cerr << "Failed to set current configuration" << std::endl;
+            iu456_destroy(handle, &error_details);
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        std::cout << "Successfully set the configuration" << std::endl;
+
+        iu456_destroy(handle, &error_details);
+        iu456_shutdown(&error_details);
+
+        return 0;
+    }
+

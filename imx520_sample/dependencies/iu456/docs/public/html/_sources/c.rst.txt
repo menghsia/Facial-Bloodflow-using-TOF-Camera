@@ -1,0 +1,24 @@
+
+C API
+=====
+
+
+.. toctree::
+   :maxdepth: 2
+
+   c/usb/state_of_library
+   c/usb/initializing_library
+   c/usb/enumerating_devices
+   c/usb/instantiating
+   c/usb/device_information
+   c/usb/interacting_with_configurations
+   c/usb/getting_stream
+   c/usb/device_removal_notification
+   c/usb/filtering
+   c/usb/adjustable_frame_rate
+   c/usb/adjustable_exposure_time
+   c/usb/getting_raw_calibration
+   c/usb/building_the_sample
+   c/usb/sample
+   c/usb/api_reference
+

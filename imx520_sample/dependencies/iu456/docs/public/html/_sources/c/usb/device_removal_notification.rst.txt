@@ -1,0 +1,48 @@
+.. _device_removal_notification:
+
+Getting device removal notification
+===================================
+
+.. note:: The user of the library is expected to properly release the resources (e.g calling `iu456_stop` when applicable and `iu456_destroy`).
+
+.. code-block:: c
+    :linenos:
+
+
+    #include <iostream>
+    #include <atomic>
+
+    #include "iu456/iu456.h"
+
+    namespace
+    {
+    void handle_removal(void* user_data)
+    {
+        *reinterpret_cast<std::atomic_bool*>(user_data) = false;
+    }
+    }
+
+    int main()
+    {
+        iu456_error_details_t error_details;
+        if (!iu456_initialize(nullptr, nullptr, nullptr, nullptr, &error_details))
+        {
+            std::cerr << "Failed initialize library: " << error_details.message << std::endl;
+            return -1;
+        }
+
+        iu456_handle_t* handle = nullptr;
+        std::atomic_bool device_is_available = {false};
+
+        if (!iu456_create(&handle, nullptr, handle_removal, &device_is_available, &error_details))
+        {
+            std::cerr << "Failed to initialize device: " << error_details.message << std::endl;
+            iu456_shutdown(&error_details);
+            return -1;
+        }
+
+        iu456_destroy(handle, &error_details);
+        iu456_shutdown(&error_details);
+
+        return 0;
+    }
