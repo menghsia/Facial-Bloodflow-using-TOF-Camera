@@ -1,6 +1,7 @@
 - Use Automotive Suite to record a video clip (.skv file)
 - Copy skv file(s) to /skvs/
 - Open imx520_sample project in Visual Studio (use the long .exe profile)
+	- We are debugging imx520_sample.exe (C:\Users\MNI Lab\Documents\GitHub\prgrm\facial-blood-ToF\imx520_sample\.build\output\imx520_sample.exe)
 - Run facial_skBF_facemeshTrak.py
 - copy the bfsig output file to matlab_code
 - open process_thermal.m
