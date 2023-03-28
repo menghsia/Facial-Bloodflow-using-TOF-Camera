@@ -8,3 +8,13 @@
 	- where??
 - open process_thermal.m
 - this outputs charts of the heart rate
+
+
+Places where there used to be large *.skv files:
+./skvs/
+./automotive_suite-v0.0.0-recorder_viewer-win64/RecordedMovies/
+
+Places where there used to be large *.skv.mat files:
+./
+./skv_mat/
+./imx520_sample/.build/output/
