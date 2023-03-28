@@ -3,6 +3,8 @@
 - Open imx520_sample project in Visual Studio (use the long .exe profile)
 	- We are debugging imx520_sample.exe (C:\Users\MNI Lab\Documents\GitHub\prgrm\facial-blood-ToF\imx520_sample\.build\output\imx520_sample.exe)
 - Run facial_skBF_facemeshTrak.py
+	- Outputs to facial-blood-ToF/skv_mat/20221003-Sparsh_Fex_bfsig.mat
 - copy the bfsig output file to matlab_code
+	- where??
 - open process_thermal.m
 - this outputs charts of the heart rate
