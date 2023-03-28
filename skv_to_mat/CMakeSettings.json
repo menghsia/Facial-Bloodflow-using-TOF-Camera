@@ -1,0 +1,32 @@
+﻿{
+  "configurations": [
+    {
+      "name": "x64-Debug (default)",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "variables": [
+        {
+          "name": "iu456_binary",
+          "value": "C:/Users/spars/Downloads/imx520_sample/dependencies/iu456/bin/Windows7_x64_VS2015/iu456.dll",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "iu456_LIBRARIES",
+          "value": "C:/Users/spars/Downloads/imx520_sample/dependencies/iu456/lib/Windows7_x64_VS2015/iu456.lib",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "minicalc_binary",
+          "value": "C:/Users/spars/Downloads/imx520_sample/dependencies/iu456/bin/Windows7_x64_VS2015/minicalc.dll",
+          "type": "FILEPATH"
+        }
+      ]
+    }
+  ]
+}
