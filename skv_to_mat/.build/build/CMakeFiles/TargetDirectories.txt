@@ -1,3 +1,0 @@
-C:/Users/Muhsinun/Desktop/Muhsinun/Repositories/GitHub/facial-bloodflow-tof_live/skv_to_mat/.build/build/CMakeFiles/imx520_sample.dir
-C:/Users/Muhsinun/Desktop/Muhsinun/Repositories/GitHub/facial-bloodflow-tof_live/skv_to_mat/.build/build/CMakeFiles/ALL_BUILD.dir
-C:/Users/Muhsinun/Desktop/Muhsinun/Repositories/GitHub/facial-bloodflow-tof_live/skv_to_mat/.build/build/CMakeFiles/ZERO_CHECK.dir

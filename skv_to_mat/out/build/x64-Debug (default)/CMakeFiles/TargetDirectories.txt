@@ -1,3 +1,0 @@
-C:/Users/spars/Downloads/imx520_sample/out/build/x64-Debug (default)/CMakeFiles/imx520_sample.dir
-C:/Users/spars/Downloads/imx520_sample/out/build/x64-Debug (default)/CMakeFiles/edit_cache.dir
-C:/Users/spars/Downloads/imx520_sample/out/build/x64-Debug (default)/CMakeFiles/rebuild_cache.dir
