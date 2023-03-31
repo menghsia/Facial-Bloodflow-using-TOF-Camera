@@ -1,0 +1,5 @@
+# ninja log v5
+1	1893	6782360807894675	CMakeFiles/imx520_sample.dir/sources/main.cpp.obj	d6f9d7dfa8bb2bec
+1896	3278	6782360815762795	../../../.build/output/imx520_sample.exe	6dcb11f421ea241c
+1	1068	6782363145207884	CMakeFiles/imx520_sample.dir/sources/main.cpp.obj	d6f9d7dfa8bb2bec
+2	479	6782363939534969	../../../.build/output/imx520_sample.exe	6dcb11f421ea241c

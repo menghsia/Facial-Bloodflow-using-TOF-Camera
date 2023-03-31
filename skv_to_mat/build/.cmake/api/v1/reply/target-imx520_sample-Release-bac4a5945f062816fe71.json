@@ -1,0 +1,188 @@
+{
+	"artifacts" : 
+	[
+		{
+			"path" : "C:/Users/Muhsinun/Desktop/Muhsinun/Repositories/GitHub/facial-bloodflow-tof_live/skv_to_mat/.build/output/Release/imx520_sample.exe"
+		},
+		{
+			"path" : "C:/Users/Muhsinun/Desktop/Muhsinun/Repositories/GitHub/facial-bloodflow-tof_live/skv_to_mat/.build/output/Release/imx520_sample.pdb"
+		}
+	],
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_executable",
+			"target_link_libraries",
+			"INCLUDE_DIRECTORIES",
+			"target_include_directories"
+		],
+		"files" : 
+		[
+			"CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 43,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 54,
+				"parent" : 0
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 37,
+				"parent" : 0
+			},
+			{
+				"command" : 3,
+				"file" : 0,
+				"line" : 47,
+				"parent" : 0
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "/DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 3,
+					"path" : "C:/Program Files/MATLAB/R2023a/extern/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "C:/Users/Muhsinun/Desktop/Muhsinun/Repositories/GitHub/facial-bloodflow-tof_live/skv_to_mat/dependencies/iu456/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "C:/Users/Muhsinun/Desktop/Muhsinun/Repositories/GitHub/facial-bloodflow-tof_live/skv_to_mat/dependencies/cloudify/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "C:/Users/Muhsinun/Desktop/Muhsinun/Repositories/GitHub/facial-bloodflow-tof_live/skv_to_mat/dependencies/skv/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "C:/Users/Muhsinun/Desktop/Muhsinun/Repositories/GitHub/facial-bloodflow-tof_live/skv_to_mat/dependencies/skv_helper"
+				}
+			],
+			"language" : "CXX",
+			"sourceIndexes" : 
+			[
+				0
+			]
+		}
+	],
+	"dependencies" : 
+	[
+		{
+			"id" : "ZERO_CHECK::@6890427a1f51a3e7e1df"
+		}
+	],
+	"id" : "imx520_sample::@6890427a1f51a3e7e1df",
+	"link" : 
+	{
+		"commandFragments" : 
+		[
+			{
+				"fragment" : "/DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG",
+				"role" : "flags"
+			},
+			{
+				"fragment" : "/machine:x64 /INCREMENTAL:NO /subsystem:console",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\Users\\Muhsinun\\Desktop\\Muhsinun\\Repositories\\GitHub\\facial-bloodflow-tof_live\\skv_to_mat\\dependencies\\iu456\\lib\\Windows7_x64_VS2015\\iu456.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\Users\\Muhsinun\\Desktop\\Muhsinun\\Repositories\\GitHub\\facial-bloodflow-tof_live\\skv_to_mat\\dependencies\\cloudify\\lib\\cloudify.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\Users\\Muhsinun\\Desktop\\Muhsinun\\Repositories\\GitHub\\facial-bloodflow-tof_live\\skv_to_mat\\dependencies\\skv\\lib\\skv.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "C:\\Users\\Muhsinun\\Desktop\\Muhsinun\\Repositories\\GitHub\\facial-bloodflow-tof_live\\skv_to_mat\\dependencies\\skv\\lib\\h5lz4.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "\"C:\\Program Files\\MATLAB\\R2023a\\extern\\lib\\win64\\microsoft\\libmex.lib\"",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "\"C:\\Program Files\\MATLAB\\R2023a\\extern\\lib\\win64\\microsoft\\libmat.lib\"",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "\"C:\\Program Files\\MATLAB\\R2023a\\extern\\lib\\win64\\microsoft\\libmx.lib\"",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "\"C:\\Program Files\\MATLAB\\R2023a\\extern\\lib\\win64\\microsoft\\libeng.lib\"",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib",
+				"role" : "libraries"
+			}
+		],
+		"language" : "CXX"
+	},
+	"name" : "imx520_sample",
+	"nameOnDisk" : "imx520_sample.exe",
+	"paths" : 
+	{
+		"build" : ".",
+		"source" : "."
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				0
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "sources/main.cpp",
+			"sourceGroupIndex" : 0
+		}
+	],
+	"type" : "EXECUTABLE"
+}
