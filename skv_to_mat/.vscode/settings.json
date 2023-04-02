@@ -1,3 +1,7 @@
 {
-    "terminal.integrated.defaultProfile.windows": "Windows PowerShell"
+    "terminal.integrated.defaultProfile.windows": "Windows PowerShell",
+    "files.associations": {
+        "chrono": "cpp",
+        "fstream": "cpp"
+    }
 }
