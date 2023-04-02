@@ -14,7 +14,7 @@
 #include <string.h> /* For memcpy() */
 #include <stdlib.h> /* For EXIT_FAILURE, EXIT_SUCCESS */
 #include <mat.h>
-#include <windows.h>+
+#include <windows.h>
 #include <chrono>
 #include <ctime>  
 #include<string>  
@@ -30,6 +30,9 @@ using namespace std;
 
 int main()
 {
+	// char currentDir[MAX_PATH];
+	// GetCurrentDirectory(MAX_PATH, currentDir);
+    // std::cout << "Current directory is: " << currentDir << std::endl;
 
 	iu456_error_details_t error;
 	
@@ -42,7 +45,8 @@ int main()
 	std::vector<std::string> skvs{ "File Names: " };
 	//if ((hFind = FindFirstFile("C:/Users/spars/Downloads/AutoSuite/automotive_suite-v0.0.0-recorder_viewer-win64/RecordedMovies/*.skv", &FindFileData)) != INVALID_HANDLE_VALUE) {
 	//if ((hFind = FindFirstFile("C:/Users/MNI Lab/Documents/GitHub/prgrm/facial-blood-ToF/skvs/*.skv", &FindFileData)) != INVALID_HANDLE_VALUE) {
-	if ((hFind = FindFirstFile("C:/Users/Muhsinun/Desktop/Muhsinun/Repositories/GitHub/facial-bloodflow-tof_live/skvs/*.skv", &FindFileData)) != INVALID_HANDLE_VALUE) {
+	// if ((hFind = FindFirstFile("C:/Users/Muhsinun/Desktop/Muhsinun/Repositories/GitHub/facial-bloodflow-tof_live/skvs/*.skv", &FindFileData)) != INVALID_HANDLE_VALUE) {
+	if ((hFind = FindFirstFile("*.skv", &FindFileData)) != INVALID_HANDLE_VALUE) {
 		do {
 			printf("%s\n", FindFileData.cFileName);
 			std::string skvname= string(FindFileData.cFileName) ;
@@ -62,7 +66,8 @@ int main()
 
 		//std::string movie_path("C:/Users/spars/Downloads/AutoSuite/automotive_suite-v0.0.0-recorder_viewer-win64/RecordedMovies/" + skvs[l]);
 		//std::string movie_path("C:/Users/MNI Lab/Documents/GitHub/prgrm/facial-blood-ToF/skvs/" + skvs[l]);
-		std::string movie_path("C:/Users/Muhsinun/Desktop/Muhsinun/Repositories/GitHub/facial-bloodflow-tof_live/skvs/" + skvs[l]);
+		// std::string movie_path("C:/Users/Muhsinun/Desktop/Muhsinun/Repositories/GitHub/facial-bloodflow-tof_live/skvs/" + skvs[l]);
+		std::string movie_path(skvs[l]);
 		std::unique_ptr<depthsense::skv::helper::skv> skv_reader(new depthsense::skv::helper::skv());  //
 
 		try
