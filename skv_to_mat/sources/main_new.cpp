@@ -27,33 +27,22 @@
 
 using namespace std;
 
+// Print help for the user when requested.
+// argv[0] is the name of the currently executing program
 void printHelp(char* argv[]) {
 	std::cout << "Usage: " << argv[0] << " <-i:input input.skv>|<-o:output output.mat>|[-h]\n";
 	cout << "This program takes in an input .skv file and converts it into an output .mat file." << endl;
-}
+} // printHelp()
 
-/**
- * @brief This function takes in the command line arguments (argc, argv), parses them, and returns a tuple of input and output filepaths.
- * The function uses the getopt_long function to parse the command line arguments and sets the input and output file paths accordingly.
- * Input and output filepaths are both required. If the file cannot be opened (input file does not exist or input/output file have
- * incorrect extension), the function terminates the program with exit code 1.
- *
- * @param argc The number of command line arguments.
- * @param argv An array of C-style strings containing the command line arguments.
- * @return A tuple containing the input filepath and output filepath.
- * 
- * Example usage:
- * std::tuple<std::filesystem::path, std::filesystem::path> options = getOptions(argc, argv);
- * std::filesystem::path inputFile = std::get<0>(options);
- * std::filesystem::path outputFile = std::get<1>(options);
- */
-std::tuple<std::filesystem::path, std::filesystem::path> getOptions(int argc, char* argv[]) {
-	std::string inputFileArg;
-	std::filesystem::path inputFile_path;
+std::tuple<std::string, std::string> getOptions(int argc, char* argv[]) {
+	//bool outputModeSpecified = false;
+	//std::string outputModeLocal;
+	//char outputModeLocalChar;
+	//int numTimesSearchModeDefined = 0;
+
+	std::string inputFile;
 	bool inputFileSpecified = false;
-
-	std::string outputFileArg;
-	std::filesystem::path outputFile_path;
+	std::string outputFile;
 	bool outputFileSpecified = false;
 
 	// These are used with getopt_long()
@@ -74,31 +63,56 @@ std::tuple<std::filesystem::path, std::filesystem::path> getOptions(int argc, ch
 	// Fill in the double quotes, to match the mode and help options.
 	while ((choice = getopt_long(argc, argv, "i:o:h", long_options, &option_index)) != -1) {
 		switch (choice) {
+			//case 's':
+			//    searchMode = 's';
+			//    ++numTimesSearchModeDefined;
+			//    break;
+
+			//case 'q':
+			//    searchMode = 'q';
+			//    ++numTimesSearchModeDefined;
+			//    break;
+
+			//case 'o':
+			//    outputModeLocal = optarg;
+
+			//    if (outputModeLocal.size() != 1) {
+			//        // User provided an option for outputMode that is longer than 1 char long
+			//        // Invalid argument
+			//        exit(1);
+			//    }
+			//    else {
+			//        // User provided an appropriate length option for outputMode
+			//        outputModeLocalChar = outputModeLocal[0];
+
+			//        if (outputModeLocalChar != 'M' && outputModeLocalChar != 'L') {
+			//            std::cerr << "Invalid output mode specified\n";
+			//            std::cerr << "  The output mode specified: " << outputModeLocalChar
+			//                << "\n";
+			//            exit(1);
+			//        }
+			//    }
+
+			//    outputMode = outputModeLocalChar;
+			//    outputModeSpecified = true;
+			//    break;
+
 		case 'i':
+			inputFile = optarg;
 			inputFileSpecified = true;
-			inputFileArg = optarg;
 
-			// Convert inputFile to a std::filesystem::path object.
-			inputFile_path = std::filesystem::path(inputFileArg);
-
-			// Check if inputFile is a relative path. If it is, convert it to an absolute path.
-			inputFile_path = std::filesystem::absolute(inputFile_path);
-
-			/* NOTE: Because I wanted to use std::filesystem to check if files exist, I had
-			to upgrade from C++14 to C++20 (filesystem requires C++17 or higher). */
-
-			// Check if inputFile exists. If not, print an error message with full path and exit.
-			if (!std::filesystem::exists(inputFile_path)) {
-				std::cerr << "Input file does not exist\n";
-				std::cerr << "  Input file specified: " << inputFile_path
+			// Check if inputFile is a .skv file. If not, exit.
+			if (inputFile.substr(inputFile.find_last_of(".") + 1) != "skv") {
+				std::cerr << "Input file must be .skv file\n";
+				std::cerr << "  Input file specified: " << inputFile
 					<< "\n";
 				exit(1);
 			}
 
-			// Check if inputFile is a .skv file. If not, exit.
-			if (inputFile_path.extension() != ".skv") {
-				std::cerr << "Input file must be .skv file\n";
-				std::cerr << "  Input file specified: " << inputFile_path
+			// Check if inputFile exists. If not, exit.
+			if (!std::filesystem::exists(inputFile)) {
+				std::cerr << "Input file does not exist\n";
+				std::cerr << "  Input file specified: " << inputFile
 					<< "\n";
 				exit(1);
 			}
@@ -106,28 +120,22 @@ std::tuple<std::filesystem::path, std::filesystem::path> getOptions(int argc, ch
 			break;
 
 		case 'o':
+			outputFile = optarg;
 			outputFileSpecified = true;
-			outputFileArg = optarg;
-
-			// Convert outputFile to a std::filesystem::path object.
-			outputFile_path = std::filesystem::path(outputFileArg);
-
-			// Check if outputFile is a relative path. If it is, convert it to an absolute path.
-			outputFile_path = std::filesystem::absolute(outputFile_path);
-
-			// Check if outputFile exists. If it does, notify the user that it will be overwritten.
-			if (std::filesystem::exists(outputFile_path)) {
-				std::cout << "Output file already exists. It will be overwritten.\n";
-				std::cout << "  Output file specified: " << outputFile_path
-					<< "\n";
-			}
 
 			// Check if outputFile is a .mat file. If not, exit.
-			if (outputFile_path.extension() != ".mat") {
+			if (outputFile.substr(outputFile.find_last_of(".") + 1) != "mat") {
 				std::cerr << "Output file must be .mat file\n";
-				std::cerr << "  Output file specified: " << outputFile_path
+				std::cerr << "  Output file specified: " << outputFile
 					<< "\n";
 				exit(1);
+			}
+
+			// Check if outputFile exists. If it does, notify the user that it will be overwritten.
+			if (std::filesystem::exists(outputFile)) {
+				std::cout << "Output file already exists. It will be overwritten.\n";
+				std::cout << "  Output file specified: " << outputFile
+					<< "\n";
 			}
 
 			break;
@@ -152,7 +160,7 @@ std::tuple<std::filesystem::path, std::filesystem::path> getOptions(int argc, ch
 		exit(1);
 	}
 
-	return std::tie(inputFile_path, outputFile_path);
+	return std::tie(inputFile, outputFile);
 }
 
 int main(int argc, char* argv[]) {
@@ -163,14 +171,37 @@ int main(int argc, char* argv[]) {
 		Where input_file.skv is the input file and output_file.mat is the output file.
 	*/
 
-	std::tuple<std::filesystem::path, std::filesystem::path> options = getOptions(argc, argv);
-	std::filesystem::path inputFile = std::get<0>(options);
-	std::filesystem::path outputFile = std::get<1>(options);
+	int opt;
+	char* inputFileName = nullptr;
+	char* outputFileName = nullptr;
 
-	// sk_automotive_20221003_164605.skv
-	std::cout << "Input file name: " << inputFile << std::endl;
-	// vs_output.mat
-	std::cout << "Output file name: " << outputFile << std::endl;
+	while ((opt = getopt(argc, argv, "i:o:")) != -1) {
+		switch (opt) {
+		case 'i':
+			inputFileName = optarg;
+			break;
+		case 'o':
+			outputFileName = optarg;
+			break;
+		default:
+			std::cerr << "Usage: " << argv[0] << " -i input_file.skv -o output_file.mat\n";
+			return 1;
+		}
+	}
+
+	if (!inputFileName || !outputFileName) {
+		std::cerr << "Usage: " << argv[0] << " -i input_file.skv -o output_file.mat\n";
+		return 1;
+	}
+
+	std::cout << "Input file name: " << inputFileName << std::endl;
+	std::cout << "Output file name: " << outputFileName << std::endl;
+
+	string fileIn;
+	string fileOut;
+
+	//std::tie(fileIn, fileOut) = getFilenames(argc, argv);
+	std::tie(fileIn, fileOut) = getOptions(argc, argv);
 
 
 	//// char currentDir[MAX_PATH];
