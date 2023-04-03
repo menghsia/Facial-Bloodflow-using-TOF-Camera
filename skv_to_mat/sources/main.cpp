@@ -52,10 +52,12 @@ void printHelp(char* argv[]) {
 std::tuple<std::filesystem::path, std::filesystem::path> getOptions(int argc, char* argv[]) {
 	std::string inputFileArg;
 	std::filesystem::path inputFile_path;
+	std::string inputFilePathStringFS;
 	bool inputFileSpecified = false;
 
 	std::string outputFileArg;
 	std::filesystem::path outputFile_path;
+	std::string outputFilePathStringFS;
 	bool outputFileSpecified = false;
 
 	// These are used with getopt_long()
@@ -89,10 +91,13 @@ std::tuple<std::filesystem::path, std::filesystem::path> getOptions(int argc, ch
 			/* NOTE: Because I wanted to use std::filesystem to check if files exist, I had
 			to upgrade from C++14 to C++20 (filesystem requires C++17 or higher). */
 
+			inputFilePathStringFS = inputFile_path.string();
+			std::replace(inputFilePathStringFS.begin(), inputFilePathStringFS.end(), '\\', '/');
+
 			// Check if inputFile exists. If not, print an error message with full path and exit.
 			if (!std::filesystem::exists(inputFile_path)) {
 				std::cerr << "Input file does not exist\n";
-				std::cerr << "  Input file specified: " << inputFile_path
+				std::cerr << "  Input file specified: " << inputFilePathStringFS
 					<< "\n";
 				exit(1);
 			}
@@ -100,7 +105,7 @@ std::tuple<std::filesystem::path, std::filesystem::path> getOptions(int argc, ch
 			// Check if inputFile is a .skv file. If not, exit.
 			if (inputFile_path.extension() != ".skv") {
 				std::cerr << "Input file must be .skv file\n";
-				std::cerr << "  Input file specified: " << inputFile_path
+				std::cerr << "  Input file specified: " << inputFilePathStringFS
 					<< "\n";
 				exit(1);
 			}
@@ -117,17 +122,20 @@ std::tuple<std::filesystem::path, std::filesystem::path> getOptions(int argc, ch
 			// Check if outputFile is a relative path. If it is, convert it to an absolute path.
 			outputFile_path = std::filesystem::absolute(outputFile_path);
 
+			outputFilePathStringFS = outputFile_path.string();
+			std::replace(outputFilePathStringFS.begin(), outputFilePathStringFS.end(), '\\', '/');
+
 			// Check if outputFile exists. If it does, notify the user that it will be overwritten.
 			if (std::filesystem::exists(outputFile_path)) {
 				std::cout << "Output file already exists. It will be overwritten.\n";
-				std::cout << "  Output file specified: " << outputFile_path
+				std::cout << "  Output file specified: " << outputFilePathStringFS
 					<< "\n";
 			}
 
 			// Check if outputFile is a .mat file. If not, exit.
 			if (outputFile_path.extension() != ".mat") {
 				std::cerr << "Output file must be .mat file\n";
-				std::cerr << "  Output file specified: " << outputFile_path
+				std::cerr << "  Output file specified: " << outputFilePathStringFS
 					<< "\n";
 				exit(1);
 			}
@@ -157,14 +165,13 @@ std::tuple<std::filesystem::path, std::filesystem::path> getOptions(int argc, ch
 	return std::tie(inputFile_path, outputFile_path);
 }
 
+/**
+* This program should take args as such:
+* program.exe -i input_file.skv -o output_file.mat
+* 
+* Where input_file.skv is the input file and output_file.mat is the output file.
+*/
 int main(int argc, char* argv[]) {
-	/*
-		This program should take args as such:
-		program.exe -i input_file.skv -o output_file.mat
-
-		Where input_file.skv is the input file and output_file.mat is the output file.
-	*/
-
 	// Get the input and output file paths. These paths are represented as follows:
 	// C:\Users\user\Documents\input_file.skv
 	std::tuple<std::filesystem::path, std::filesystem::path> options = getOptions(argc, argv);
@@ -174,6 +181,12 @@ int main(int argc, char* argv[]) {
 	// Save the input and output file names as strings
 	std::string inputFileName = inputFilePath.filename().string();
 	std::string outputFileName = outputFilePath.filename().string();
+
+	// Save the input and output file paths as strings. It is currently in the form: C:\path\to\file\input_file.skv, so we need to convert the backslashes to forward slashes.
+	std::string inputFilePathStringFS = inputFilePath.string();
+	std::string outputFilePathStringFS = outputFilePath.string();
+	std::replace(inputFilePathStringFS.begin(), inputFilePathStringFS.end(), '\\', '/');
+	std::replace(outputFilePathStringFS.begin(), outputFilePathStringFS.end(), '\\', '/');
 
 	//// Print the input and output file names
 	//// sk_automotive_20221003_164605.skv
@@ -192,6 +205,12 @@ int main(int argc, char* argv[]) {
 	//std::cout << "Input file path as string: " << inputFilePath.string() << std::endl;
 	////  C:\path\to\file\vs_output.mat
 	//std::cout << "Output file path as string: " << outputFilePath.string() << std::endl;
+
+	//// Print the input and output file paths as strings. The backslashes have been replaced with forward slashes.
+	//// C:/path/to/file/sk_automotive_20221003_164605.skv
+	//std::cout << "Input file path as string with forward slashes: " << inputFilePathStringFS << std::endl;
+	//// C:/path/to/file/vs_output.mat
+	//std::cout << "Output file path as string with forward slashes: " << outputFilePathStringFS << std::endl;
 
 	iu456_error_details_t error;
 
@@ -222,7 +241,7 @@ int main(int argc, char* argv[]) {
 
 	try {
 		//skv_reader->open(movie_path);
-		skv_reader->open(inputFilePath.string());
+		skv_reader->open(inputFilePathStringFS);
 	}
 	catch (...) {
 		std::cout << "ERROR: Failed to open skv movie." << std::endl;
@@ -231,7 +250,7 @@ int main(int argc, char* argv[]) {
 	depthsense::skv::helper::camera_intrinsics camera_parameters = skv_reader->get_camera_intrinsic_parameters();   //read and save camera intrinsics
 	int frame_num = skv_reader->get_frame_count();
 	std::cout << "**** Movie Info:" << std::endl;
-	std::cout << "path			: " << movie_path << std::endl;
+	std::cout << "path			: " << inputFilePathStringFS << std::endl;
 	std::cout << "frames count		: " << skv_reader->get_frame_count() << std::endl;
 	std::cout << "frames dimensions	: width=" << camera_parameters.width <<
 		" height=" << camera_parameters.height << std::endl;
@@ -293,30 +312,25 @@ int main(int argc, char* argv[]) {
 
 	std::vector<int16_t> depth_map_radial(example_intrinsics.width * example_intrinsics.height);   //initialnize a buffer, save all depth data of a frame in 1d array
 	std::vector<int16_t> confidence_map_radial(example_intrinsics.width * example_intrinsics.height);   //initialnize a buffer, save all depth data of a frame in 1d array
-	for (size_t i = 0; i < frame_num; ++i)
-	{
+	for (size_t i = 0; i < frame_num; ++i) {
 		skv_reader->get_depth_image(i, depth_map_radial.data());
 		skv_reader->get_confidence_image(i, confidence_map_radial.data());
-		for (size_t j = 0; j < example_intrinsics.width; ++j)
-		{
+		for (size_t j = 0; j < example_intrinsics.width; ++j) {
 			//std::cout << j << std::endl;
-			for (size_t k = 0; k < example_intrinsics.height; ++k)
-			{
+			for (size_t k = 0; k < example_intrinsics.height; ++k) {
 				size_t example_index[] = { j, k };
 				size_t idx = example_index[0] + example_index[1] * example_intrinsics.width;
 				float radial_input = depth_map_radial[idx];
 				float cartesian_output;
 				cloudify_compute_radial_to_cartesian_depth(handle, example_index[0], example_index[1], radial_input, &cartesian_output, &err);
-				if (err.code != cloudify_success)
-				{
+				if (err.code != cloudify_success) {
 					std::cout << err.message << std::endl;
 					return -1;
 				}
 
 				cloudify_position_3d position;
 				cloudify_compute_3d_point(handle, example_index[0], example_index[1], cartesian_output, &position, &err);
-				if (err.code != cloudify_success)
-				{
+				if (err.code != cloudify_success) {
 					std::cout << err.message << std::endl;
 					return -1;
 				}
@@ -329,12 +343,13 @@ int main(int argc, char* argv[]) {
 
 			}
 		}
-		std::cout << i << std::endl;
+		// This is: i / (frames_count = skv_reader->get_frame_count())
+		//std::cout << i << std::endl;
+		std::cout << i << "\n";
 	}
 
 	cloudify_release(&handle, &err);
-	if (err.code != cloudify_success)
-	{
+	if (err.code != cloudify_success) {
 		std::cout << err.message << std::endl;
 		return -1;
 	}
@@ -596,10 +611,12 @@ int main(int argc, char* argv[]) {
 	mxArray* pa1, * pa2, * pa3, * pa4, * pa5;
 
 	int16_t data[9] = { 9, 9, 9, 9, 4, 3, 2, 1, 10000 };
-	const char* file = matfile_name_c;
+	//const char* file = matfile_name_c;
+	const char* file = const_cast<char*>(outputFilePathStringFS.c_str());
 	char str[BUFSIZE];
 	int status;
 
+	//printf("Creating file %s...\n\n", file);
 	printf("Creating file %s...\n\n", file);
 	pmat = matOpen(file, "w");
 
@@ -701,6 +718,8 @@ int main(int argc, char* argv[]) {
 		printf("Error closing file %s\n", file);
 		return(EXIT_FAILURE);
 	}
+
+	std::cout << "Finished" << std::endl;
 
 
 	//ii = ii + 1;
