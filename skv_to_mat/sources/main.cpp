@@ -215,13 +215,14 @@ int main(int argc, char* argv[]) {
 
 	//std::string movie_path("C:/Users/spars/Downloads/AutoSuite/automotive_suite-v0.0.0-recorder_viewer-win64/RecordedMovies/" + skvs[l]);
 	//std::string movie_path("C:/Users/MNI Lab/Documents/GitHub/prgrm/facial-blood-ToF/skvs/" + skvs[l]);
-	 std::string movie_path("C:/Users/Muhsinun/Desktop/Muhsinun/Repositories/GitHub/facial-bloodflow-tof_live/skvs/" + inputFileName);
+	 //std::string movie_path("C:/Users/Muhsinun/Desktop/Muhsinun/Repositories/GitHub/facial-bloodflow-tof_live/skvs/" + inputFileName);
 	 //std::string movie_path(inputFilePath);
 	//std::string movie_path(skvs[l]);
 	std::unique_ptr<depthsense::skv::helper::skv> skv_reader(new depthsense::skv::helper::skv());  //
 
 	try {
-		skv_reader->open(movie_path);
+		//skv_reader->open(movie_path);
+		skv_reader->open(inputFilePath.string());
 	}
 	catch (...) {
 		std::cout << "ERROR: Failed to open skv movie." << std::endl;
