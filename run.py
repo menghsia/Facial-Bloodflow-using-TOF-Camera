@@ -518,7 +518,7 @@ def record_skv():
             # file_datetime = new_skv[1]
     
             # Get absolute path to the new .skv file
-            new_skv_path = os.path.join(folder_path, new_skv[0])
+            new_skv_path = os.path.join(recordings_path, new_skv[0])
     
             print('Automotive Suite recorded new file: ' + new_skv_path)
     
@@ -560,6 +560,9 @@ if __name__ == '__main__':
 
     # Get filename of the .skv file without the path or extension
     skv_filename = os.path.basename(skv_path)[:-4]
+
+    print("skv_path:")
+    print(skv_path)
 
     # Convert .skv video file into .mat file
     process = subprocess.run(["./skv_to_mat/compiled_releases/r1/imx520_sample.exe", "-i", skv_path, "-o", "./skvs/mat/" + skv_filename + ".mat"])
