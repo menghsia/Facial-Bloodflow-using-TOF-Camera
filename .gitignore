@@ -5,6 +5,7 @@ automotive_suite-v0.0.0-recorder_viewer-win64/RecordedMovies/Alex_exercise_recov
 skv_to_mat/.build/
 skv_to_mat/build/
 skv_to_mat/out/
+vs_output.mat
 
 # This is a sample .gitignore file that's useful for C++ projects.
 #
