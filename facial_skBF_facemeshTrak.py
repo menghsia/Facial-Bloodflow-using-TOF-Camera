@@ -232,7 +232,10 @@ def eye_aspect_ratio(eye):
     return EAR
 
 
-matpath = 'C:/Users/MNI Lab/Documents/GitHub/prgrm/facial-blood-ToF/skv_mat/'
+# matpath = 'C:/Users/MNI Lab/Documents/GitHub/prgrm/facial-blood-ToF/skv_mat/'
+# matname = '20221003-Sparsh_Fex_bfsig'
+
+matpath = './skvs/mat/'
 matname = '20221003-Sparsh_Fex_bfsig'
 
 # parameters initialization
