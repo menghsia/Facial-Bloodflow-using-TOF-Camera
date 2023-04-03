@@ -479,15 +479,35 @@ def record_skv():
         print(f"folder_path: {folder_path}")
         print(f"exe_path: {exe_path}")
     
-        # Get list of files in ./automotive_suite_recorder_viewer_v*
+        # Get set of files in ./automotive_suite_recorder_viewer*
         #   - Put all *.skv filenames and the datetime they were created in a set of tuples {("filename.skv", datetime_created))}
         #   - Ignore folders
-        skvs_before_recording = set(filter(lambda x: x[0].endswith('.skv'), map(lambda x: (x, os.path.getctime(os.path.join(folder_path, x))), os.listdir(folder_path))))
+
+        recordings_path = os.path.join(folder_path, 'RecordedMovies')
+
+        skvs_before_recording = set(filter(lambda x: x[0].endswith('.skv'), map(lambda x: (x, os.path.getctime(os.path.join(recordings_path, x))), os.listdir(recordings_path))))
+
+        # skvs_before_recording = set()
+        # for filename in os.listdir(recordings_path):
+        #     print(f"filename: {filename}")
+        #     if os.path.isfile(os.path.join(recordings_path, filename)) and filename.endswith('.skv'):
+        #         # get the datetime the file was created
+        #         datetime_created = os.path.getctime(os.path.join(recordings_path, filename))
+        #         # add the filename and datetime_created to the set as a tuple
+        #         skvs_before_recording.add((filename, datetime_created))
+
+
+
+
+        print("skvs before recording")
+        print(skvs_before_recording)
     
         # Launch the program and wait until the user exits it
         process = subprocess.run(exe_path)
     
-        skvs_after_recording = set(filter(lambda x: x[0].endswith('.skv'), map(lambda x: (x, os.path.getctime(os.path.join(folder_path, x))), os.listdir(folder_path))))
+        skvs_after_recording = set(filter(lambda x: x[0].endswith('.skv'), map(lambda x: (x, os.path.getctime(os.path.join(recordings_path, x))), os.listdir(recordings_path))))
+        print("skvs after recording")
+        print(skvs_after_recording)
     
         # If sets are different, then a new .skv file was created
         if skvs_before_recording != skvs_after_recording:
