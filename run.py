@@ -591,7 +591,8 @@ if __name__ == '__main__':
     # process = subprocess.run(["matlab", "-r", "auto_matlab/process_thermal_SINGLE"])
     # Create path to matlab script
     matlab_script_path = os.path.join(os.getcwd(), "auto_matlab/process_thermal_SINGLE.m")
-    process = subprocess.run(["matlab", "-r", "\"run(matlab_script_path);\""])
+    # process = subprocess.run(["matlab", "-r", "\"run(matlab_script_path);\""])
+    process = subprocess.run(["matlab", "-r", "run('" + matlab_script_path + "');"])
     # matlab -r "run('C:\path\to\my_script.m');"
 
     print('Done!')
