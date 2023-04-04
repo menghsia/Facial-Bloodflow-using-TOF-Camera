@@ -580,7 +580,12 @@ if __name__ == '__main__':
         print(skv_path)
 
         # Convert .skv video file into .mat file
-        process = subprocess.run(["skv_to_mat/compiled_releases/r1/imx520_sample.exe", "-i", skv_path, "-o", "./skvs/mat/" + skv_filename + ".mat"], shell=True)
+        # Get absolute path to imx520_sample.exe
+        imx520_sample_exe_path = os.path.join(os.getcwd(), "skv_to_mat/compiled_releases/r1/imx520_sample.exe")
+        # Get absolute path to output .mat file
+        output_mat_path = os.path.join(os.getcwd(), "skvs/mat/" + skv_filename + ".mat")
+        # Run imx520_sample.exe
+        process = subprocess.run([imx520_sample_exe_path, "-i", skv_path, "-o", output_mat_path], shell=True)
 
     # Run facial_skBF_facemeshTrak.py
     # process = subprocess.run(["python", "./facial-skBF-facemeshTrak/facial_skBF_facemeshTrak.py"])
