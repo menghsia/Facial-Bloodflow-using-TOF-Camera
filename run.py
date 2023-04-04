@@ -472,9 +472,9 @@ def record_skv():
         If no new files, terminate the script.
     """
     # Find the folder path that matches the pattern "./automotive_suite_recorder_viewer*"
-    print(os.getcwd())
+    # print(os.getcwd())
     folder_name = next(filter(lambda x: x.startswith('automotive_suite_recorder_viewer'), os.listdir()), None)
-    print(f"folder_name: {folder_name}")
+    # print(f"folder_name: {folder_name}")
     
     if not folder_name:
         print('Automotive Suite not found at automotive_suite_recorder_viewer*/automotive_suite.exe')
@@ -482,8 +482,8 @@ def record_skv():
     else:
         folder_path = os.path.join(os.getcwd(), folder_name)
         exe_path = os.path.join(folder_path, 'automotive_suite.exe')
-        print(f"folder_path: {folder_path}")
-        print(f"exe_path: {exe_path}")
+        # print(f"folder_path: {folder_path}")
+        # print(f"exe_path: {exe_path}")
     
         # Get set of files in ./automotive_suite_recorder_viewer*
         #   - Put all *.skv filenames and the datetime they were created in a set of tuples {("filename.skv", datetime_created))}
@@ -505,30 +505,30 @@ def record_skv():
 
 
 
-        print("skvs before recording")
-        print(skvs_before_recording)
+        # print("skvs before recording")
+        # print(skvs_before_recording)
     
         # Launch the program and wait until the user exits it
         process = subprocess.run(exe_path, shell=True)
     
         skvs_after_recording = set(filter(lambda x: x[0].endswith('.skv'), map(lambda x: (x, os.path.getctime(os.path.join(recordings_path, x))), os.listdir(recordings_path))))
-        print("skvs after recording")
-        print(skvs_after_recording)
+        # print("skvs after recording")
+        # print(skvs_after_recording)
     
         # If sets are different, then new .skv file(s) were created
         # skvs_before_recording - skvs_after_recording = set of new .skv files
         if skvs_before_recording != skvs_after_recording:
             # Move the new .skv file(s) to ./skvs/
             new_skvs = skvs_after_recording - skvs_before_recording
-            print("new_skvs")
+            # print("new_skvs")
     
             # # Get absolute path to the new .skv file
             # new_skv_path = os.path.join(recordings_path, new_skv[0])
 
             for new_skv in new_skvs:
-                print(new_skv)
+                # print(new_skv)
                 new_skv_path = os.path.join(recordings_path, new_skv[0])
-                print(new_skv_path)
+                # print(new_skv_path)
                 shutil.move(new_skv_path, os.path.join(os.getcwd(), 'skvs'))
                 print('Automotive Suite recorded new file: ' + new_skv_path)
             
@@ -570,16 +570,16 @@ if __name__ == '__main__':
     # Get the path to the new .skv file
     skvs_dir = record_skv()
 
-    print("skvs_dir:")
-    print(skvs_dir)
+    # print("skvs_dir:")
+    # print(skvs_dir)
 
     # For each .skv file in skvs_dir, convert to .mat file using imx520_sample.exe and save to ./skvs/mat/
     for skv_filename in os.listdir(skvs_dir):
-        print("skv_filename:")
-        print(skv_filename)
+        # print("skv_filename:")
+        # print(skv_filename)
         skv_path = os.path.join(skvs_dir, skv_filename)
-        print("skv_path:")
-        print(skv_path)
+        # print("skv_path:")
+        # print(skv_path)
 
         # Convert .skv video file into .mat file
         # Get absolute path to imx520_sample.exe
