@@ -1,7 +1,6 @@
-function [t_HR, HR] = getHR(HRsig, trial)
+function [t_HR, HR] = getHR(HRsig, L, trial)
 %% Prepare Parameters
 Fs=30;
-L=900;
 step = 30;
 step_t = step/Fs;
 L_t = L/Fs;
@@ -17,7 +16,7 @@ while j+L-1 < size(HRsig,2)
     onesided(j,:) = P2(1:L/2+1);
     onesided(j,2:end-1) = 2*onesided(j,2:end-1);
     f = Fs*(0:(L/2))/L*60;
-    f_Filtered_range=f<70|f>200;
+    f_Filtered_range=f<70|f>300;
     onesided(j,f_Filtered_range)=0;
 
 % HR peak locate

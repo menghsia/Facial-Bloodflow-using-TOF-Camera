@@ -32,8 +32,8 @@ title('Cheek Average')
 xlabel('Time (s)')
 
 %% Get HR Data
-[t_HR_b, HR_b] = getHR(HRsig_b);
-[t_HR_rec, HR_rec] = getHR(HRsig_rec);
+[t_HR_b, HR_b] = getHR(HRsig_b, 900);
+[t_HR_rec, HR_rec] = getHR(HRsig_rec, 900);
 
 %% Plot HR Data
 figure()

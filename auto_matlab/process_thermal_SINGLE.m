@@ -2,7 +2,7 @@ clear
 close all
 
 %% Load and process data
-[tb, bc, HRsig] = processRawData("../skvs/mat/auto_bfsig.mat", 'Before');
+[tb, bc, HRsig, x] = processRawData("../skvs/mat/auto_bfsig.mat", 'Before');
 
 %% Plot smoothed blood concentration
 figure()
@@ -15,7 +15,7 @@ xlabel('Time (s)')
 legend('Nose','Forehead','Cheek Average')
 ylabel('Relative Blood Concentration Change (a.u.)')
 %% Get HR Data
-[t_HR, HR] = getHR(HRsig);
+[t_HR, HR] = getHR(HRsig, 900);
 
 %% Plot HR Data
 figure()
