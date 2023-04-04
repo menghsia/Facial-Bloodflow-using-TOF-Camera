@@ -321,109 +321,109 @@ with mp_face_mesh.FaceMesh(
                 results_hand = hands.process(frameTrk)
 
                 if results_face.multi_face_landmarks:
+                    # print('results_face.multi_face_landmarks')
+                    # print(len(results_face.multi_face_landmarks))
                     face_landmarks = results_face.multi_face_landmarks[0]
-                else:
-                    face_landmarks = None
 
-                # find the ROI vertices
-                landmark_forehead = ROI_coord_extract(face_landmarks, 'forehead', img_rows, img_cols)
-                mask_forehead = vtx2mask(landmark_forehead, img_cols, img_rows)
-                landmark_nose = ROI_coord_extract(face_landmarks, 'nose', img_rows, img_cols)
-                mask_nose = vtx2mask(landmark_nose, img_cols, img_rows)
-                landmark_cn = ROI_coord_extract(face_landmarks, 'cheek_n_nose', img_rows, img_cols)
-                mask_cn = vtx2mask(landmark_cn, img_cols, img_rows)
-                landmark_lc = ROI_coord_extract(face_landmarks, 'left_cheek', img_rows, img_cols)
-                mask_lc = vtx2mask(landmark_lc, img_cols, img_rows)
-                landmark_rc = ROI_coord_extract(face_landmarks, 'right_cheek', img_rows, img_cols)
-                mask_rc = vtx2mask(landmark_rc, img_cols, img_rows)
-                landmark_lf = ROI_coord_extract(face_landmarks, 'low_forehead', img_rows, img_cols)
-                mask_lf = vtx2mask(landmark_lf, img_cols, img_rows)
+                    # find the ROI vertices
+                    landmark_forehead = ROI_coord_extract(face_landmarks, 'forehead', img_rows, img_cols)
+                    mask_forehead = vtx2mask(landmark_forehead, img_cols, img_rows)
+                    landmark_nose = ROI_coord_extract(face_landmarks, 'nose', img_rows, img_cols)
+                    mask_nose = vtx2mask(landmark_nose, img_cols, img_rows)
+                    landmark_cn = ROI_coord_extract(face_landmarks, 'cheek_n_nose', img_rows, img_cols)
+                    mask_cn = vtx2mask(landmark_cn, img_cols, img_rows)
+                    landmark_lc = ROI_coord_extract(face_landmarks, 'left_cheek', img_rows, img_cols)
+                    mask_lc = vtx2mask(landmark_lc, img_cols, img_rows)
+                    landmark_rc = ROI_coord_extract(face_landmarks, 'right_cheek', img_rows, img_cols)
+                    mask_rc = vtx2mask(landmark_rc, img_cols, img_rows)
+                    landmark_lf = ROI_coord_extract(face_landmarks, 'low_forehead', img_rows, img_cols)
+                    mask_lf = vtx2mask(landmark_lf, img_cols, img_rows)
 
-                # if results_hand.multi_hand_landmarks:
-                #     hand_landmarks = results_hand.multi_hand_landmarks[0]
-                #     landmark_palm =  ROI_coord_extract(hand_landmarks, 'palm', img_rows, img_cols)
-                #     mask_palm = vtx2mask(landmark_palm, img_cols, img_rows)
-                #
-                #     I_signal_current[6,j] = np.average(frameSig[np.where(mask_palm > 0)])
-                #     D_signal_current[6,j] = np.sqrt(np.average(xSig[np.where(mask_palm > 0)])**2 + np.average(ySig[np.where(mask_palm > 0)])**2+np.average(zSig[np.where(mask_palm > 0)])**2)
+                    # if results_hand.multi_hand_landmarks:
+                    #     hand_landmarks = results_hand.multi_hand_landmarks[0]
+                    #     landmark_palm =  ROI_coord_extract(hand_landmarks, 'palm', img_rows, img_cols)
+                    #     mask_palm = vtx2mask(landmark_palm, img_cols, img_rows)
+                    #
+                    #     I_signal_current[6,j] = np.average(frameSig[np.where(mask_palm > 0)])
+                    #     D_signal_current[6,j] = np.sqrt(np.average(xSig[np.where(mask_palm > 0)])**2 + np.average(ySig[np.where(mask_palm > 0)])**2+np.average(zSig[np.where(mask_palm > 0)])**2)
 
-                # calculate averaged I and D
-                I_signal_current[0, j] = np.average(frameSig[np.where(mask_nose > 0)])
-                D_signal_current[0, j] = np.sqrt(np.average(xSig[np.where(mask_nose > 0)]) ** 2 + np.average(
-                    ySig[np.where(mask_nose > 0)]) ** 2 + np.average(zSig[np.where(mask_nose > 0)]) ** 2)
-                I_signal_current[1, j] = np.average(frameSig[np.where(mask_forehead > 0)])
-                D_signal_current[1, j] = np.sqrt(np.average(xSig[np.where(mask_forehead > 0)]) ** 2 + np.average(
-                    ySig[np.where(mask_forehead > 0)]) ** 2 + np.average(zSig[np.where(mask_forehead > 0)]) ** 2)
-                I_signal_current[2, j] = np.average(frameSig[np.where(mask_cn > 0)])
-                D_signal_current[2, j] = np.sqrt(np.average(xSig[np.where(mask_cn > 0)]) ** 2 + np.average(
-                    ySig[np.where(mask_cn > 0)]) ** 2 + np.average(zSig[np.where(mask_cn > 0)]) ** 2)
-                I_signal_current[3, j] = np.average(frameSig[np.where(mask_lc > 0)])
-                D_signal_current[3, j] = np.sqrt(np.average(xSig[np.where(mask_lc > 0)]) ** 2 + np.average(
-                    ySig[np.where(mask_lc > 0)]) ** 2 + np.average(zSig[np.where(mask_lc > 0)]) ** 2)
-                I_signal_current[4, j] = np.average(frameSig[np.where(mask_rc > 0)])
-                D_signal_current[4, j] = np.sqrt(np.average(xSig[np.where(mask_rc > 0)]) ** 2 + np.average(
-                    ySig[np.where(mask_rc > 0)]) ** 2 + np.average(zSig[np.where(mask_rc > 0)]) ** 2)
-                I_signal_current[5, j] = np.average(frameSig[np.where(mask_lf > 0)])
-                D_signal_current[5, j] = np.sqrt(np.average(xSig[np.where(mask_lf > 0)]) ** 2 + np.average(
-                    ySig[np.where(mask_lf > 0)]) ** 2 + np.average(zSig[np.where(mask_lf > 0)]) ** 2)
+                    # calculate averaged I and D
+                    I_signal_current[0, j] = np.average(frameSig[np.where(mask_nose > 0)])
+                    D_signal_current[0, j] = np.sqrt(np.average(xSig[np.where(mask_nose > 0)]) ** 2 + np.average(
+                        ySig[np.where(mask_nose > 0)]) ** 2 + np.average(zSig[np.where(mask_nose > 0)]) ** 2)
+                    I_signal_current[1, j] = np.average(frameSig[np.where(mask_forehead > 0)])
+                    D_signal_current[1, j] = np.sqrt(np.average(xSig[np.where(mask_forehead > 0)]) ** 2 + np.average(
+                        ySig[np.where(mask_forehead > 0)]) ** 2 + np.average(zSig[np.where(mask_forehead > 0)]) ** 2)
+                    I_signal_current[2, j] = np.average(frameSig[np.where(mask_cn > 0)])
+                    D_signal_current[2, j] = np.sqrt(np.average(xSig[np.where(mask_cn > 0)]) ** 2 + np.average(
+                        ySig[np.where(mask_cn > 0)]) ** 2 + np.average(zSig[np.where(mask_cn > 0)]) ** 2)
+                    I_signal_current[3, j] = np.average(frameSig[np.where(mask_lc > 0)])
+                    D_signal_current[3, j] = np.sqrt(np.average(xSig[np.where(mask_lc > 0)]) ** 2 + np.average(
+                        ySig[np.where(mask_lc > 0)]) ** 2 + np.average(zSig[np.where(mask_lc > 0)]) ** 2)
+                    I_signal_current[4, j] = np.average(frameSig[np.where(mask_rc > 0)])
+                    D_signal_current[4, j] = np.sqrt(np.average(xSig[np.where(mask_rc > 0)]) ** 2 + np.average(
+                        ySig[np.where(mask_rc > 0)]) ** 2 + np.average(zSig[np.where(mask_rc > 0)]) ** 2)
+                    I_signal_current[5, j] = np.average(frameSig[np.where(mask_lf > 0)])
+                    D_signal_current[5, j] = np.sqrt(np.average(xSig[np.where(mask_lf > 0)]) ** 2 + np.average(
+                        ySig[np.where(mask_lf > 0)]) ** 2 + np.average(zSig[np.where(mask_lf > 0)]) ** 2)
 
-                # PERCLOS
-                landmark_leye = ROI_coord_extract(face_landmarks, 'left_eye', img_rows, img_cols)
-                L_ear = eye_aspect_ratio(landmark_leye)
-                landmark_reye = ROI_coord_extract(face_landmarks, 'right_eye', img_rows, img_cols)
-                R_ear = eye_aspect_ratio(landmark_reye)
-                EAR_current[j] = (L_ear + R_ear) /2
+                    # PERCLOS
+                    landmark_leye = ROI_coord_extract(face_landmarks, 'left_eye', img_rows, img_cols)
+                    L_ear = eye_aspect_ratio(landmark_leye)
+                    landmark_reye = ROI_coord_extract(face_landmarks, 'right_eye', img_rows, img_cols)
+                    R_ear = eye_aspect_ratio(landmark_reye)
+                    EAR_current[j] = (L_ear + R_ear) /2
 
 
-                # Draw the face mesh annotations on the image and display
-                frameTrk.flags.writeable = True
-                image = cv2.cvtColor(frameTrk, cv2.COLOR_RGB2BGR)
-                # pts = np.asarray(landmark_forehead)
-                # pts = pts.reshape((-1, 1, 2))
-                # img_showROI = cv2.polylines(image, [pts], True, color=(0, 0, 255), thickness=2)
-                # pts = np.asarray(landmark_nose)
-                # pts = pts.reshape((-1, 1, 2))
-                # img_showROI = cv2.polylines(img_showROI, [pts], True, color=(0, 0, 255), thickness=2)
-                pts = np.asarray(landmark_leye)
-                pts = pts.reshape((-1, 1, 2))
-                img_showROI = cv2.polylines(image, [pts], True, color=(0, 0, 255), thickness=2)
-                pts = np.asarray(landmark_reye)
-                pts = pts.reshape((-1, 1, 2))
-                img_showROI = cv2.polylines(img_showROI, [pts], True, color=(0, 0, 255), thickness=2)
+                    # Draw the face mesh annotations on the image and display
+                    frameTrk.flags.writeable = True
+                    image = cv2.cvtColor(frameTrk, cv2.COLOR_RGB2BGR)
+                    # pts = np.asarray(landmark_forehead)
+                    # pts = pts.reshape((-1, 1, 2))
+                    # img_showROI = cv2.polylines(image, [pts], True, color=(0, 0, 255), thickness=2)
+                    # pts = np.asarray(landmark_nose)
+                    # pts = pts.reshape((-1, 1, 2))
+                    # img_showROI = cv2.polylines(img_showROI, [pts], True, color=(0, 0, 255), thickness=2)
+                    pts = np.asarray(landmark_leye)
+                    pts = pts.reshape((-1, 1, 2))
+                    img_showROI = cv2.polylines(image, [pts], True, color=(0, 0, 255), thickness=2)
+                    pts = np.asarray(landmark_reye)
+                    pts = pts.reshape((-1, 1, 2))
+                    img_showROI = cv2.polylines(img_showROI, [pts], True, color=(0, 0, 255), thickness=2)
 
-                # pts = np.asarray(landmark_palm)
-                # pts = pts.reshape((-1, 1, 2))
-                # img_showROI = cv2.polylines(img_showROI,[pts],True, color = (0,0,255), thickness = 2)
+                    # pts = np.asarray(landmark_palm)
+                    # pts = pts.reshape((-1, 1, 2))
+                    # img_showROI = cv2.polylines(img_showROI,[pts],True, color = (0,0,255), thickness = 2)
 
-                cv2.imshow('ROI', img_showROI)
-                cv2.waitKey(10)
+                    cv2.imshow('ROI', img_showROI)
+                    cv2.waitKey(10)
 
-                if face_landmarks is not None:
-                    for face_landmarks_i in results_face.multi_face_landmarks:
-                        mp_drawing.draw_landmarks(
-                            image=image,
-                            landmark_list=face_landmarks_i,
-                            connections=mp_face_mesh.FACEMESH_TESSELATION,
-                            landmark_drawing_spec=None,
-                            connection_drawing_spec=mp_drawing_styles
-                            .get_default_face_mesh_tesselation_style())
-                        mp_drawing.draw_landmarks(
-                            image=image,
-                            landmark_list=face_landmarks_i,
-                            connections=mp_face_mesh.FACEMESH_CONTOURS,
-                            landmark_drawing_spec=None,
-                            connection_drawing_spec=mp_drawing_styles
-                            .get_default_face_mesh_contours_style())
-                        mp_drawing.draw_landmarks(
-                            image=image,
-                            landmark_list=face_landmarks_i,
-                            connections=mp_face_mesh.FACEMESH_IRISES,
-                            landmark_drawing_spec=None,
-                            connection_drawing_spec=mp_drawing_styles
-                            .get_default_face_mesh_iris_connections_style())
-                # Flip the image horizontally for a selfie-view display.
-                cv2.imshow('MediaPipe Face Mesh', cv2.flip(image, 1))
-                cv2.waitKey(10)
+                    if face_landmarks is not None:
+                        for face_landmarks_i in results_face.multi_face_landmarks:
+                            mp_drawing.draw_landmarks(
+                                image=image,
+                                landmark_list=face_landmarks_i,
+                                connections=mp_face_mesh.FACEMESH_TESSELATION,
+                                landmark_drawing_spec=None,
+                                connection_drawing_spec=mp_drawing_styles
+                                .get_default_face_mesh_tesselation_style())
+                            mp_drawing.draw_landmarks(
+                                image=image,
+                                landmark_list=face_landmarks_i,
+                                connections=mp_face_mesh.FACEMESH_CONTOURS,
+                                landmark_drawing_spec=None,
+                                connection_drawing_spec=mp_drawing_styles
+                                .get_default_face_mesh_contours_style())
+                            mp_drawing.draw_landmarks(
+                                image=image,
+                                landmark_list=face_landmarks_i,
+                                connections=mp_face_mesh.FACEMESH_IRISES,
+                                landmark_drawing_spec=None,
+                                connection_drawing_spec=mp_drawing_styles
+                                .get_default_face_mesh_iris_connections_style())
+                    # Flip the image horizontally for a selfie-view display.
+                    cv2.imshow('MediaPipe Face Mesh', cv2.flip(image, 1))
+                    cv2.waitKey(10)
 
             I_signal = np.concatenate((I_signal, I_signal_current), axis=1)
             D_signal = np.concatenate((D_signal, D_signal_current), axis=1)
