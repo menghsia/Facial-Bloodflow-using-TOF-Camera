@@ -588,6 +588,6 @@ if __name__ == '__main__':
     myFaceMeshDetector.run()
 
     # Run plotting matlab script
-    process = subprocess.run(["matlab", "-r", "../auto_matlab/process_thermal_SINGLE"])
+    process = subprocess.run(["matlab", "-r", "auto_matlab/process_thermal_SINGLE"])
 
     print('Done!')
