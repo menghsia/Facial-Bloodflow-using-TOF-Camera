@@ -507,7 +507,7 @@ def record_skv():
         print(skvs_before_recording)
     
         # Launch the program and wait until the user exits it
-        process = subprocess.run(exe_path)
+        process = subprocess.run(exe_path, shell=True)
     
         skvs_after_recording = set(filter(lambda x: x[0].endswith('.skv'), map(lambda x: (x, os.path.getctime(os.path.join(recordings_path, x))), os.listdir(recordings_path))))
         print("skvs after recording")
@@ -580,7 +580,7 @@ if __name__ == '__main__':
         print(skv_path)
 
         # Convert .skv video file into .mat file
-        process = subprocess.run(["./skv_to_mat/compiled_releases/r1/imx520_sample.exe", "-i", skv_path, "-o", "./skvs/mat/" + skv_filename + ".mat"])
+        process = subprocess.run(["skv_to_mat/compiled_releases/r1/imx520_sample.exe", "-i", skv_path, "-o", "./skvs/mat/" + skv_filename + ".mat"], shell=True)
 
     # Run facial_skBF_facemeshTrak.py
     # process = subprocess.run(["python", "./facial-skBF-facemeshTrak/facial_skBF_facemeshTrak.py"])
@@ -592,7 +592,7 @@ if __name__ == '__main__':
     # Create path to matlab script
     matlab_script_path = os.path.join(os.getcwd(), "auto_matlab/process_thermal_SINGLE.m")
     # process = subprocess.run(["matlab", "-r", "\"run(matlab_script_path);\""])
-    process = subprocess.run(["matlab", "-r", "run('" + matlab_script_path + "');"])
+    process = subprocess.run(["matlab", "-r", "run('" + matlab_script_path + "');"], shell=True)
     # matlab -r "run('C:\path\to\my_script.m');"
 
     print('Done!')
