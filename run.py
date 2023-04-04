@@ -18,11 +18,12 @@ import matplotlib.pyplot as plt
 import time
 import os
 from matplotlib.widgets import RectangleSelector
+import shutil
 
 
 # facial_skBF_facemeshTrak.py
 class FaceMeshDetector():
-    def __init__(self, input_mats_dir="./skvs/mat/", output_bfsig_name="20221003-Sparsh_Fex_bfsig"):
+    def __init__(self, input_mats_dir, output_bfsig_name):
         self.input_mats_dir = input_mats_dir
         self.ouput_bfsig_name = output_bfsig_name
     
@@ -106,7 +107,7 @@ class FaceMeshDetector():
                     frame_num = np.size(gray_all, 2)
                     # tracking and extracting I, D frame by frame
                     for j in range(frame_num):
-                        frameTrk = mp_preprocess(gray_all[:, :, j])
+                        frameTrk = self._mp_preprocess(gray_all[:, :, j])
                         frameSig = gray_all[:, :, j]
                         xSig = x_all[:, :, j].astype('int32')
                         ySig = y_all[:, :, j].astype('int32')
@@ -117,23 +118,25 @@ class FaceMeshDetector():
                         frameTrk = cv2.cvtColor(frameTrk, cv2.COLOR_BGR2RGB)
                         results_face = face_mesh.process(frameTrk)
                         results_hand = hands.process(frameTrk)
+
+                        face_landmarks = None
         
                         if results_face.multi_face_landmarks:
                             face_landmarks = results_face.multi_face_landmarks[0]
         
                         # find the ROI vertices
-                        landmark_forehead = ROI_coord_extract(face_landmarks, 'forehead', img_rows, img_cols)
-                        mask_forehead = vtx2mask(landmark_forehead, img_cols, img_rows)
-                        landmark_nose = ROI_coord_extract(face_landmarks, 'nose', img_rows, img_cols)
-                        mask_nose = vtx2mask(landmark_nose, img_cols, img_rows)
-                        landmark_cn = ROI_coord_extract(face_landmarks, 'cheek_n_nose', img_rows, img_cols)
-                        mask_cn = vtx2mask(landmark_cn, img_cols, img_rows)
-                        landmark_lc = ROI_coord_extract(face_landmarks, 'left_cheek', img_rows, img_cols)
-                        mask_lc = vtx2mask(landmark_lc, img_cols, img_rows)
-                        landmark_rc = ROI_coord_extract(face_landmarks, 'right_cheek', img_rows, img_cols)
-                        mask_rc = vtx2mask(landmark_rc, img_cols, img_rows)
-                        landmark_lf = ROI_coord_extract(face_landmarks, 'low_forehead', img_rows, img_cols)
-                        mask_lf = vtx2mask(landmark_lf, img_cols, img_rows)
+                        landmark_forehead = self._ROI_coord_extract(face_landmarks, 'forehead', img_rows, img_cols)
+                        mask_forehead = self._vtx2mask(landmark_forehead, img_cols, img_rows)
+                        landmark_nose = self._ROI_coord_extract(face_landmarks, 'nose', img_rows, img_cols)
+                        mask_nose = self._vtx2mask(landmark_nose, img_cols, img_rows)
+                        landmark_cn = self._ROI_coord_extract(face_landmarks, 'cheek_n_nose', img_rows, img_cols)
+                        mask_cn = self._vtx2mask(landmark_cn, img_cols, img_rows)
+                        landmark_lc = self._ROI_coord_extract(face_landmarks, 'left_cheek', img_rows, img_cols)
+                        mask_lc = self._vtx2mask(landmark_lc, img_cols, img_rows)
+                        landmark_rc = self._ROI_coord_extract(face_landmarks, 'right_cheek', img_rows, img_cols)
+                        mask_rc = self._vtx2mask(landmark_rc, img_cols, img_rows)
+                        landmark_lf = self._ROI_coord_extract(face_landmarks, 'low_forehead', img_rows, img_cols)
+                        mask_lf = self._vtx2mask(landmark_lf, img_cols, img_rows)
         
                         # if results_hand.multi_hand_landmarks:
                         #     hand_landmarks = results_hand.multi_hand_landmarks[0]
@@ -164,10 +167,10 @@ class FaceMeshDetector():
                             ySig[np.where(mask_lf > 0)]) ** 2 + np.average(zSig[np.where(mask_lf > 0)]) ** 2)
         
                         # PERCLOS
-                        landmark_leye = ROI_coord_extract(face_landmarks, 'left_eye', img_rows, img_cols)
-                        L_ear = eye_aspect_ratio(landmark_leye)
-                        landmark_reye = ROI_coord_extract(face_landmarks, 'right_eye', img_rows, img_cols)
-                        R_ear = eye_aspect_ratio(landmark_reye)
+                        landmark_leye = self._ROI_coord_extract(face_landmarks, 'left_eye', img_rows, img_cols)
+                        L_ear = self._eye_aspect_ratio(landmark_leye)
+                        landmark_reye = self._ROI_coord_extract(face_landmarks, 'right_eye', img_rows, img_cols)
+                        R_ear = self._eye_aspect_ratio(landmark_reye)
                         EAR_current[j] = (L_ear + R_ear) /2
         
         
@@ -230,7 +233,7 @@ class FaceMeshDetector():
         
         print('finished')
 
-    def line_select_callback(self, eclick, erelease):
+    def _line_select_callback(self, eclick, erelease):
         'eclick and erelease are the press and release events'
         global x1, y1, x2, y2
         x1, y1 = eclick.xdata, eclick.ydata
@@ -238,14 +241,14 @@ class FaceMeshDetector():
         print("(%3.2f, %3.2f) --> (%3.2f, %3.2f)" % (x1, y1, x2, y2))
         print(" The button you used were: %s %s" % (eclick.button, erelease.button))
 
-    def toggle_selector(self, event):
+    def _toggle_selector(self, event):
         print(' Key pressed.')
-        if event.key in ['Q', 'q'] and toggle_selector.RS.active:
+        if event.key in ['Q', 'q'] and self._toggle_selector.RS.active:
             print(' RectangleSelector deactivated.')
-            toggle_selector.RS.set_active(False)
-        if event.key in ['A', 'a'] and not toggle_selector.RS.active:
+            self._toggle_selector.RS.set_active(False)
+        if event.key in ['A', 'a'] and not self._toggle_selector.RS.active:
             print(' RectangleSelector activated.')
-            toggle_selector.RS.set_active(True)
+            self._toggle_selector.RS.set_active(True)
 
     def _normalized_to_pixel_coordinates(self, normalized_x: float, normalized_y: float, image_width: int,
             image_height: int) -> Union[None, Tuple[int, int]]:
@@ -263,7 +266,7 @@ class FaceMeshDetector():
         y_px = min(math.floor(normalized_y * image_height), image_height - 1)
         return x_px, y_px
 
-    def ROI_coord_extract(self, face_landmarks, ROIwhich, image_rows, image_cols):
+    def _ROI_coord_extract(self, face_landmarks, ROIwhich, image_rows, image_cols):
         # face_landmarks are the detected landmarks in a image
         if ROIwhich == 'full_face':
             ROI_vertex = [54, 284, 454, 365, 136, 234]
@@ -307,7 +310,7 @@ class FaceMeshDetector():
         landmark_px = []
 
         for i, vtx in enumerate(ROI_vertex):
-            landmark_current = _normalized_to_pixel_coordinates(face_landmarks.landmark[vtx].x,
+            landmark_current = self._normalized_to_pixel_coordinates(face_landmarks.landmark[vtx].x,
                                                                 face_landmarks.landmark[vtx].y, image_cols, image_rows)
             landmark_px.append(landmark_current)
             # print(landmark_px)
@@ -315,7 +318,7 @@ class FaceMeshDetector():
         # n-by-2 2d array
         return landmark_px
 
-    def Chest_ROI_extract(self, image, chin_location, plot=False):
+    def _Chest_ROI_extract(self, image, chin_location, plot=False):
         mp_pose = mp.solutions.pose
         pose = mp_pose.Pose(static_image_mode=False, min_detection_confidence=0.6, min_tracking_confidence=0.6)
 
@@ -326,8 +329,8 @@ class FaceMeshDetector():
         image_height, image_width = image.shape
         results = pose.process(image_3chnl)
         body_points = results.pose_landmarks.landmark
-        shoulder_point_l = _normalized_to_pixel_coordinates(body_points[11].x, body_points[11].y, image_width, image_height)
-        shoulder_point_r = _normalized_to_pixel_coordinates(body_points[12].x, body_points[12].y, image_width, image_height)
+        shoulder_point_l = self._normalized_to_pixel_coordinates(body_points[11].x, body_points[11].y, image_width, image_height)
+        shoulder_point_r = self._normalized_to_pixel_coordinates(body_points[12].x, body_points[12].y, image_width, image_height)
 
         shoulder_x = (shoulder_point_l[0] + shoulder_point_r[0]) / 2
         shoulder_y = (shoulder_point_l[1] + shoulder_point_r[1]) / 2
@@ -396,7 +399,7 @@ class FaceMeshDetector():
         plt.show()
         return landmark_px_rr
 
-    def vtx2mask(self, vtx, image_cols, image_rows):
+    def _vtx2mask(self, vtx, image_cols, image_rows):
         """
         :param vtx: list of 2D coordinates of the polygon vertices
         :param image_cols: mask image columns
@@ -409,7 +412,7 @@ class FaceMeshDetector():
 
         return mask
 
-    def pre_whiten(self, signal):
+    def _pre_whiten(self, signal):
         sig_avg = np.average(signal)
         sig_std = np.std(signal)
 
@@ -417,7 +420,7 @@ class FaceMeshDetector():
 
         return sig_norm
 
-    def mp_preprocess(self, frameTrk, divisor=4):
+    def _mp_preprocess(self, frameTrk, divisor=4):
         frameTrk = frameTrk.astype(float)
         frameTrk = frameTrk / divisor
         frameTrk[np.where(frameTrk > 255)] = 255
@@ -426,7 +429,7 @@ class FaceMeshDetector():
 
         return image_3chnl
 
-    def eye_aspect_ratio(self, eye):
+    def _eye_aspect_ratio(self, eye):
         # Vertical eye landmarks
         A = dist.euclidean(eye[1], eye[7])
         B = dist.euclidean(eye[2], eye[6])
@@ -462,8 +465,9 @@ def record_skv():
     """
         Launch Automotive Suite and wait until the user exits it.
         Once the user is done recording, they will close the program.
-        After it is closed, return the path to the new .skv file if it exists.
-        Otherwise, terminate the script.
+        After it is closed, move all of the newly recorded files to ./skvs/ and
+        return the absolute path to ./skvs.
+        If no new files, terminate the script.
     """
     # Find the folder path that matches the pattern "./automotive_suite_recorder_viewer*"
     print(os.getcwd())
@@ -509,20 +513,26 @@ def record_skv():
         print("skvs after recording")
         print(skvs_after_recording)
     
-        # If sets are different, then a new .skv file was created
+        # If sets are different, then new .skv file(s) were created
+        # skvs_before_recording - skvs_after_recording = set of new .skv files
         if skvs_before_recording != skvs_after_recording:
-            # Get the new .skv file
-            new_skv = next(iter(skvs_after_recording - skvs_before_recording))
+            # Move the new .skv file(s) to ./skvs/
+            new_skvs = skvs_after_recording - skvs_before_recording
+            print("new_skvs")
     
-            # file_name = new_skv[0]
-            # file_datetime = new_skv[1]
+            # # Get absolute path to the new .skv file
+            # new_skv_path = os.path.join(recordings_path, new_skv[0])
+
+            for new_skv in new_skvs:
+                print(new_skv)
+                new_skv_path = os.path.join(recordings_path, new_skv[0])
+                print(new_skv_path)
+                shutil.move(new_skv_path, os.path.join(os.getcwd(), 'skvs'))
+                print('Automotive Suite recorded new file: ' + new_skv_path)
+            
+            skv_dir = os.path.join(os.getcwd(), 'skvs')
     
-            # Get absolute path to the new .skv file
-            new_skv_path = os.path.join(recordings_path, new_skv[0])
-    
-            print('Automotive Suite recorded new file: ' + new_skv_path)
-    
-            return new_skv_path
+            return skv_dir
         else:
             print('No new .skv file was recorded')
             sys.exit()
@@ -556,23 +566,28 @@ def record_skv():
 
 if __name__ == '__main__':
     # Get the path to the new .skv file
-    skv_path = record_skv()
+    skvs_dir = record_skv()
 
-    # Get filename of the .skv file without the path or extension
-    skv_filename = os.path.basename(skv_path)[:-4]
+    print("skvs_dir:")
+    print(skvs_dir)
 
-    print("skv_path:")
-    print(skv_path)
+    # For each .skv file in skvs_dir, convert to .mat file using imx520_sample.exe and save to ./skvs/mat/
+    for skv_filename in os.listdir(skvs_dir):
+        print("skv_filename:")
+        print(skv_filename)
+        skv_path = os.path.join(skvs_dir, skv_filename)
+        print("skv_path:")
+        print(skv_path)
 
-    # Convert .skv video file into .mat file
-    process = subprocess.run(["./skv_to_mat/compiled_releases/r1/imx520_sample.exe", "-i", skv_path, "-o", "./skvs/mat/" + skv_filename + ".mat"])
+        # Convert .skv video file into .mat file
+        process = subprocess.run(["./skv_to_mat/compiled_releases/r1/imx520_sample.exe", "-i", skv_path, "-o", "./skvs/mat/" + skv_filename + ".mat"])
 
     # Run facial_skBF_facemeshTrak.py
     # process = subprocess.run(["python", "./facial-skBF-facemeshTrak/facial_skBF_facemeshTrak.py"])
-    myFaceMeshDetector = FaceMeshDetector(input_mats_dir="./skvs/mat/", output_bfsig_name="20221003-Sparsh_Fex_bfsig")
+    myFaceMeshDetector = FaceMeshDetector(input_mats_dir="./skvs/mat/", output_bfsig_name="auto_bfsig")
     myFaceMeshDetector.run()
 
-    # Run process_thermal.m
-    # process = subprocess.run(["matlab", "-r", "process_thermal"])
+    # Run plotting matlab script
+    process = subprocess.run(["matlab", "-r", "../auto_matlab/process_thermal_SINGLE"])
 
     print('Done!')

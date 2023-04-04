@@ -50,15 +50,15 @@ void printHelp(char* argv[]) {
  * std::filesystem::path outputFile = std::get<1>(options);
  */
 std::tuple<std::filesystem::path, std::filesystem::path> getOptions(int argc, char* argv[]) {
-	std::string inputFileArg;
-	std::filesystem::path inputFile_path;
-	std::string inputFilePathStringFS;
-	bool inputFileSpecified = false;
+	std::string inputDirArg;
+	std::filesystem::path inputDir_path;
+	std::string inputDirPathStringFS;
+	bool inputDirSpecified = false;
 
-	std::string outputFileArg;
-	std::filesystem::path outputFile_path;
-	std::string outputFilePathStringFS;
-	bool outputFileSpecified = false;
+	std::string outputDirArg;
+	std::filesystem::path outputDir_path;
+	std::string outputDirPathStringFS;
+	bool outputDirSpecified = false;
 
 	// These are used with getopt_long()
 	// Let us handle all error output for command line options
@@ -167,9 +167,9 @@ std::tuple<std::filesystem::path, std::filesystem::path> getOptions(int argc, ch
 
 /**
 * This program should take args as such:
-* program.exe -i input_file.skv -o output_file.mat
+* program.exe -i input_dir -o output_dir
 * 
-* Where input_file.skv is the input file and output_file.mat is the output file.
+* Where input_dir is the directory containing .skv input files and output_dir is the directory containing .mat output files.
 */
 int main(int argc, char* argv[]) {
 	// Get the input and output file paths. These paths are represented as follows:
