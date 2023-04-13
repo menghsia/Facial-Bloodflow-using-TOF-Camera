@@ -16,161 +16,17 @@
 #include <mat.h>
 #include <windows.h>
 #include <chrono>
-#include <ctime>  
-#include<string>  
+#include <ctime>
+#include <string>
 #include <cstring>
 #include <filesystem>
 #include <dirent.h>
 #define BUFSIZE 256
 
-#include "getopt.h"
+#include "main.h"
 
 using namespace std;
 
-void printHelp(char* argv[]) {
-	std::cout << "Usage: " << argv[0] << " <-i:input input.skv>|<-o:output output.mat>|[-h]\n";
-	cout << "This program takes in an input .skv file and converts it into an output .mat file." << endl;
-}
-
-/**
- * @brief This function takes in the command line arguments (argc, argv), parses them, and returns a tuple of input and output filepaths.
- * The function uses the getopt_long function to parse the command line arguments and sets the input and output file paths accordingly.
- * Input and output filepaths are both required. If the file cannot be opened (input file does not exist or input/output file have
- * incorrect extension), the function terminates the program with exit code 1.
- *
- * @param argc The number of command line arguments.
- * @param argv An array of C-style strings containing the command line arguments.
- * @return A tuple containing the input filepath and output filepath.
- *		Filepath includes path, filename, and extension.
- *		Example: C:\\path\\to\\file\\sk_automotive_20221003_164605.skv
- *
- * Example usage:
- * std::tuple<std::filesystem::path, std::filesystem::path> options = getOptions(argc, argv);
- * std::filesystem::path inputFile = std::get<0>(options);
- * std::filesystem::path outputFile = std::get<1>(options);
- */
-std::tuple<std::filesystem::path, std::filesystem::path> getOptions(int argc, char* argv[]) {
-	std::string inputFileArg;
-	std::filesystem::path inputFile_path;
-	std::string inputFilePathStringFS;
-	bool inputFileSpecified = false;
-
-	std::string outputFileArg;
-	std::filesystem::path outputFile_path;
-	std::string outputFilePathStringFS;
-	bool outputFileSpecified = false;
-
-	// These are used with getopt_long()
-	// Let us handle all error output for command line options
-	opterr = false;
-	int choice;
-	int option_index = 0;
-	option long_options[] = {
-		/*{ "stack", no_argument, nullptr, 's' },
-		{ "queue", no_argument, nullptr, 'q' },
-		{ "output", required_argument, nullptr, 'o' },*/
-		{ "input", required_argument, nullptr, 'i' },
-		{ "output", required_argument, nullptr, 'o' },
-		{ "help", no_argument, nullptr, 'h' },
-		{ nullptr, 0,                 nullptr, '\0' }
-	};
-
-	// Fill in the double quotes, to match the mode and help options.
-	while ((choice = getopt_long(argc, argv, "i:o:h", long_options, &option_index)) != -1) {
-		switch (choice) {
-		case 'i':
-			inputFileSpecified = true;
-			inputFileArg = optarg;
-
-			// Convert inputFile to a std::filesystem::path object.
-			inputFile_path = std::filesystem::path(inputFileArg);
-
-			// Check if inputFile is a relative path. If it is, convert it to an absolute path.
-			inputFile_path = std::filesystem::absolute(inputFile_path);
-
-			/* NOTE: Because I wanted to use std::filesystem to check if files exist, I had
-			to upgrade from C++14 to C++20 (filesystem requires C++17 or higher). */
-
-			inputFilePathStringFS = inputFile_path.string();
-			std::replace(inputFilePathStringFS.begin(), inputFilePathStringFS.end(), '\\', '/');
-
-			// Check if inputFile exists. If not, print an error message with full path and exit.
-			if (!std::filesystem::exists(inputFile_path)) {
-				std::cerr << "Input file does not exist\n";
-				std::cerr << "  Input file specified: " << inputFilePathStringFS
-					<< "\n";
-				exit(1);
-			}
-
-			// Check if inputFile is a .skv file. If not, exit.
-			if (inputFile_path.extension() != ".skv") {
-				std::cerr << "Input file must be .skv file\n";
-				std::cerr << "  Input file specified: " << inputFilePathStringFS
-					<< "\n";
-				exit(1);
-			}
-
-			break;
-
-		case 'o':
-			outputFileSpecified = true;
-			outputFileArg = optarg;
-
-			// Convert outputFile to a std::filesystem::path object.
-			outputFile_path = std::filesystem::path(outputFileArg);
-
-			// Check if outputFile is a relative path. If it is, convert it to an absolute path.
-			outputFile_path = std::filesystem::absolute(outputFile_path);
-
-			outputFilePathStringFS = outputFile_path.string();
-			std::replace(outputFilePathStringFS.begin(), outputFilePathStringFS.end(), '\\', '/');
-
-			// Check if outputFile exists. If it does, notify the user that it will be overwritten.
-			if (std::filesystem::exists(outputFile_path)) {
-				std::cout << "Output file already exists. It will be overwritten.\n";
-				std::cout << "  Output file specified: " << outputFilePathStringFS
-					<< "\n";
-			}
-
-			// Check if outputFile is a .mat file. If not, exit.
-			if (outputFile_path.extension() != ".mat") {
-				std::cerr << "Output file must be .mat file\n";
-				std::cerr << "  Output file specified: " << outputFilePathStringFS
-					<< "\n";
-				exit(1);
-			}
-
-			break;
-
-		case 'h':
-			printHelp(argv);
-			exit(0);
-
-		default:
-			std::cerr << "Error: invalid option\n";
-			exit(1);
-		}
-	}
-
-	if (!inputFileSpecified) {
-		std::cerr << "No input file specified\n";
-		exit(1);
-	}
-
-	if (!outputFileSpecified) {
-		std::cerr << "No output file specified\n";
-		exit(1);
-	}
-
-	return std::tie(inputFile_path, outputFile_path);
-}
-
-/**
-* This program should take args as such:
-* program.exe -i input_file.skv -o output_file.mat
-*
-* Where input_file.skv is the input file and output_file.mat is the output file.
-*/
 int main(int argc, char* argv[]) {
 	// Get the input and output file paths. These paths are represented as follows:
 	// C:\Users\user\Documents\input_file.skv
