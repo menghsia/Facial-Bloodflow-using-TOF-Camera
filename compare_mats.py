@@ -1,71 +1,34 @@
-# THIS DOES NOT CURRENTLY WORK. DO NOT USE.
-
-import numpy as np
-from scipy.io import loadmat
 import os
+import sys
 
-# Load the first .mat file (skvs/mat/sk_automotive_20221003_164605.skv.mat)
-# Get current working directory and append the path to the .mat file
-cwd = os.getcwd()
-# file1 = loadmat(cwd + "/skvs/mat/sk_automotive_20221003_164605.skv.mat")
-file1 = loadmat(cwd + "/sk_automotive_20221003_164605_correct.skv.mat")
+# Check that two input arguments were provided
+if len(sys.argv) != 3:
+    print("Usage: python compare_mats.py file1.mat file2.mat")
+    sys.exit(1)
 
-# Load the second .mat file (skvs/mat/sk_automotive_20221003_164625.skv.mat)
-# Get current working directory and append the path to the .mat file
-file2 = loadmat(cwd + "/sk_automotive_20221003_164605_out.skv.mat")
+# Get the input file names from the command line arguments
+file1 = sys.argv[1]
+file2 = sys.argv[2]
 
-# Get the keys in both dictionaries
-keys1 = set(file1.keys())
-keys2 = set(file2.keys())
+# Get the absolute paths of the input files
+abs_file1 = os.path.abspath(file1)
+abs_file2 = os.path.abspath(file2)
 
-# print("file1: keys")
-# print(keys1)
+# Print the absolute paths for debugging purposes
+# print("Absolute path to file 1: %s" % abs_file1)
+# print("Absolute path to file 2: %s" % abs_file2)
 
-# print("file2: keys")
-# print(keys2)
+# Check that the input files exist
+if not os.path.isfile(abs_file1):
+    print("Error: File %s not found" % abs_file1)
+    sys.exit(1)
 
-# # print keys1 __header__ and __version__ to see if they are the same
-# print("file1: __header__")
-# print(file1['__header__'])
+if not os.path.isfile(abs_file2):
+    print("Error: File %s not found" % abs_file2)
+    sys.exit(1)
 
-# print("file2: __header__")
-# print(file2['__header__'])
-
-# print("file1: __globals__")
-# print(file1['__globals__'])
-
-# print("file2: __globals__")
-# print(file2['__globals__'])
-
-# print("file1: __version__")
-# print(file1['__version__'])
-
-# print("file2: __version__")
-# print(file2['__version__'])
-
-# Make sure the keys in the two dictionaries are identical
-if keys1 != keys2:
-    print("The files have different sets of variables.")
-else:
-    # Iterate over the keys and compare the values
-    # Skip the __header__ key
-    for key in keys1:
-        if key != "__header__":
-            # print(file1[key])
-            if not np.array_equal(file1[key], file2[key]):
-                print(f"The values for variable {key} are different.")
-                break
-    
-    print("All variables have equivalent values.")
-
-
-# import matlab.engine
-
-# # Connect to the shared MATLAB engine
-# eng = matlab.engine.connect_matlab()
-
-# # eng.visdiff('sk_automotive_20221003_164605_correct.skv.mat', 'sk_automotive_20221003_164605_out.skv.mat');
-# eng.eval("visdiff('sk_automotive_20221003_164605_correct.skv.mat', 'sk_automotive_20221003_164605_out.skv.mat')")
-
-# # Disconnect from the MATLAB engine
-# eng.quit()
+# Compare the input files
+# matlab -nosplash -nodesktop -wait -r "visdiff('C:\Users\Muhsinun\Desktop\Muhsinun\Repositories\GitHub\facial-bloodflow-tof_live\sk_automotive_20221003_164605_correct.skv.mat', 'C:\Users\Muhsinun\Desktop\Muhsinun\Repositories\GitHub\facial-bloodflow-tof_live\sk_automotive_20221003_164605_out.skv.mat');"
+# Run the visdiff command
+command = 'matlab -nosplash -nodesktop -wait -r "visdiff(\'%s\', \'%s\');"' % (abs_file1, abs_file2)
+os.system(command)
