@@ -18,6 +18,8 @@ abs_file2 = os.path.abspath(file2)
 # print("Absolute path to file 1: %s" % abs_file1)
 # print("Absolute path to file 2: %s" % abs_file2)
 
+print(f"Comparing {abs_file1} and {abs_file2}...")
+
 # Check that the input files exist
 if not os.path.isfile(abs_file1):
     print("Error: File %s not found" % abs_file1)
