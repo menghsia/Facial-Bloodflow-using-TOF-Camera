@@ -1,6 +1,7 @@
 @REM @echo off
 @REM @REM matlab -nosplash -nodesktop -r "run('compare.m');"
 @REM matlab -nosplash -nodesktop -wait -r "visdiff('sk_automotive_20221003_164605_correct.skv.mat', 'sk_automotive_20221003_164605_out.skv.mat');"
+@REM matlab -nosplash -nodesktop -wait -r "visdiff('C:\Users\Muhsinun\Desktop\Muhsinun\Repositories\GitHub\facial-bloodflow-tof_live\sk_automotive_20221003_164605_correct.skv.mat', 'C:\Users\Muhsinun\Desktop\Muhsinun\Repositories\GitHub\facial-bloodflow-tof_live\sk_automotive_20221003_164605_out.skv.mat');"
 
 @echo off
 
