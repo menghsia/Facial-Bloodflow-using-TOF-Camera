@@ -81,7 +81,13 @@ std::tuple<std::filesystem::path, std::filesystem::path, pathType> getOptions(in
 	while ((choice = getopt_long(argc, argv, "i:o:h", long_options, &option_index)) != -1) {
 		switch (choice) {
 		case 'i':
-			input_specified = true;
+			if (!input_specified) {
+				input_specified = true;
+			}
+			else {
+				std::cerr << "Input path was specified more than once.\n";
+				exit(1);
+			}
 			input_arg = optarg;
 
 			// Convert input_path to a std::filesystem::path object.
@@ -96,10 +102,58 @@ std::tuple<std::filesystem::path, std::filesystem::path, pathType> getOptions(in
 			input_path_str_forward_slash = input_path.string();
 			std::replace(input_path_str_forward_slash.begin(), input_path_str_forward_slash.end(), '\\', '/');
 
-			// Check if input_path is a directory or a file.
-			if (std::filesystem::is_directory(input_path)) {
+			// Check if input_path is a file or directory
+			if (std::filesystem::is_regular_file(input_path)) {
+				// input_path is a file.
+
+				if (path_mode == unspecified) {
+					// path_mode not yet set
+
+					path_mode = file;
+				}
+				else {
+					// path_mode is already set
+
+					if (path_mode != file) {
+						// input_path path_mode does not match the current path_mode
+						std::cerr << "Input path and output path must both be either files or directories. They must match.\n";
+						exit(1);
+					}
+				}
+
+				// Check if file exists. If not, print an error message with full path and exit.
+				if (!std::filesystem::exists(input_path)) {
+					std::cerr << "Input file does not exist\n";
+					std::cerr << "  Input file specified: " << input_path_str_forward_slash
+						<< "\n";
+					exit(1);
+				}
+
+				// Check if file is a .skv file. If not, exit.
+				if (input_path.extension() != ".skv") {
+					std::cerr << "Input file must be .skv file\n";
+					std::cerr << "  Input file specified: " << input_path_str_forward_slash
+						<< "\n";
+					exit(1);
+				}
+			}
+			else if (std::filesystem::is_directory(input_path)) {
 				// input_path is a directory.
-				path_mode = directory;
+
+				if (path_mode == unspecified) {
+					// path_mode not yet set
+
+					path_mode = directory;
+				}
+				else {
+					// path_mode is already set
+
+					if (path_mode != directory) {
+						// input_path path_mode does not match the current path_mode
+						std::cerr << "Input path and output path must both be either files or directories. They must match.\n";
+						exit(1);
+					}
+				}
 
 				// Check if directory contains any .skv files.
 				// If it does not, print an error message and exit.
@@ -120,30 +174,23 @@ std::tuple<std::filesystem::path, std::filesystem::path, pathType> getOptions(in
 				}
 			}
 			else {
-				// input_path is a file.
-				path_mode = file;
-				
-				// Check if file exists. If not, print an error message with full path and exit.
-				if (!std::filesystem::exists(input_path)) {
-					std::cerr << "Input file does not exist\n";
-					std::cerr << "  Input file specified: " << input_path_str_forward_slash
-						<< "\n";
-					exit(1);
-				}
-
-				// Check if file is a .skv file. If not, exit.
-				if (input_path.extension() != ".skv") {
-					std::cerr << "Input file must be .skv file\n";
-					std::cerr << "  Input file specified: " << input_path_str_forward_slash
-						<< "\n";
-					exit(1);
-				}
+				// input_path is neither a file nor a directory.
+				std::cerr << "Input path is neither a file nor a directory\n";
+				std::cerr << "  Input path specified: " << input_path_str_forward_slash
+					<< "\n";
+				exit(1);
 			}
 
 			break;
 
 		case 'o':
-			output_specified = true;
+			if (!output_specified) {
+				output_specified = true;
+			}
+			else {
+				std::cerr << "Output path was specified more than once.\n";
+				exit(1);
+			}
 			output_arg = optarg;
 
 			// Convert output_path to a std::filesystem::path object.
@@ -155,37 +202,65 @@ std::tuple<std::filesystem::path, std::filesystem::path, pathType> getOptions(in
 			output_path_str_forward_slash = output_path.string();
 			std::replace(output_path_str_forward_slash.begin(), output_path_str_forward_slash.end(), '\\', '/');
 
-			// Check if output_path is a directory or a file.
-			if (std::filesystem::is_directory(output_path)) {
-				// output_path is a directory.
-				path_mode = directory;
+			//// Check if output_path is a directory or a file.
+			//if (std::filesystem::is_directory(output_path)) {
+			//	// output_path is a directory.
+			//	path_mode = directory;
 
-				// Check if directory is empty.
-				if (std::filesystem::is_empty(output_path)) {
-					std::cerr << "Output directory is empty\n";
-					std::cerr << "  Output directory specified: " << output_path_str_forward_slash
+			//	// Check if directory is empty.
+			//	if (std::filesystem::is_empty(output_path)) {
+			//		std::cerr << "Output directory is empty\n";
+			//		std::cerr << "  Output directory specified: " << output_path_str_forward_slash
+			//			<< "\n";
+			//		exit(1);
+			//	}
+			//}
+			//else {
+			//	// output_path is a file.
+			//	path_mode = file;
+
+			//	// Check if output_path exists. If it does, notify the user that it will be overwritten.
+			//	if (std::filesystem::exists(output_path)) {
+			//		std::cout << "Output file already exists. It will be overwritten.\n";
+			//		std::cout << "  Output file specified: " << output_path_str_forward_slash
+			//			<< "\n";
+			//	}
+
+			//	// Check if output_path is a .mat file. If not, exit.
+			//	if (output_path.extension() != ".mat") {
+			//		std::cerr << "Output file must be .mat file\n";
+			//		std::cerr << "  Output file specified: " << output_path_str_forward_slash
+			//			<< "\n";
+			//		exit(1);
+			//	}
+			//}
+
+			// Check if output_path already exists
+			if (std::filesystem::exists(output_path)) {
+				// output_path already exists. We don't know if it is a file or directory.
+
+				// Check if output_path is a file or directory
+				if (std::filesystem::is_regular_file(output_path)) {
+					// output_path is a file
+					std::cout << "output_path exists and is a file";
+				}
+				else if (std::filesystem::is_directory(output_path)) {
+					// output_path is a directory
+					std::cout << "output_path exists and is a directory";
+				}
+				else {
+					// output_path is neither a file nor a directory.
+					std::cerr << "Output path exists, but is neither a file nor a directory\n";
+					std::cerr << "  Output path specified: " << output_path_str_forward_slash
 						<< "\n";
 					exit(1);
 				}
 			}
 			else {
-				// output_path is a file.
-				path_mode = file;
+				// output_path does not exist.
 
-				// Check if output_path exists. If it does, notify the user that it will be overwritten.
-				if (std::filesystem::exists(output_path)) {
-					std::cout << "Output file already exists. It will be overwritten.\n";
-					std::cout << "  Output file specified: " << output_path_str_forward_slash
-						<< "\n";
-				}
-
-				// Check if output_path is a .mat file. If not, exit.
-				if (output_path.extension() != ".mat") {
-					std::cerr << "Output file must be .mat file\n";
-					std::cerr << "  Output file specified: " << output_path_str_forward_slash
-						<< "\n";
-					exit(1);
-				}
+				// Check if output_path is a directory or a file.
+				std::cout << "output_path does not exist";
 			}
 
 			break;
