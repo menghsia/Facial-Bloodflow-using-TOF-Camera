@@ -245,12 +245,7 @@ int main(int argc, char* argv[]) {
 
 		// Loop through each frame of this skv file
 		for (size_t frame_num = 0; frame_num < num_frames; ++frame_num) {
-			return_val = process_frame(frame_num, num_frames, skv_reader, depth_map_radial, confidence_map_radial,
-				example_intrinsics, handle, err, cloudify_pt_x, cloudify_pt_y, cloudify_pt_z, Confidence);
-
-			if (return_val != 0) {
-				return return_val;
-			}
+			process_frame(frame_num, num_frames, skv_reader, depth_map_radial, confidence_map_radial, example_intrinsics, handle, err, cloudify_pt_x, cloudify_pt_y, cloudify_pt_z, Confidence);
 		}
 
 		cloudify_release(&handle, &err);

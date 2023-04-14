@@ -22,7 +22,7 @@ void process_flag_i(const pathMode& path_mode, const std::string& input_arg, std
 void process_flag_o(const pathMode& path_mode, const std::string& output_arg, std::filesystem::path& output_path, std::string& output_path_str_forward_slash, bool& dir_created);
 std::tuple<pathMode, std::filesystem::path, std::filesystem::path> getOptions(int argc, char* argv[]);
 
-int process_frame(size_t& frame_num, int& num_frames, std::unique_ptr<depthsense::skv::helper::skv>& skv_reader, std::vector<int16_t>& depth_map_radial,
+void process_frame(size_t& frame_num, int& num_frames, std::unique_ptr<depthsense::skv::helper::skv>& skv_reader, std::vector<int16_t>& depth_map_radial,
 	std::vector<int16_t>& confidence_map_radial, cloudify_intrinsic_parameters& example_intrinsics, cloudify_handle*& handle,
 	cloudify_error_details& err, int16_t(&cloudify_pt_x)[600][307200], int16_t(&cloudify_pt_y)[600][307200],
 	int16_t(&cloudify_pt_z)[600][307200], int16_t (&Confidence)[600][307200]);
@@ -272,7 +272,7 @@ inline std::tuple<pathMode, std::filesystem::path, std::filesystem::path> getOpt
 
 // Process one frame of an skv file
 // Returns a return code for main to handle. 0 = success, anything else = failure
-inline int process_frame(size_t& frame_num, int& num_frames, std::unique_ptr<depthsense::skv::helper::skv>& skv_reader, std::vector<int16_t>& depth_map_radial,
+inline void process_frame(size_t& frame_num, int& num_frames, std::unique_ptr<depthsense::skv::helper::skv>& skv_reader, std::vector<int16_t>& depth_map_radial,
 	std::vector<int16_t>& confidence_map_radial, cloudify_intrinsic_parameters& example_intrinsics, cloudify_handle*& handle,
 	cloudify_error_details& err, int16_t (&cloudify_pt_x)[600][307200], int16_t (&cloudify_pt_y)[600][307200],
 	int16_t (&cloudify_pt_z)[600][307200], int16_t (&Confidence)[600][307200]) {
@@ -307,14 +307,16 @@ inline int process_frame(size_t& frame_num, int& num_frames, std::unique_ptr<dep
 			cloudify_compute_radial_to_cartesian_depth(handle, example_index[0], example_index[1], radial_input, &cartesian_output, &err);
 			if (err.code != cloudify_success) {
 				std::cout << err.message << std::endl;
-				return -1;
+				//return -1;
+				std::exit(-1);
 			}
 	
 			cloudify_position_3d position;
 			cloudify_compute_3d_point(handle, example_index[0], example_index[1], cartesian_output, &position, &err);
 			if (err.code != cloudify_success) {
 				std::cout << err.message << std::endl;
-				return -1;
+				//return -1;
+				std::exit(-1);
 			}
 	
 			//std::cout << "[CLOUDIFY_SAMPLE] Cloudified frame #" << i << "\t @[" << example_index[0] << ", " << example_index[1] << ", " << radial_input << "] --> \t @[" << position.x << ", " << position.y << ", " << position.z << "]" << std::endl;
@@ -329,7 +331,7 @@ inline int process_frame(size_t& frame_num, int& num_frames, std::unique_ptr<dep
 	//std::cout << i << std::endl;
 	//std::cout << i << "\n";
 
-	return 0;
+	//return 0;
 }
 
 
