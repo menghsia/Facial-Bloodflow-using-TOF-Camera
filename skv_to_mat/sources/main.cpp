@@ -32,8 +32,8 @@ int main(int argc, char* argv[]) {
 	// C:\Users\user\Documents\input_file.skv
 	std::tuple<pathMode, std::filesystem::path, std::filesystem::path> options = getOptions(argc, argv);
 	pathMode path_mode = std::get<0>(options);
-	std::filesystem::path input_path = std::get<1>(options);
-	std::filesystem::path output_path = std::get<2>(options);
+	const std::filesystem::path input_path = std::get<1>(options);
+	const std::filesystem::path output_path = std::get<2>(options);
 
 	// Save the input and output file paths as strings. We need to convert the backslashes to forward slashes.
 	// If file mode, current form: C:\path\to\file\input_file.skv
@@ -126,6 +126,7 @@ int main(int argc, char* argv[]) {
 		depthsense::skv::helper::camera_intrinsics camera_parameters = skv_reader->get_camera_intrinsic_parameters();
 		
 		// Get number of frames in skv file
+		// Pretty sure I can use size_t here instead of int
 		int num_frames = skv_reader->get_frame_count();
 
 		// Print skv file info
@@ -245,11 +246,16 @@ int main(int argc, char* argv[]) {
 		std::vector<int16_t> depth_map_radial(example_intrinsics.width * example_intrinsics.height);
 		std::vector<int16_t> confidence_map_radial(example_intrinsics.width * example_intrinsics.height);
 
-		// Loop through each frame of this skv file
-		for (size_t i = 0; i < num_frames; ++i) {
-			std::cout << "Processing frame " << i << "..." << std::endl;
+		int return_val = 0;
 
-			process_frame();
+		// Loop through each frame of this skv file
+		for (size_t frame_num = 0; frame_num < num_frames; ++frame_num) {
+			return_val = process_frame(frame_num, num_frames, skv_reader, depth_map_radial, confidence_map_radial,
+				example_intrinsics, handle, err, cloudify_pt_x, cloudify_pt_y, cloudify_pt_z, Confidence);
+
+			if (return_val != 0) {
+				return return_val;
+			}
 		}
 
 		cloudify_release(&handle, &err);
@@ -515,12 +521,14 @@ int main(int argc, char* argv[]) {
 		mxArray* pa1, * pa2, * pa3, * pa4, * pa5;
 
 		int16_t data[9] = { 9, 9, 9, 9, 4, 3, 2, 1, 10000 };
-		//const char* file = matfile_name_c;
-		const char* file = const_cast<char*>(output_path_string_forward_slash.c_str());
+
+		// Combine output_path with mats[skv_i], convert to c_str
+		std::string out_file = output_path_string_forward_slash + "/" + mats[skv_i];
+		const char* file = const_cast<char*>(out_file.c_str());
+
 		char str[BUFSIZE];
 		int status;
 
-		//printf("Creating file %s...\n\n", file);
 		printf("Creating file %s...\n\n", file);
 		pmat = matOpen(file, "w");
 

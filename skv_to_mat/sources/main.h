@@ -22,7 +22,10 @@ void process_flag_i(const pathMode& path_mode, const std::string& input_arg, std
 void process_flag_o(const pathMode& path_mode, const std::string& output_arg, std::filesystem::path& output_path, std::string& output_path_str_forward_slash, bool& dir_created);
 std::tuple<pathMode, std::filesystem::path, std::filesystem::path> getOptions(int argc, char* argv[]);
 
-void process_frame();
+int process_frame(size_t& frame_num, int& num_frames, std::unique_ptr<depthsense::skv::helper::skv>& skv_reader, std::vector<int16_t>& depth_map_radial,
+	std::vector<int16_t>& confidence_map_radial, cloudify_intrinsic_parameters& example_intrinsics, cloudify_handle*& handle,
+	cloudify_error_details& err, int16_t(&cloudify_pt_x)[600][307200], int16_t(&cloudify_pt_y)[600][307200],
+	int16_t(&cloudify_pt_z)[600][307200], int16_t (&Confidence)[600][307200]);
 
 
 /* FUNCTION DEFINITIONS */
@@ -268,10 +271,17 @@ inline std::tuple<pathMode, std::filesystem::path, std::filesystem::path> getOpt
 }
 
 // Process one frame of an skv file
-inline void process_frame() {
+// Returns a return code for main to handle. 0 = success, anything else = failure
+inline int process_frame(size_t& frame_num, int& num_frames, std::unique_ptr<depthsense::skv::helper::skv>& skv_reader, std::vector<int16_t>& depth_map_radial,
+	std::vector<int16_t>& confidence_map_radial, cloudify_intrinsic_parameters& example_intrinsics, cloudify_handle*& handle,
+	cloudify_error_details& err, int16_t (&cloudify_pt_x)[600][307200], int16_t (&cloudify_pt_y)[600][307200],
+	int16_t (&cloudify_pt_z)[600][307200], int16_t (&Confidence)[600][307200]) {
+
+	std::cout << "Processing frame " << frame_num + 1 << "/" << num_frames << "..." << std::endl;
+
 	// Get depth and confidence data of this frame (640x480=307200 pixels per frame)
-	skv_reader->get_depth_image(i, depth_map_radial.data());
-	skv_reader->get_confidence_image(i, confidence_map_radial.data());
+	skv_reader->get_depth_image(frame_num, depth_map_radial.data());
+	skv_reader->get_confidence_image(frame_num, confidence_map_radial.data());
 	
 	// std::cout << "example_intrinsics.width: " << example_intrinsics.width << std::endl; // 640
 	// std::cout << "example_intrinsics.height: " << example_intrinsics.height << std::endl; // 480
@@ -308,16 +318,18 @@ inline void process_frame() {
 			}
 	
 			//std::cout << "[CLOUDIFY_SAMPLE] Cloudified frame #" << i << "\t @[" << example_index[0] << ", " << example_index[1] << ", " << radial_input << "] --> \t @[" << position.x << ", " << position.y << ", " << position.z << "]" << std::endl;
-			cloudify_pt_x[i][idx] = (int16_t)position.x;
-			cloudify_pt_y[i][idx] = (int16_t)position.y;
-			cloudify_pt_z[i][idx] = (int16_t)position.z;
-			Confidence[i][idx] = (int16_t)confidence_map_radial[idx];
+			cloudify_pt_x[frame_num][idx] = (int16_t)position.x;
+			cloudify_pt_y[frame_num][idx] = (int16_t)position.y;
+			cloudify_pt_z[frame_num][idx] = (int16_t)position.z;
+			Confidence[frame_num][idx] = (int16_t)confidence_map_radial[idx];
 	
 		}
 	}
 	// This is: i / (frames_count = skv_reader->get_frame_count())
 	//std::cout << i << std::endl;
 	//std::cout << i << "\n";
+
+	return 0;
 }
 
 
