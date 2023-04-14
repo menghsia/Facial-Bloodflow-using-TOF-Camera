@@ -22,6 +22,7 @@ void process_flag_i(const pathMode& path_mode, const std::string& input_arg, std
 void process_flag_o(const pathMode& path_mode, const std::string& output_arg, std::filesystem::path& output_path, std::string& output_path_str_forward_slash, bool& dir_created);
 std::tuple<pathMode, std::filesystem::path, std::filesystem::path> getOptions(int argc, char* argv[]);
 
+void process_frame();
 
 
 /* FUNCTION DEFINITIONS */
@@ -262,6 +263,59 @@ inline std::tuple<pathMode, std::filesystem::path, std::filesystem::path> getOpt
 	}
 
 	return std::make_tuple(path_mode, input_path, output_path);
+}
+
+// Process one frame of an skv file
+inline void process_frame() {
+	// Get depth and confidence data of this frame (640x480=307200 pixels per frame)
+	skv_reader->get_depth_image(i, depth_map_radial.data());
+	skv_reader->get_confidence_image(i, confidence_map_radial.data());
+
+	// std::cout << "example_intrinsics.width: " << example_intrinsics.width << std::endl; // 640
+	// std::cout << "example_intrinsics.height: " << example_intrinsics.height << std::endl; // 480
+	// std::cout << "example_intrinsics.cx: " << example_intrinsics.cx << std::endl;
+	// std::cout << "example_intrinsics.cy: " << example_intrinsics.cy << std::endl;
+	// std::cout << "example_intrinsics.fx: " << example_intrinsics.fx << std::endl;
+	// std::cout << "example_intrinsics.fy: " << example_intrinsics.fy << std::endl;
+	// std::cout << "example_intrinsics.k1: " << example_intrinsics.k1 << std::endl;
+	// std::cout << "example_intrinsics.k2: " << example_intrinsics.k2 << std::endl;
+	// std::cout << "example_intrinsics.k3: " << example_intrinsics.k3 << std::endl;
+	// std::cout << "example_intrinsics.k4: " << example_intrinsics.k4 << std::endl;
+
+	// Loop over each pixel of this frame (width then height)
+	for (size_t j = 0; j < example_intrinsics.width; ++j) {
+		//std::cout << "j: " << j << std::endl;
+		for (size_t k = 0; k < example_intrinsics.height; ++k) {
+			// We are looking at a single pixel
+
+			size_t example_index[] = { j, k };
+			size_t idx = example_index[0] + example_index[1] * example_intrinsics.width;
+			float radial_input = depth_map_radial[idx];
+			float cartesian_output;
+			cloudify_compute_radial_to_cartesian_depth(handle, example_index[0], example_index[1], radial_input, &cartesian_output, &err);
+			if (err.code != cloudify_success) {
+				std::cout << err.message << std::endl;
+				return -1;
+			}
+
+			cloudify_position_3d position;
+			cloudify_compute_3d_point(handle, example_index[0], example_index[1], cartesian_output, &position, &err);
+			if (err.code != cloudify_success) {
+				std::cout << err.message << std::endl;
+				return -1;
+			}
+
+			//std::cout << "[CLOUDIFY_SAMPLE] Cloudified frame #" << i << "\t @[" << example_index[0] << ", " << example_index[1] << ", " << radial_input << "] --> \t @[" << position.x << ", " << position.y << ", " << position.z << "]" << std::endl;
+			cloudify_pt_x[i][idx] = (int16_t)position.x;
+			cloudify_pt_y[i][idx] = (int16_t)position.y;
+			cloudify_pt_z[i][idx] = (int16_t)position.z;
+			Confidence[i][idx] = (int16_t)confidence_map_radial[idx];
+
+		}
+	}
+	// This is: i / (frames_count = skv_reader->get_frame_count())
+	//std::cout << i << std::endl;
+	//std::cout << i << "\n";
 }
 
 
