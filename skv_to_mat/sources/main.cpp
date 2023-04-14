@@ -155,20 +155,55 @@ int main(int argc, char* argv[]) {
 		std::cout << "[CLOUDIFY_SAMPLE] cloudify version : " << version << std::endl;
 
 		// Load the intrinsics from the skv files
+
+		// sk_automotive_20221003_164605.skv:
+		// example_intrinsics.width: 640
+		// example_intrinsics.height : 480
+		// example_intrinsics.cx : 316.56
+		// example_intrinsics.cy : 238.73
+		// example_intrinsics.fx : 370.024
+		// example_intrinsics.fy : 370.024
+		// example_intrinsics.k1 : -0.0767163
+		// example_intrinsics.k2 : -0.0198108
+		// example_intrinsics.k3 : 0.00441911
+		// example_intrinsics.k4 : 0
+
+		// sk_automotive_20221003_164625.skv:
+		// example_intrinsics.width: 640
+		// example_intrinsics.height : 480
+		// example_intrinsics.cx : 316.56
+		// example_intrinsics.cy : 238.73
+		// example_intrinsics.fx : 370.024
+		// example_intrinsics.fy : 370.024
+		// example_intrinsics.k1 : -0.0767163
+		// example_intrinsics.k2 : -0.0198108
+		// example_intrinsics.k3 : 0.00441911
+		// example_intrinsics.k4 : 0
+
 		cloudify_intrinsic_parameters example_intrinsics = 
 		{
+			//example_intrinsics.width: 640
 			camera_parameters.width,
+			//example_intrinsics.height : 480
 			camera_parameters.height,
 
+			//example_intrinsics.cx : 316.56
 			camera_parameters.central_x,
+			//example_intrinsics.cy : 238.73
 			camera_parameters.central_y,
 
+			//example_intrinsics.fx : 370.024
 			camera_parameters.focal_x,
+			//example_intrinsics.fy : 370.024 (why is this focal_x again? is it a bug?)
 			camera_parameters.focal_x,
 
+			//example_intrinsics.k1 : -0.0767163
 			camera_parameters.k1,
+			//example_intrinsics.k2 : -0.0198108
 			camera_parameters.k2,
+			//example_intrinsics.k3 : 0.00441911
 			camera_parameters.k3,
+			//example_intrinsics.k4 : 0
 			0.f
 		};
 
@@ -183,6 +218,13 @@ int main(int argc, char* argv[]) {
 		}
 
 		std::cout << "[CLOUDIFY_SAMPLE] library intialized" << std::endl;
+
+		// example_intrinsics.width * example_intrinsics.height = 307200
+		// 640 * 480 = 307200 pixels per frame
+		// int16_t: 2 bytes
+		// 2 bytes * 640 * 480 = 2457600 bytes = 2.3438 MB per frame
+		// 2457600 bytes per frame * 600 frames = 1474560000 bytes per 600-frame skv file = 1.3733 GB per 600-frame skv file
+
 		/*std::vector<std::array<int16_t, 307200>> cloudify_pt_x;
 		std::vector<std::array<int16_t, 307200>> cloudify_pt_y;
 		std::vector<std::array<int16_t, 307200>> cloudify_pt_z;
@@ -205,11 +247,29 @@ int main(int argc, char* argv[]) {
 
 		// Loop through each frame of this skv file
 		for (size_t i = 0; i < num_frames; ++i) {
+			std::cout << "Processing frame " << i << "..." << std::endl;
+
+			// Get depth and confidence data of this frame (640x480=307200 pixels per frame)
 			skv_reader->get_depth_image(i, depth_map_radial.data());
 			skv_reader->get_confidence_image(i, confidence_map_radial.data());
+
+			// std::cout << "example_intrinsics.width: " << example_intrinsics.width << std::endl; // 640
+			// std::cout << "example_intrinsics.height: " << example_intrinsics.height << std::endl; // 480
+			// std::cout << "example_intrinsics.cx: " << example_intrinsics.cx << std::endl;
+			// std::cout << "example_intrinsics.cy: " << example_intrinsics.cy << std::endl;
+			// std::cout << "example_intrinsics.fx: " << example_intrinsics.fx << std::endl;
+			// std::cout << "example_intrinsics.fy: " << example_intrinsics.fy << std::endl;
+			// std::cout << "example_intrinsics.k1: " << example_intrinsics.k1 << std::endl;
+			// std::cout << "example_intrinsics.k2: " << example_intrinsics.k2 << std::endl;
+			// std::cout << "example_intrinsics.k3: " << example_intrinsics.k3 << std::endl;
+			// std::cout << "example_intrinsics.k4: " << example_intrinsics.k4 << std::endl;
+
+			// Loop over each pixel of this frame (width then height)
 			for (size_t j = 0; j < example_intrinsics.width; ++j) {
-				//std::cout << j << std::endl;
+				//std::cout << "j: " << j << std::endl;
 				for (size_t k = 0; k < example_intrinsics.height; ++k) {
+					// We are looking at a single pixel
+
 					size_t example_index[] = { j, k };
 					size_t idx = example_index[0] + example_index[1] * example_intrinsics.width;
 					float radial_input = depth_map_radial[idx];
@@ -237,7 +297,7 @@ int main(int argc, char* argv[]) {
 			}
 			// This is: i / (frames_count = skv_reader->get_frame_count())
 			//std::cout << i << std::endl;
-			std::cout << i << "\n";
+			//std::cout << i << "\n";
 		}
 
 		cloudify_release(&handle, &err);
