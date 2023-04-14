@@ -11,16 +11,16 @@
 
 /* FUNCTION DECLARATIONS */
 
-enum pathType {
+enum pathMode {
 	//unspecified,
 	file,
 	directory
 };
 
 void printHelp(char* argv[]);
-void process_flag_i(const pathType& path_mode, const std::string& input_arg, std::filesystem::path& input_path, std::string& input_path_str_forward_slash, bool& input_dir_contains_SKV);
-void process_flag_o(const pathType& path_mode, const std::string& output_arg, std::filesystem::path& output_path, std::string& output_path_str_forward_slash);
-std::tuple<pathType, std::filesystem::path, std::filesystem::path> getOptions(int argc, char* argv[]);
+void process_flag_i(const pathMode& path_mode, const std::string& input_arg, std::filesystem::path& input_path, std::string& input_path_str_forward_slash, bool& input_dir_contains_SKV);
+void process_flag_o(const pathMode& path_mode, const std::string& output_arg, std::filesystem::path& output_path, std::string& output_path_str_forward_slash, bool& dir_created);
+std::tuple<pathMode, std::filesystem::path, std::filesystem::path> getOptions(int argc, char* argv[]);
 
 
 
@@ -34,7 +34,7 @@ inline void printHelp(char* argv[]) {
 /*
 * Sets input_path to the absolute path of the input file/directory.
 */
-inline void process_flag_i(const pathType& path_mode, const std::string& input_arg, std::filesystem::path& input_path, std::string& input_path_str_forward_slash, bool& input_dir_contains_SKV) {
+inline void process_flag_i(const pathMode& path_mode, const std::string& input_arg, std::filesystem::path& input_path, std::string& input_path_str_forward_slash, bool& input_dir_contains_SKV) {
 	// Convert input_path to a std::filesystem::path object.
 	input_path = std::filesystem::path(input_arg);
 
@@ -99,7 +99,7 @@ inline void process_flag_i(const pathType& path_mode, const std::string& input_a
 /*
 * Sets output_path to the absolute path of the output file/directory.
 */
-inline void process_flag_o(const pathType& path_mode, const std::string& output_arg, std::filesystem::path& output_path, std::string& output_path_str_forward_slash) {
+inline void process_flag_o(const pathMode& path_mode, const std::string& output_arg, std::filesystem::path& output_path, std::string& output_path_str_forward_slash, bool& dir_created) {
 	// Convert output_path to a std::filesystem::path object.
 	output_path = std::filesystem::path(output_arg);
 
@@ -109,89 +109,64 @@ inline void process_flag_o(const pathType& path_mode, const std::string& output_
 	output_path_str_forward_slash = output_path.string();
 	std::replace(output_path_str_forward_slash.begin(), output_path_str_forward_slash.end(), '\\', '/');
 
-	//// Check if output_path is a directory or a file.
-	//if (std::filesystem::is_directory(output_path)) {
-	//	// output_path is a directory.
-	//	path_mode = directory;
+	if (path_mode == file) {
+		// file mode code
 
-	//	// Check if directory is empty.
-	//	if (std::filesystem::is_empty(output_path)) {
-	//		std::cerr << "Output directory is empty\n";
-	//		std::cerr << "  Output directory specified: " << output_path_str_forward_slash
-	//			<< "\n";
-	//		exit(1);
-	//	}
-	//}
-	//else {
-	//	// output_path is a file.
-	//	path_mode = file;
-
-	//	// Check if output_path exists. If it does, notify the user that it will be overwritten.
-	//	if (std::filesystem::exists(output_path)) {
-	//		std::cout << "Output file already exists. It will be overwritten.\n";
-	//		std::cout << "  Output file specified: " << output_path_str_forward_slash
-	//			<< "\n";
-	//	}
-
-	//	// Check if output_path is a .mat file. If not, exit.
-	//	if (output_path.extension() != ".mat") {
-	//		std::cerr << "Output file must be .mat file\n";
-	//		std::cerr << "  Output file specified: " << output_path_str_forward_slash
-	//			<< "\n";
-	//		exit(1);
-	//	}
-	//}
-
-	// Check if output_path already exists
-	if (std::filesystem::exists(output_path)) {
-		// output_path already exists. We don't know if it is a file or directory.
-
-		// Check if output_path is a file or directory
-		if (std::filesystem::is_regular_file(output_path)) {
-			// output_path is a file
-			std::cout << "output_path exists and is a file";
+		// Check if file exists. If it does, notify the user that it will be overwritten.
+		if (std::filesystem::exists(output_path)) {
+			std::cout << "WARNING: Output file already exists. It will be overwritten.\n";
+			std::cout << "  Output file specified: " << output_path_str_forward_slash
+				<< "\n";
 		}
-		else if (std::filesystem::is_directory(output_path)) {
-			// output_path is a directory
-			std::cout << "output_path exists and is a directory";
-		}
-		else {
-			// output_path is neither a file nor a directory.
-			std::cerr << "Output path exists, but is neither a file nor a directory\n";
-			std::cerr << "  Output path specified: " << output_path_str_forward_slash
+
+		// Check if outputFile is a .mat file. If not, print an error message with full path and exit.
+		if (output_path.extension() != ".mat") {
+			std::cerr << "Output file must be .mat file\n";
+			std::cerr << "  Output file specified: " << output_path_str_forward_slash
 				<< "\n";
 			exit(1);
 		}
 	}
 	else {
-		// output_path does not exist.
+		// directory mode code
 
-		// Check if output_path is a directory or a file.
-		std::cout << "output_path does not exist";
+		// Check if directory exists. If not, create it. If directory cannot be created (maybe user lacks permission?), print an error message with full path and exit.
+		if (!std::filesystem::exists(output_path)) {
+			// Create directory at output_path
+			dir_created = std::filesystem::create_directory(output_path);
+
+			// Check if the directory was created successfully
+			if (dir_created) {
+				std::cout << "New directory created: " << output_path_str_forward_slash << std::endl;
+			}
+			else {
+				std::cerr << "Failed to create directory: " << output_path_str_forward_slash << std::endl;
+				std::exit(1);
+			}
+		}
 	}
 }
 
 /**
  * @param argc The number of command line arguments.
  * @param argv An array of C-style strings containing the command line arguments.
- * @return A tuple (path_mode, input_path, output_path)
+ * @return A tuple (pathType path_mode, filesystem::path input_path, filesystem::path output_path)
  */
-inline std::tuple<pathType, std::filesystem::path, std::filesystem::path> getOptions(int argc, char* argv[]) {
-	std::string input_arg;
-	std::filesystem::path input_path;
-	std::string input_path_str_forward_slash;
-	bool input_specified = false;
-
-	std::string output_arg;
-	std::filesystem::path output_path;
-	std::string output_path_str_forward_slash;
-	bool output_specified = false;
-
+inline std::tuple<pathMode, std::filesystem::path, std::filesystem::path> getOptions(int argc, char* argv[]) {
 	// Assume we are working with individual files by default, unless the user specifies -d flag (directory mode)
-	pathType path_mode = file;
-	//pathType outputType;
+	pathMode path_mode = file;
 
+	std::string input_arg = "";
+	std::filesystem::path input_path(".");
+	std::string input_path_str_forward_slash = "";
+	bool input_specified = false;
 	bool input_dir_contains_SKV = false;
+
+	std::string output_arg = "";
+	std::filesystem::path output_path(".");
+	std::string output_path_str_forward_slash = "";
+	bool output_specified = false;
+	bool dir_created = false;
 
 	// These are used with getopt_long()
 	// Let us handle all error output for command line options
@@ -217,12 +192,10 @@ inline std::tuple<pathType, std::filesystem::path, std::filesystem::path> getOpt
 				input_specified = true;
 			}
 			else {
-				std::cerr << "Input path was specified more than once.\n";
+				std::cerr << "Input arg (-i) was specified more than once.\n";
 				std::exit(1);
 			}
 			input_arg = optarg;
-
-			process_flag_i(path_mode, input_arg, input_path, input_path_str_forward_slash, input_dir_contains_SKV);
 
 			break;
 
@@ -231,12 +204,10 @@ inline std::tuple<pathType, std::filesystem::path, std::filesystem::path> getOpt
 				output_specified = true;
 			}
 			else {
-				std::cerr << "Output path was specified more than once.\n";
+				std::cerr << "Output arg (-o) was specified more than once.\n";
 				std::exit(1);
 			}
 			output_arg = optarg;
-
-			process_flag_o(path_mode, output_arg, output_path, output_path_str_forward_slash);
 
 			break;
 
@@ -256,14 +227,17 @@ inline std::tuple<pathType, std::filesystem::path, std::filesystem::path> getOpt
 	}
 
 	if (!input_specified) {
-		std::cerr << "No input file specified\n";
+		std::cerr << "No input file/path specified\n";
 		std::exit(1);
 	}
 
 	if (!output_specified) {
-		std::cerr << "No output file specified\n";
+		std::cerr << "No output file/path specified\n";
 		std::exit(1);
 	}
+
+	process_flag_i(path_mode, input_arg, input_path, input_path_str_forward_slash, input_dir_contains_SKV);
+	process_flag_o(path_mode, output_arg, output_path, output_path_str_forward_slash, dir_created);
 
 	return std::make_tuple(path_mode, input_path, output_path);
 }

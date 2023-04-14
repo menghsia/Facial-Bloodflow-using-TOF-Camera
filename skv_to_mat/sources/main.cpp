@@ -30,9 +30,10 @@ using namespace std;
 int main(int argc, char* argv[]) {
 	// Get the input and output file paths. These paths are represented as follows:
 	// C:\Users\user\Documents\input_file.skv
-	std::tuple<std::filesystem::path, std::filesystem::path> options = getOptions(argc, argv);
-	std::filesystem::path inputFilePath = std::get<0>(options);
-	std::filesystem::path outputFilePath = std::get<1>(options);
+	std::tuple<pathMode, std::filesystem::path, std::filesystem::path> options = getOptions(argc, argv);
+	pathMode path_mode = std::get<0>(options);
+	std::filesystem::path inputFilePath = std::get<1>(options);
+	std::filesystem::path outputFilePath = std::get<2>(options);
 
 	// Save the input and output file names as strings
 	std::string inputFileName = inputFilePath.filename().string();
