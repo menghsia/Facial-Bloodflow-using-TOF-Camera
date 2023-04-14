@@ -32,16 +32,16 @@ int main(int argc, char* argv[]) {
 	// C:\Users\user\Documents\input_file.skv
 	std::tuple<pathMode, std::filesystem::path, std::filesystem::path> options = getOptions(argc, argv);
 	pathMode path_mode = std::get<0>(options);
-	std::filesystem::path inputFilePath = std::get<1>(options);
-	std::filesystem::path outputFilePath = std::get<2>(options);
+	std::filesystem::path input_path = std::get<1>(options);
+	std::filesystem::path output_path = std::get<2>(options);
 
 	// Save the input and output file names as strings
-	std::string inputFileName = inputFilePath.filename().string();
-	std::string outputFileName = outputFilePath.filename().string();
+	std::string inputFileName = input_path.filename().string();
+	std::string outputFileName = output_path.filename().string();
 
 	// Save the input and output file paths as strings. It is currently in the form: C:\path\to\file\input_file.skv, so we need to convert the backslashes to forward slashes.
-	std::string inputFilePathStringFS = inputFilePath.string();
-	std::string outputFilePathStringFS = outputFilePath.string();
+	std::string inputFilePathStringFS = input_path.string();
+	std::string outputFilePathStringFS = output_path.string();
 	std::replace(inputFilePathStringFS.begin(), inputFilePathStringFS.end(), '\\', '/');
 	std::replace(outputFilePathStringFS.begin(), outputFilePathStringFS.end(), '\\', '/');
 
@@ -53,15 +53,15 @@ int main(int argc, char* argv[]) {
 
 	//// Print the input and output file paths
 	//// C:\\path\\to\\file\\sk_automotive_20221003_164605.skv
-	//std::cout << "Input file path: " << inputFilePath << std::endl;
+	//std::cout << "Input file path: " << input_path << std::endl;
 	//// C:\\path\\to\\file\\vs_output.mat
-	//std::cout << "Output file path: " << outputFilePath << std::endl;
+	//std::cout << "Output file path: " << output_path << std::endl;
 
 	//// Print the input and output file paths as strings
 	////  C:\path\to\file\sk_automotive_20221003_164605.skv
-	//std::cout << "Input file path as string: " << inputFilePath.string() << std::endl;
+	//std::cout << "Input file path as string: " << input_path.string() << std::endl;
 	////  C:\path\to\file\vs_output.mat
-	//std::cout << "Output file path as string: " << outputFilePath.string() << std::endl;
+	//std::cout << "Output file path as string: " << output_path.string() << std::endl;
 
 	//// Print the input and output file paths as strings. The backslashes have been replaced with forward slashes.
 	//// C:/path/to/file/sk_automotive_20221003_164605.skv
@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
 	//std::string movie_path("C:/Users/spars/Downloads/AutoSuite/automotive_suite-v0.0.0-recorder_viewer-win64/RecordedMovies/" + skvs[l]);
 	//std::string movie_path("C:/Users/MNI Lab/Documents/GitHub/prgrm/facial-blood-ToF/skvs/" + skvs[l]);
 	 //std::string movie_path("C:/Users/Muhsinun/Desktop/Muhsinun/Repositories/GitHub/facial-bloodflow-tof_live/skvs/" + inputFileName);
-	 //std::string movie_path(inputFilePath);
+	 //std::string movie_path(input_path);
 	//std::string movie_path(skvs[l]);
 	std::unique_ptr<depthsense::skv::helper::skv> skv_reader(new depthsense::skv::helper::skv());  //
 
