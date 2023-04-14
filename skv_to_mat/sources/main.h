@@ -20,7 +20,7 @@ enum pathType {
 void printHelp(char* argv[]);
 void process_flag_i(const pathType& path_mode, const std::string& input_arg, std::filesystem::path& input_path, std::string& input_path_str_forward_slash, bool& input_dir_contains_SKV);
 void process_flag_o(const pathType& path_mode, const std::string& output_arg, std::filesystem::path& output_path, std::string& output_path_str_forward_slash);
-std::tuple<std::filesystem::path, std::filesystem::path, pathType> getOptions(int argc, char* argv[]);
+std::tuple<pathType, std::filesystem::path, std::filesystem::path> getOptions(int argc, char* argv[]);
 
 
 
