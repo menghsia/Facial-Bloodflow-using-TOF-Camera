@@ -239,6 +239,15 @@ inline std::tuple<pathMode, std::filesystem::path, std::filesystem::path> getOpt
 	process_flag_i(path_mode, input_arg, input_path, input_path_str_forward_slash, input_dir_contains_SKV);
 	process_flag_o(path_mode, output_arg, output_path, output_path_str_forward_slash, dir_created);
 
+	if (path_mode == file) {
+		std::cout << "Input file: " << input_path_str_forward_slash << "\n";
+		std::cout << "Output file: " << output_path_str_forward_slash << "\n";
+	}
+	else {
+		std::cout << "Input directory: " << input_path_str_forward_slash << "\n";
+		std::cout << "Output directory: " << output_path_str_forward_slash << "\n";
+	}
+
 	return std::make_tuple(path_mode, input_path, output_path);
 }
 
