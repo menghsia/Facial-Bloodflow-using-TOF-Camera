@@ -124,7 +124,7 @@ inline void process_flag_o(const pathMode& path_mode, const std::string& output_
 			std::cerr << "Output file must be .mat file\n";
 			std::cerr << "  Output file specified: " << output_path_str_forward_slash
 				<< "\n";
-			exit(1);
+			std::exit(1);
 		}
 	}
 	else {
