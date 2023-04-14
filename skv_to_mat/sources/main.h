@@ -51,7 +51,7 @@ inline void process_flag_i(const pathMode& path_mode, const std::string& input_a
 		// file mode
 
 		// Check if input_path exists. If not, print an error message with full path and exit.
-		if (!std::filesystem::exists(input_path)) {
+		if (!std::filesystem::is_regular_file(input_path)) {
 			std::cerr << "Input file does not exist\n";
 			std::cerr << "  Input file specified: " << input_path_str_forward_slash
 				<< "\n";
@@ -70,10 +70,9 @@ inline void process_flag_i(const pathMode& path_mode, const std::string& input_a
 		// directory mode
 		
 		// Check if input_path exists. If not, print an error message with full path and exit.
-		if (!std::filesystem::exists(input_path)) {
+		if (!std::filesystem::is_directory(input_path)) {
 			std::cerr << "Input directory does not exist\n";
-			std::cerr << "  Input directory specified: " << input_path_str_forward_slash
-				<< "\n";
+			std::cerr << "  Input directory specified: " << input_path_str_forward_slash << "\n";
 			std::exit(1);
 		}
 
@@ -113,22 +112,34 @@ inline void process_flag_o(const pathMode& path_mode, const std::string& output_
 		// file mode code
 
 		// Check if file exists. If it does, notify the user that it will be overwritten.
-		if (std::filesystem::exists(output_path)) {
+		if (std::filesystem::is_regular_file(output_path)) {
 			std::cout << "WARNING: Output file already exists. It will be overwritten.\n";
-			std::cout << "  Output file specified: " << output_path_str_forward_slash
-				<< "\n";
+			std::cout << "  Output file specified: " << output_path_str_forward_slash << "\n";
 		}
 
 		// Check if outputFile is a .mat file. If not, print an error message with full path and exit.
 		if (output_path.extension() != ".mat") {
 			std::cerr << "Output file must be .mat file\n";
-			std::cerr << "  Output file specified: " << output_path_str_forward_slash
-				<< "\n";
+			std::cerr << "  Output file specified: " << output_path_str_forward_slash << "\n";
 			std::exit(1);
 		}
 	}
 	else {
 		// directory mode code
+
+		// Check if output_path string contains a ".". If so, print an error message with full path and exit.
+		if (output_path_str_forward_slash.find(".") != std::string::npos) {
+			std::cerr << "Output must be a directory when path-mode is directory\n";
+			std::cerr << "  Output file specified: " << output_path_str_forward_slash << "\n";
+			std::exit(1);
+		}
+
+		if (std::filesystem::exists(output_path) && !std::filesystem::is_directory(output_path)) {
+			// output_path exists, but is not a directory. Maybe it's a file that has no extension?
+			std::cerr << "Output specified is unknown (maybe it is a file with no extension?)\n";
+			std::cerr << "  Output specified: " << output_path_str_forward_slash << "\n";
+			std::exit(1);
+		}
 
 		// Check if directory exists. If not, create it. If directory cannot be created (maybe user lacks permission?), print an error message with full path and exit.
 		if (!std::filesystem::exists(output_path)) {
