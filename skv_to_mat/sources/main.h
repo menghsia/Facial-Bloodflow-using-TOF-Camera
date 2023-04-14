@@ -24,13 +24,11 @@ std::tuple<pathMode, std::filesystem::path, std::filesystem::path> getOptions(in
 
 void process_frame(const size_t frame_num, const int& num_frames,
 	std::mutex& mutex_skv_reader, std::unique_ptr<depthsense::skv::helper::skv>& skv_reader,
-	std::vector<int16_t>& depth_map_radial, std::vector<int16_t>& confidence_map_radial,
-	cloudify_intrinsic_parameters& example_intrinsics, cloudify_handle*& handle,
-	cloudify_error_details& err,
+	cloudify_intrinsic_parameters& example_intrinsics, cloudify_handle*& handle, cloudify_error_details& err,
 	std::mutex& mutex_cloudify_pt_x, int16_t(&cloudify_pt_x)[600][307200],
 	std::mutex& mutex_cloudify_pt_y, int16_t(&cloudify_pt_y)[600][307200],
 	std::mutex& mutex_cloudify_pt_z, int16_t(&cloudify_pt_z)[600][307200],
-	std::mutex& mutex_Confidence, int16_t(&Confidence)[600][307200]);
+	int16_t (&Confidence)[600][307200]);
 
 
 /* FUNCTION DEFINITIONS */
@@ -279,21 +277,25 @@ inline std::tuple<pathMode, std::filesystem::path, std::filesystem::path> getOpt
 // Returns a return code for main to handle. 0 = success, anything else = failure
 inline void process_frame(const size_t frame_num, const int& num_frames,
 	std::mutex& mutex_skv_reader, std::unique_ptr<depthsense::skv::helper::skv>& skv_reader,
-	std::vector<int16_t>& depth_map_radial, std::vector<int16_t>& confidence_map_radial,
-	cloudify_intrinsic_parameters& example_intrinsics, cloudify_handle*& handle,
-	cloudify_error_details& err,
+	cloudify_intrinsic_parameters& example_intrinsics, cloudify_handle*& handle, cloudify_error_details& err,
 	std::mutex& mutex_cloudify_pt_x, int16_t(&cloudify_pt_x)[600][307200],
 	std::mutex& mutex_cloudify_pt_y, int16_t(&cloudify_pt_y)[600][307200],
 	std::mutex& mutex_cloudify_pt_z, int16_t(&cloudify_pt_z)[600][307200],
-	std::mutex& mutex_Confidence, int16_t (&Confidence)[600][307200]) {
+	int16_t (&Confidence)[600][307200]) {
+
+	// Initialnize a buffer, save all depth data of a frame in 1d array
+	std::vector<int16_t> depth_map_radial(example_intrinsics.width * example_intrinsics.height);
+	std::vector<int16_t> confidence_map_radial(example_intrinsics.width * example_intrinsics.height);
 
 	//std::cout << "Processing frame " << frame_num + 1 << "/" << num_frames << "..." << std::endl;
 	//std::cout << "Processing frame (zero-indexed) " << frame_num << "/" << num_frames << "..." << std::endl;
-	std::cout << frame_num + 1 << "/" << num_frames << "\n";
+	//std::cout << frame_num + 1 << "/" << num_frames << "\n";
 
 	// Get depth and confidence data of this frame (640x480=307200 pixels per frame)
 	mutex_skv_reader.lock();
+	// Copy data from frame_num frame into depth_map_radial
 	skv_reader->get_depth_image(frame_num, depth_map_radial.data());
+	// Copy data from frame_num frame into confidence_map_radial
 	skv_reader->get_confidence_image(frame_num, confidence_map_radial.data());
 	mutex_skv_reader.unlock();
 	
@@ -334,21 +336,19 @@ inline void process_frame(const size_t frame_num, const int& num_frames,
 			}
 	
 			//std::cout << "[CLOUDIFY_SAMPLE] Cloudified frame #" << i << "\t @[" << example_index[0] << ", " << example_index[1] << ", " << radial_input << "] --> \t @[" << position.x << ", " << position.y << ", " << position.z << "]" << std::endl;
-			mutex_cloudify_pt_x.lock();
+			//mutex_cloudify_pt_x.lock();
 			cloudify_pt_x[frame_num][idx] = (int16_t)position.x;
-			mutex_cloudify_pt_x.unlock();
+			//mutex_cloudify_pt_x.unlock();
 
-			mutex_cloudify_pt_y.lock();
+			//mutex_cloudify_pt_y.lock();
 			cloudify_pt_y[frame_num][idx] = (int16_t)position.y;
-			mutex_cloudify_pt_y.unlock();
+			//mutex_cloudify_pt_y.unlock();
 
-			mutex_cloudify_pt_z.lock();
+			//mutex_cloudify_pt_z.lock();
 			cloudify_pt_z[frame_num][idx] = (int16_t)position.z;
-			mutex_cloudify_pt_z.unlock();
+			//mutex_cloudify_pt_z.unlock();
 
-			mutex_Confidence.lock();
 			Confidence[frame_num][idx] = (int16_t)confidence_map_radial[idx];
-			mutex_Confidence.unlock();
 	
 		}
 	}
