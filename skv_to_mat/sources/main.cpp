@@ -20,6 +20,7 @@
 #include <string>
 #include <cstring>
 #include <filesystem>
+#include <thread>
 #include <dirent.h>
 #define BUFSIZE 256
 
@@ -241,9 +242,44 @@ int main(int argc, char* argv[]) {
 		std::vector<int16_t> depth_map_radial(example_intrinsics.width * example_intrinsics.height);
 		std::vector<int16_t> confidence_map_radial(example_intrinsics.width * example_intrinsics.height);
 
+		const int num_threads = 1;
+		std::mutex mutex_skv_reader;
+		std::mutex mutex_cloudify_pt_x;
+		std::mutex mutex_cloudify_pt_y;
+		std::mutex mutex_cloudify_pt_z;
+		std::mutex mutex_Confidence;
+
+		// Create a vector to hold the thread objects
+		std::vector<std::thread> threads;
+
 		// Loop through each frame of this skv file
 		for (size_t frame_num = 0; frame_num < num_frames; ++frame_num) {
-			process_frame(frame_num, num_frames, skv_reader, depth_map_radial, confidence_map_radial, example_intrinsics, handle, err, cloudify_pt_x, cloudify_pt_y, cloudify_pt_z, Confidence);
+			//std::cout << "frame_num: " << frame_num << std::endl;
+
+			// Wait for a thread to finish if we have too many running
+			if (threads.size() >= num_threads) {
+				threads.front().join();
+				threads.erase(threads.begin());
+			}
+
+			// Create a new thread and start it running the thread_function
+			//threads.emplace_back(process_frame, frame_num, num_frames, skv_reader, depth_map_radial, confidence_map_radial, example_intrinsics, handle, err, cloudify_pt_x, cloudify_pt_y, cloudify_pt_z, Confidence);
+			threads.emplace_back(std::thread(process_frame, frame_num, std::ref(num_frames),
+				std::ref(mutex_skv_reader), std::ref(skv_reader),
+				std::ref(depth_map_radial), std::ref(confidence_map_radial),
+				std::ref(example_intrinsics), std::ref(handle), std::ref(err),
+				std::ref(mutex_cloudify_pt_x), std::ref(cloudify_pt_x),
+				std::ref(mutex_cloudify_pt_y), std::ref(cloudify_pt_y),
+				std::ref(mutex_cloudify_pt_z), std::ref(cloudify_pt_z),
+				std::ref(mutex_Confidence), std::ref(Confidence)));
+
+			//process_frame(frame_num, num_frames, skv_reader, depth_map_radial, confidence_map_radial, example_intrinsics, handle, err, cloudify_pt_x, cloudify_pt_y, cloudify_pt_z, Confidence);
+			//threads[i] = std::thread(process_frame, frame_num, num_frames, skv_reader, depth_map_radial, confidence_map_radial, example_intrinsics, handle, err, cloudify_pt_x, cloudify_pt_y, cloudify_pt_z, Confidence);
+		}
+
+		// Wait for any remaining threads to finish before continuing with the rest of the program
+		for (auto& thread : threads) {
+			thread.join();
 		}
 
 		cloudify_release(&handle, &err);
