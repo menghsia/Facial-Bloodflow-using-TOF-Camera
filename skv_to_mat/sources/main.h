@@ -132,6 +132,8 @@ inline void process_flag_o(const pathMode& path_mode, const std::string& output_
 
 		// Check if output_path string contains a ".". If so, print an error message with full path and exit.
 		if (output_path_str_forward_slash.find(".") != std::string::npos) {
+			// POSSIBLE BUG: What if the path is like C:/.git/path/? Will likely fail.
+			// POSSIBLE SOLUTION: Get only the last part of the path (after the last "/") and check if that part contains a ".".
 			std::cerr << "Output must be a directory when path-mode is directory\n";
 			std::cerr << "  Output file specified: " << output_path_str_forward_slash << "\n";
 			std::exit(1);
