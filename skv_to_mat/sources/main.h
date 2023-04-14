@@ -27,8 +27,10 @@ std::tuple<pathMode, std::filesystem::path, std::filesystem::path> getOptions(in
 /* FUNCTION DEFINITIONS */
 
 inline void printHelp(char* argv[]) {
-	std::cout << "Usage: " << argv[0] << " <-i:input input.skv or input_dir/>|<-o:output output.mat or output_dir/>|[-h]\n";
+	std::cout << "Usage: " << argv[0] << " <-i:input [input.skv]|[path/to/input_dir/]>|<-o:output [output.mat]|[path/to/output_dir/]>|[-d]|[-h]\n";
 	std::cout << "This program takes in an input .skv file (or dir of .skv files) and converts it into an output .mat file (or fills a dir with .mat files).\n";
+	std::cout << "By default, the program assumes file input-output mode. Add -d to enable directory input-output mode.\n";
+	std::cout << "Both the input and output must be files or directories, depending on the input-output mode. They must match type.\n";
 }
 
 /*
