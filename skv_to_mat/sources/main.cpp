@@ -35,39 +35,21 @@ int main(int argc, char* argv[]) {
 	std::filesystem::path input_path = std::get<1>(options);
 	std::filesystem::path output_path = std::get<2>(options);
 
-	// Save the input and output file names as strings
-	std::string inputFileName = input_path.filename().string();
-	std::string outputFileName = output_path.filename().string();
-
 	// Save the input and output file paths as strings. It is currently in the form: C:\path\to\file\input_file.skv, so we need to convert the backslashes to forward slashes.
-	std::string inputFilePathStringFS = input_path.string();
-	std::string outputFilePathStringFS = output_path.string();
-	std::replace(inputFilePathStringFS.begin(), inputFilePathStringFS.end(), '\\', '/');
-	std::replace(outputFilePathStringFS.begin(), outputFilePathStringFS.end(), '\\', '/');
+	std::string input_path_string_forward_slash = input_path.string();
+	std::string output_path_string_forward_slash = output_path.string();
+	std::replace(input_path_string_forward_slash.begin(), input_path_string_forward_slash.end(), '\\', '/');
+	std::replace(output_path_string_forward_slash.begin(), output_path_string_forward_slash.end(), '\\', '/');
 
-	//// Print the input and output file names
-	//// sk_automotive_20221003_164605.skv
-	//std::cout << "Input file name: " << inputFileName << std::endl;
-	//// vs_output.mat
-	//std::cout << "Output file name: " << outputFileName << std::endl;
+	// File mode
+	std::string inputFileName = "";
+	std::string outputFileName = "";
 
-	//// Print the input and output file paths
-	//// C:\\path\\to\\file\\sk_automotive_20221003_164605.skv
-	//std::cout << "Input file path: " << input_path << std::endl;
-	//// C:\\path\\to\\file\\vs_output.mat
-	//std::cout << "Output file path: " << output_path << std::endl;
-
-	//// Print the input and output file paths as strings
-	////  C:\path\to\file\sk_automotive_20221003_164605.skv
-	//std::cout << "Input file path as string: " << input_path.string() << std::endl;
-	////  C:\path\to\file\vs_output.mat
-	//std::cout << "Output file path as string: " << output_path.string() << std::endl;
-
-	//// Print the input and output file paths as strings. The backslashes have been replaced with forward slashes.
-	//// C:/path/to/file/sk_automotive_20221003_164605.skv
-	//std::cout << "Input file path as string with forward slashes: " << inputFilePathStringFS << std::endl;
-	//// C:/path/to/file/vs_output.mat
-	//std::cout << "Output file path as string with forward slashes: " << outputFilePathStringFS << std::endl;
+	if (path_mode == file) {
+		// Save the input and output file names as strings
+		inputFileName = input_path.filename().string();
+		outputFileName = output_path.filename().string();
+	}
 
 	iu456_error_details_t error;
 
@@ -77,10 +59,24 @@ int main(int argc, char* argv[]) {
 	/// 
 	HANDLE hFind;
 	WIN32_FIND_DATA FindFileData;
-	// This line of code creates a vector of strings called skvs, with one element, "File Names: ". This element can be used to store a list of file names, or any other
-	// type of string data.
-	//std::vector<std::string> skvs{ "File Names: " };
-	//skvs.push_back(inputFileName);
+
+	// skvs is a vector of strings that contains the names of all the .skv files in the input directory
+	std::vector<std::string> skvs;
+	
+	// Fill skvs with the names of all the .skv files in the input directory
+	std::string search_path = input_path_string_forward_slash + "/*.skv";
+
+	hFind = FindFirstFile(search_path.c_str(), &FindFileData);
+
+	if (hFind != INVALID_HANDLE_VALUE) {
+		do {
+			skvs.push_back(string(FindFileData.cFileName));
+		} while (FindNextFile(hFind, &FindFileData));
+
+		FindClose(hFind);
+	}
+
+	std::cout << "Found " << skvs.size() << " .skv files" << std::endl;
 
 	//std::vector<std::string> skv_names;
 	//std::string skv_name = inputFileName;
@@ -98,7 +94,7 @@ int main(int argc, char* argv[]) {
 
 	try {
 		//skv_reader->open(movie_path);
-		skv_reader->open(inputFilePathStringFS);
+		skv_reader->open(input_path_string_forward_slash);
 	}
 	catch (...) {
 		std::cout << "ERROR: Failed to open skv movie." << std::endl;
@@ -107,7 +103,7 @@ int main(int argc, char* argv[]) {
 	depthsense::skv::helper::camera_intrinsics camera_parameters = skv_reader->get_camera_intrinsic_parameters();   //read and save camera intrinsics
 	int frame_num = skv_reader->get_frame_count();
 	std::cout << "**** Movie Info:" << std::endl;
-	std::cout << "path			: " << inputFilePathStringFS << std::endl;
+	std::cout << "path			: " << input_path_string_forward_slash << std::endl;
 	std::cout << "frames count		: " << skv_reader->get_frame_count() << std::endl;
 	std::cout << "frames dimensions	: width=" << camera_parameters.width <<
 		" height=" << camera_parameters.height << std::endl;
@@ -469,7 +465,7 @@ int main(int argc, char* argv[]) {
 
 	int16_t data[9] = { 9, 9, 9, 9, 4, 3, 2, 1, 10000 };
 	//const char* file = matfile_name_c;
-	const char* file = const_cast<char*>(outputFilePathStringFS.c_str());
+	const char* file = const_cast<char*>(output_path_string_forward_slash.c_str());
 	char str[BUFSIZE];
 	int status;
 
