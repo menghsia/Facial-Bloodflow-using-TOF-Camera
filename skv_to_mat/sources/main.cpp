@@ -241,8 +241,6 @@ int main(int argc, char* argv[]) {
 		std::vector<int16_t> depth_map_radial(example_intrinsics.width * example_intrinsics.height);
 		std::vector<int16_t> confidence_map_radial(example_intrinsics.width * example_intrinsics.height);
 
-		int return_val = 0;
-
 		// Loop through each frame of this skv file
 		for (size_t frame_num = 0; frame_num < num_frames; ++frame_num) {
 			process_frame(frame_num, num_frames, skv_reader, depth_map_radial, confidence_map_radial, example_intrinsics, handle, err, cloudify_pt_x, cloudify_pt_y, cloudify_pt_z, Confidence);
