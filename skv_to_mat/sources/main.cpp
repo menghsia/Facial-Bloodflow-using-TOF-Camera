@@ -330,9 +330,25 @@ int main(int argc, char* argv[]) {
 		vars.emplace_back(&cloudify_pt_y, "y_value", false);
 		vars.emplace_back(&cloudify_pt_z, "z_value", false);
 
+		const int num_threads_mat = 4;
+		std::mutex mutex_pmat;
+
 		// Loop through each variable to save
 		for (const auto& var_i : vars) {
-			write_to_mat_file(pmat, *std::get<0>(var_i), std::get<1>(var_i), std::get<2>(var_i));
+
+			if (threads.size() >= num_threads_mat) {
+				threads.front().join();
+				threads.erase(threads.begin());
+			}
+
+			threads.emplace_back(std::thread(write_to_mat_file, std::ref(mutex_pmat), std::ref(pmat), std::ref(*std::get<0>(var_i)), std::get<1>(var_i), std::get<2>(var_i)));
+
+			//write_to_mat_file(pmat, *std::get<0>(var_i), std::get<1>(var_i), std::get<2>(var_i));
+		}
+
+		// Wait for any remaining threads to finish before continuing with the rest of the program
+		for (auto& thread : threads) {
+			thread.join();
 		}
 
 		if (matClose(pmat) != 0) {
