@@ -252,6 +252,16 @@ int main(int argc, char* argv[]) {
 			//std::cout << "frame_num: " << frame_num << std::endl;
 
 			// Wait for a thread to finish if we have too many running
+			/* TODO: There is a better way to manage the threads.
+			* Right now, we are just waiting for that first thread to finish before starting a new one.
+			* If that first thread takes a long time to finish, another one may have already finished,
+			* but we would still be waiting for the first one, which means we might not be utilizing
+			* all available threads.
+			* 
+			* Instead, we should use a thread pool that manages the threads for us. This way, we can
+			* start a new thread as soon as one finishes, and we can also keep track of how many/which threads
+			* are available to help us decide when to start a new one.
+			*/
 			if (threads.size() >= num_threads) {
 				threads.front().join();
 				threads.erase(threads.begin());
