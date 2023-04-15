@@ -268,6 +268,7 @@ int main(int argc, char* argv[]) {
 
 		// Create a vector to hold the thread objects
 		std::vector<std::thread> threads;
+		threads.reserve(num_threads);
 
 		// Loop through each frame of this skv file
 		for (size_t frame_num = 0; frame_num < num_frames; ++frame_num) {
@@ -308,6 +309,9 @@ int main(int argc, char* argv[]) {
 			thread.join();
 		}
 
+		// Clear the vector of threads
+		threads.clear();
+
 		cloudify_release(&handle, &err);
 		if (err.code != cloudify_success) {
 			std::cout << err.message << std::endl;
@@ -320,17 +324,16 @@ int main(int argc, char* argv[]) {
 
 		// Save data to matlab .mat file
 
-		// Create, populate, and write the grayscale (Confidence) array
-		write_to_mat_file(pmat, Confidence, "grayscale", false);
+		std::list<std::tuple<int16_t(*)[600][307200], std::string, bool>> vars;
+		vars.emplace_back(&Confidence, "grayscale", false);
+		vars.emplace_back(&cloudify_pt_x, "x_value", true);
+		vars.emplace_back(&cloudify_pt_y, "y_value", false);
+		vars.emplace_back(&cloudify_pt_z, "z_value", false);
 
-		// Create, populate, and write the cloudify_pt_x array
-		write_to_mat_file(pmat, cloudify_pt_x, "x_value", true);
-
-		// Create, populate, and write the cloudify_pt_y array
-		write_to_mat_file(pmat, cloudify_pt_y, "y_value", false);
-
-		// Create, populate, and write the cloudify_pt_z array
-		write_to_mat_file(pmat, cloudify_pt_z, "z_value", false);
+		// Loop through each variable to save
+		for (const auto& var_i : vars) {
+			write_to_mat_file(pmat, *std::get<0>(var_i), std::get<1>(var_i), std::get<2>(var_i));
+		}
 
 		if (matClose(pmat) != 0) {
 			printf("Error closing file %s\n", file);
