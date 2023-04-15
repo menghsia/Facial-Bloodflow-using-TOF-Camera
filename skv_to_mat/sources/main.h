@@ -30,6 +30,8 @@ void process_frame(const size_t frame_num, const int& num_frames,
 	std::mutex& mutex_cloudify_pt_z, int16_t(&cloudify_pt_z)[600][307200],
 	int16_t (&Confidence)[600][307200]);
 
+void write_to_mat_file(MATFile*& pmat, int16_t(&source_array)[600][307200], std::string var_name, bool save_as_global);
+
 
 /* FUNCTION DEFINITIONS */
 
@@ -357,6 +359,42 @@ inline void process_frame(const size_t frame_num, const int& num_frames,
 	//std::cout << i << "\n";
 
 	//return 0;
+}
+
+inline void write_to_mat_file(MATFile*& pmat, int16_t(&source_array)[600][307200], std::string var_name, bool save_as_global) {
+	// Create, populate, and write an array
+
+	mxArray* pa;
+
+	pa = mxCreateNumericMatrix(307200, 600, mxINT16_CLASS, mxREAL);
+	if (pa == NULL) {
+		printf("%s : Out of memory on line %d\n", __FILE__, __LINE__);
+		printf("Unable to create mxArray.\n");
+		std::exit(EXIT_FAILURE);
+	}
+
+	memcpy((void*)(mxGetPr(pa)), (void*)&source_array[0], 2 * 600 * 307200);
+
+	int status = 0;
+
+	if (!save_as_global) {
+		status = matPutVariable(pmat, var_name.c_str(), pa);
+
+		if (status != 0) {
+			printf("%s :  Error using matPutVariable on line %d\n", __FILE__, __LINE__);
+			std::exit(EXIT_FAILURE);
+		}
+	}
+	else {
+		status = matPutVariableAsGlobal(pmat, var_name.c_str(), pa);
+
+		if (status != 0) {
+			printf("Error using matPutVariableAsGlobal\n");
+			std::exit(EXIT_FAILURE);
+		}
+	}
+
+	mxDestroyArray(pa);
 }
 
 

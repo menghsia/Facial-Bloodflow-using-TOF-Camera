@@ -302,9 +302,9 @@ int main(int argc, char* argv[]) {
 		// Save data to matlab .mat file
 
 		MATFile* pmat;
-		mxArray* pa1, * pa2, * pa3, * pa4, * pa5;
+		//mxArray* pa1, * pa2, * pa3, * pa4, * pa5;
 
-		int16_t data[9] = { 9, 9, 9, 9, 4, 3, 2, 1, 10000 };
+		//int16_t data[9] = { 9, 9, 9, 9, 4, 3, 2, 1, 10000 };
 
 		// Combine output_path with mats[skv_i], convert to c_str
 		std::string out_file = output_path_string_forward_slash + "/" + mats[skv_i];
@@ -322,72 +322,104 @@ int main(int argc, char* argv[]) {
 			return(EXIT_FAILURE);
 		}
 
-		pa1 = mxCreateNumericMatrix(307200, 600, mxINT16_CLASS, mxREAL);
-		if (pa1 == NULL) {
-			printf("%s : Out of memory on line %d\n", __FILE__, __LINE__);
-			printf("Unable to create mxArray.\n");
-			return(EXIT_FAILURE);
-		}
+		// Create, populate, and write the grayscale (Confidence) array
+		write_to_mat_file(pmat, Confidence, "grayscale", false);
 
-		memcpy((void*)(mxGetPr(pa1)), (void*)&Confidence[0], 2 * 600 * 307200);
-		status = matPutVariable(pmat, "grayscale", pa1);
-		if (status != 0) {
-			printf("%s :  Error using matPutVariable on line %d\n", __FILE__, __LINE__);
-			return(EXIT_FAILURE);
-		}
+		// Create, populate, and write the cloudify_pt_x array
+		write_to_mat_file(pmat, cloudify_pt_x, "x_value", true);
 
-		mxDestroyArray(pa1);
+		// Create, populate, and write the cloudify_pt_y array
+		write_to_mat_file(pmat, cloudify_pt_y, "y_value", false);
 
-		pa2 = mxCreateNumericMatrix(307200, 600, mxINT16_CLASS, mxREAL);
-		if (pa2 == NULL) {
-			printf("%s : Out of memory on line %d\n", __FILE__, __LINE__);
-			printf("Unable to create mxArray.\n");
-			return(EXIT_FAILURE);
-		}
-
-		memcpy((void*)(mxGetPr(pa2)), (void*)&cloudify_pt_x[0], 2 * 600 * 307200);
-
-		status = matPutVariableAsGlobal(pmat, "x_value", pa2);
-		if (status != 0) {
-			printf("Error using matPutVariableAsGlobal\n");
-			return(EXIT_FAILURE);
-		}
+		// Create, populate, and write the cloudify_pt_z array
+		write_to_mat_file(pmat, cloudify_pt_z, "z_value", false);
 
 
-		mxDestroyArray(pa2);
-
-		pa3 = mxCreateNumericMatrix(307200, 600, mxINT16_CLASS, mxREAL);
-		if (pa3 == NULL) {
-			printf("%s : Out of memory on line %d\n", __FILE__, __LINE__);
-			printf("Unable to create mxArray.\n");
-			return(EXIT_FAILURE);
-		}
-
-		memcpy((void*)(mxGetPr(pa3)), (void*)&cloudify_pt_y[0], 2 * 600 * 307200);
-
-		status = matPutVariable(pmat, "y_value", pa3);
-		if (status != 0) {
-			printf("%s :  Error using matPutVariable on line %d\n", __FILE__, __LINE__);
-			return(EXIT_FAILURE);
-		}
-		mxDestroyArray(pa3);
 
 
-		pa4 = mxCreateNumericMatrix(307200, 600, mxINT16_CLASS, mxREAL);
-		if (pa4 == NULL) {
-			printf("%s : Out of memory on line %d\n", __FILE__, __LINE__);
-			printf("Unable to create mxArray.\n");
-			return(EXIT_FAILURE);
-		}
 
-		memcpy((void*)(mxGetPr(pa4)), (void*)&cloudify_pt_z[0], 2 * 600 * 307200);
-
-		status = matPutVariable(pmat, "z_value", pa4);
-		if (status != 0) {
-			printf("%s :  Error using matPutVariable on line %d\n", __FILE__, __LINE__);
-			return(EXIT_FAILURE);
-		}
-		mxDestroyArray(pa4);
+		//// Create, populate, and write the grayscale array
+		//
+		//pa1 = mxCreateNumericMatrix(307200, 600, mxINT16_CLASS, mxREAL);
+		//if (pa1 == NULL) {
+		//	printf("%s : Out of memory on line %d\n", __FILE__, __LINE__);
+		//	printf("Unable to create mxArray.\n");
+		//	return(EXIT_FAILURE);
+		//}
+		//
+		//memcpy((void*)(mxGetPr(pa1)), (void*)&Confidence[0], 2 * 600 * 307200);
+		//status = matPutVariable(pmat, "grayscale", pa1);
+		//if (status != 0) {
+		//	printf("%s :  Error using matPutVariable on line %d\n", __FILE__, __LINE__);
+		//	return(EXIT_FAILURE);
+		//}
+		//
+		//mxDestroyArray(pa1);
+		//
+		//
+		//
+		//// Create, populate, and write the x_value array
+		//
+		//pa2 = mxCreateNumericMatrix(307200, 600, mxINT16_CLASS, mxREAL);
+		//if (pa2 == NULL) {
+		//	printf("%s : Out of memory on line %d\n", __FILE__, __LINE__);
+		//	printf("Unable to create mxArray.\n");
+		//	return(EXIT_FAILURE);
+		//}
+		//
+		//memcpy((void*)(mxGetPr(pa2)), (void*)&cloudify_pt_x[0], 2 * 600 * 307200);
+		//
+		//status = matPutVariableAsGlobal(pmat, "x_value", pa2);
+		//if (status != 0) {
+		//	printf("Error using matPutVariableAsGlobal\n");
+		//	return(EXIT_FAILURE);
+		//}
+		//
+		//
+		//mxDestroyArray(pa2);
+		//
+		//
+		//
+		//
+		//// Create, populate, and write the y_value array
+		//
+		//pa3 = mxCreateNumericMatrix(307200, 600, mxINT16_CLASS, mxREAL);
+		//if (pa3 == NULL) {
+		//	printf("%s : Out of memory on line %d\n", __FILE__, __LINE__);
+		//	printf("Unable to create mxArray.\n");
+		//	return(EXIT_FAILURE);
+		//}
+		//
+		//memcpy((void*)(mxGetPr(pa3)), (void*)&cloudify_pt_y[0], 2 * 600 * 307200);
+		//
+		//status = matPutVariable(pmat, "y_value", pa3);
+		//if (status != 0) {
+		//	printf("%s :  Error using matPutVariable on line %d\n", __FILE__, __LINE__);
+		//	return(EXIT_FAILURE);
+		//}
+		//mxDestroyArray(pa3);
+		//
+		//
+		//
+		//
+		//
+		//// Create, populate, and write the z_value array
+		//
+		//pa4 = mxCreateNumericMatrix(307200, 600, mxINT16_CLASS, mxREAL);
+		//if (pa4 == NULL) {
+		//	printf("%s : Out of memory on line %d\n", __FILE__, __LINE__);
+		//	printf("Unable to create mxArray.\n");
+		//	return(EXIT_FAILURE);
+		//}
+		//
+		//memcpy((void*)(mxGetPr(pa4)), (void*)&cloudify_pt_z[0], 2 * 600 * 307200);
+		//
+		//status = matPutVariable(pmat, "z_value", pa4);
+		//if (status != 0) {
+		//	printf("%s :  Error using matPutVariable on line %d\n", __FILE__, __LINE__);
+		//	return(EXIT_FAILURE);
+		//}
+		//mxDestroyArray(pa4);
 
 		/*pa5 = mxCreateString(ctime(&end_time));
 		if (pa5 == NULL) {
