@@ -128,16 +128,10 @@ int main(int argc, char* argv[]) {
 
 		// Initialize matlab .mat output file
 		MATFile* pmat;
-		//mxArray* pa1, * pa2, * pa3, * pa4, * pa5;
-
-		//int16_t data[9] = { 9, 9, 9, 9, 4, 3, 2, 1, 10000 };
 
 		// Combine output_path with mats[skv_i], convert to c_str
 		std::string out_file = output_path_string_forward_slash + "/" + mats[skv_i];
 		const char* file = const_cast<char*>(out_file.c_str());
-
-		//char str[BUFSIZE];
-		//int status;
 
 		printf("Creating file %s...\n\n", file);
 		pmat = matOpen(file, "w");
@@ -269,32 +263,12 @@ int main(int argc, char* argv[]) {
 		std::mutex mutex_cloudify_pt_y;
 		std::mutex mutex_cloudify_pt_z;
 
-		//// Create a vector to hold the thread objects
-		//std::vector<std::thread> threads;
-		//threads.reserve(num_threads);
-
 		// Wait for any remaining threads from previous SKV to finish before continuing with the rest of the program
 		//thread_pool.wait();
 
 		// Loop through each frame of this skv file
 		for (size_t frame_num = 0; frame_num < num_frames; ++frame_num) {
 			//std::cout << "frame_num: " << frame_num << std::endl;
-
-			// Wait for a thread to finish if we have too many running
-			/* TODO: There is a better way to manage the threads.
-			* Right now, we are just waiting for that first thread to finish before starting a new one.
-			* If that first thread takes a long time to finish, another one may have already finished,
-			* but we would still be waiting for the first one, which means we might not be utilizing
-			* all available threads.
-			* 
-			* Instead, we should use a thread pool that manages the threads for us. This way, we can
-			* start a new thread as soon as one finishes, and we can also keep track of how many/which threads
-			* are available to help us decide when to start a new one.
-			*/
-			//if (threads.size() >= num_threads) {
-			//	threads.front().join();
-			//	threads.erase(threads.begin());
-			//}
 
 			thread_pool.enqueue(process_frame, frame_num, std::ref(num_frames),
 				std::ref(mutex_skv_reader), std::ref(skv_reader),
@@ -303,29 +277,10 @@ int main(int argc, char* argv[]) {
 				std::ref(mutex_cloudify_pt_y), std::ref(cloudify_pt_y),
 				std::ref(mutex_cloudify_pt_z), std::ref(cloudify_pt_z),
 				std::ref(Confidence));
-
-			// Create a new thread and start it running the thread_function
-			//threads.emplace_back(process_frame, frame_num, num_frames, skv_reader, depth_map_radial, confidence_map_radial, example_intrinsics, handle, err, cloudify_pt_x, cloudify_pt_y, cloudify_pt_z, Confidence);
-			//threads.emplace_back(std::thread(process_frame, frame_num, std::ref(num_frames),
-			//	std::ref(mutex_skv_reader), std::ref(skv_reader),
-			//	std::ref(example_intrinsics), std::ref(handle), std::ref(err),
-			//	std::ref(mutex_cloudify_pt_x), std::ref(cloudify_pt_x),
-			//	std::ref(mutex_cloudify_pt_y), std::ref(cloudify_pt_y),
-			//	std::ref(mutex_cloudify_pt_z), std::ref(cloudify_pt_z),
-			//	std::ref(Confidence)));
-
-			//process_frame(frame_num, num_frames, skv_reader, depth_map_radial, confidence_map_radial, example_intrinsics, handle, err, cloudify_pt_x, cloudify_pt_y, cloudify_pt_z, Confidence);
-			//threads[i] = std::thread(process_frame, frame_num, num_frames, skv_reader, depth_map_radial, confidence_map_radial, example_intrinsics, handle, err, cloudify_pt_x, cloudify_pt_y, cloudify_pt_z, Confidence);
 		}
 
 		// Wait for any remaining threads to finish before continuing with the rest of the program
 		thread_pool.wait();
-		//for (auto& thread : threads) {
-		//	thread.join();
-		//}
-
-		// Clear the vector of threads
-		//threads.clear();
 
 		cloudify_release(&handle, &err);
 		if (err.code != cloudify_success) {
@@ -350,24 +305,11 @@ int main(int argc, char* argv[]) {
 
 		// Loop through each variable to save
 		for (const auto& var_i : vars) {
-
-			//if (threads.size() >= num_threads_mat) {
-			//	threads.front().join();
-			//	threads.erase(threads.begin());
-			//}
-
 			thread_pool.enqueue(write_to_mat_file, std::ref(mutex_pmat), std::ref(pmat), std::ref(*std::get<0>(var_i)), std::get<1>(var_i), std::get<2>(var_i));
-
-			//threads.emplace_back(std::thread(write_to_mat_file, std::ref(mutex_pmat), std::ref(pmat), std::ref(*std::get<0>(var_i)), std::get<1>(var_i), std::get<2>(var_i)));
-
-			//write_to_mat_file(pmat, *std::get<0>(var_i), std::get<1>(var_i), std::get<2>(var_i));
 		}
 
 		// Wait for any remaining threads to finish before continuing with the rest of the program
 		thread_pool.wait();
-		//for (auto& thread : threads) {
-		//	thread.join();
-		//}
 
 		if (matClose(pmat) != 0) {
 			printf("Error closing file %s\n", file);
