@@ -25,6 +25,7 @@
 #define BUFSIZE 256
 
 #include "main.h"
+#include "ThreadPool.h"
 
 using namespace std;
 
@@ -97,6 +98,8 @@ int main(int argc, char* argv[]) {
 	}
 
 	std::string movie_path = "";
+
+	ThreadPool thread_pool;
 
 	// Loop through all .skv files and process them
 	for (size_t skv_i = 0; skv_i < skvs.size(); ++skv_i) {
@@ -260,15 +263,18 @@ int main(int argc, char* argv[]) {
 		std::vector<std::vector<int16_t>> cloudify_pt_z(num_frames, std::vector<int16_t>(307200));
 		std::vector<std::vector<int16_t>> Confidence(num_frames, std::vector<int16_t>(307200));*/
 
-		const int num_threads = 16;
+		//const int num_threads = 16;
 		std::mutex mutex_skv_reader;
 		std::mutex mutex_cloudify_pt_x;
 		std::mutex mutex_cloudify_pt_y;
 		std::mutex mutex_cloudify_pt_z;
 
-		// Create a vector to hold the thread objects
-		std::vector<std::thread> threads;
-		threads.reserve(num_threads);
+		//// Create a vector to hold the thread objects
+		//std::vector<std::thread> threads;
+		//threads.reserve(num_threads);
+
+		// Wait for any remaining threads from previous SKV to finish before continuing with the rest of the program
+		//thread_pool.wait();
 
 		// Loop through each frame of this skv file
 		for (size_t frame_num = 0; frame_num < num_frames; ++frame_num) {
@@ -285,32 +291,41 @@ int main(int argc, char* argv[]) {
 			* start a new thread as soon as one finishes, and we can also keep track of how many/which threads
 			* are available to help us decide when to start a new one.
 			*/
-			if (threads.size() >= num_threads) {
-				threads.front().join();
-				threads.erase(threads.begin());
-			}
+			//if (threads.size() >= num_threads) {
+			//	threads.front().join();
+			//	threads.erase(threads.begin());
+			//}
 
-			// Create a new thread and start it running the thread_function
-			//threads.emplace_back(process_frame, frame_num, num_frames, skv_reader, depth_map_radial, confidence_map_radial, example_intrinsics, handle, err, cloudify_pt_x, cloudify_pt_y, cloudify_pt_z, Confidence);
-			threads.emplace_back(std::thread(process_frame, frame_num, std::ref(num_frames),
+			thread_pool.enqueue(process_frame, frame_num, std::ref(num_frames),
 				std::ref(mutex_skv_reader), std::ref(skv_reader),
 				std::ref(example_intrinsics), std::ref(handle), std::ref(err),
 				std::ref(mutex_cloudify_pt_x), std::ref(cloudify_pt_x),
 				std::ref(mutex_cloudify_pt_y), std::ref(cloudify_pt_y),
 				std::ref(mutex_cloudify_pt_z), std::ref(cloudify_pt_z),
-				std::ref(Confidence)));
+				std::ref(Confidence));
+
+			// Create a new thread and start it running the thread_function
+			//threads.emplace_back(process_frame, frame_num, num_frames, skv_reader, depth_map_radial, confidence_map_radial, example_intrinsics, handle, err, cloudify_pt_x, cloudify_pt_y, cloudify_pt_z, Confidence);
+			//threads.emplace_back(std::thread(process_frame, frame_num, std::ref(num_frames),
+			//	std::ref(mutex_skv_reader), std::ref(skv_reader),
+			//	std::ref(example_intrinsics), std::ref(handle), std::ref(err),
+			//	std::ref(mutex_cloudify_pt_x), std::ref(cloudify_pt_x),
+			//	std::ref(mutex_cloudify_pt_y), std::ref(cloudify_pt_y),
+			//	std::ref(mutex_cloudify_pt_z), std::ref(cloudify_pt_z),
+			//	std::ref(Confidence)));
 
 			//process_frame(frame_num, num_frames, skv_reader, depth_map_radial, confidence_map_radial, example_intrinsics, handle, err, cloudify_pt_x, cloudify_pt_y, cloudify_pt_z, Confidence);
 			//threads[i] = std::thread(process_frame, frame_num, num_frames, skv_reader, depth_map_radial, confidence_map_radial, example_intrinsics, handle, err, cloudify_pt_x, cloudify_pt_y, cloudify_pt_z, Confidence);
 		}
 
 		// Wait for any remaining threads to finish before continuing with the rest of the program
-		for (auto& thread : threads) {
-			thread.join();
-		}
+		thread_pool.wait();
+		//for (auto& thread : threads) {
+		//	thread.join();
+		//}
 
 		// Clear the vector of threads
-		threads.clear();
+		//threads.clear();
 
 		cloudify_release(&handle, &err);
 		if (err.code != cloudify_success) {
@@ -330,26 +345,29 @@ int main(int argc, char* argv[]) {
 		vars.emplace_back(&cloudify_pt_y, "y_value", false);
 		vars.emplace_back(&cloudify_pt_z, "z_value", false);
 
-		const int num_threads_mat = 4;
+		//const int num_threads_mat = 4;
 		std::mutex mutex_pmat;
 
 		// Loop through each variable to save
 		for (const auto& var_i : vars) {
 
-			if (threads.size() >= num_threads_mat) {
-				threads.front().join();
-				threads.erase(threads.begin());
-			}
+			//if (threads.size() >= num_threads_mat) {
+			//	threads.front().join();
+			//	threads.erase(threads.begin());
+			//}
 
-			threads.emplace_back(std::thread(write_to_mat_file, std::ref(mutex_pmat), std::ref(pmat), std::ref(*std::get<0>(var_i)), std::get<1>(var_i), std::get<2>(var_i)));
+			thread_pool.enqueue(write_to_mat_file, std::ref(mutex_pmat), std::ref(pmat), std::ref(*std::get<0>(var_i)), std::get<1>(var_i), std::get<2>(var_i));
+
+			//threads.emplace_back(std::thread(write_to_mat_file, std::ref(mutex_pmat), std::ref(pmat), std::ref(*std::get<0>(var_i)), std::get<1>(var_i), std::get<2>(var_i)));
 
 			//write_to_mat_file(pmat, *std::get<0>(var_i), std::get<1>(var_i), std::get<2>(var_i));
 		}
 
 		// Wait for any remaining threads to finish before continuing with the rest of the program
-		for (auto& thread : threads) {
-			thread.join();
-		}
+		thread_pool.wait();
+		//for (auto& thread : threads) {
+		//	thread.join();
+		//}
 
 		if (matClose(pmat) != 0) {
 			printf("Error closing file %s\n", file);
