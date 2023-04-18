@@ -342,17 +342,46 @@ int main(int argc, char* argv[]) {
 
 
 
+		// Save data to binary file
+
 		out_file.write(reinterpret_cast<char*>(&cloudify_pt_x[0][0]), sizeof(cloudify_pt_x));
 		out_file.write(reinterpret_cast<char*>(&cloudify_pt_y[0][0]), sizeof(cloudify_pt_y));
 		out_file.write(reinterpret_cast<char*>(&cloudify_pt_z[0][0]), sizeof(cloudify_pt_z));
 		out_file.write(reinterpret_cast<char*>(&Confidence[0][0]), sizeof(Confidence));
-
+		
 		out_file.close();
 
 
 
 
-		// comment for commit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		// HDF5
+		// Experiment with using HDF5 to save data instead, to save space
+		// https://github.com/ess-dmsc/h5cpp
+
+
+
+
+
+
+
+
+
+
 
 
 
