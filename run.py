@@ -692,6 +692,7 @@ def bfsig_to_plot():
 
 if __name__ == '__main__':
     # print(tf.config.list_physical_devices('GPU'))
+    # comment for commit
 
 
 
