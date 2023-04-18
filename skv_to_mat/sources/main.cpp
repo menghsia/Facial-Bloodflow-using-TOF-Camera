@@ -101,6 +101,8 @@ int main(int argc, char* argv[]) {
 
 	ThreadPool thread_pool;
 
+	std::ofstream out_file;
+
 	// Loop through all .skv files and process them
 	for (size_t skv_i = 0; skv_i < skvs.size(); ++skv_i) {
 		// Set output file name (in directory mode this is "file_name.skv.mat")
@@ -127,20 +129,39 @@ int main(int argc, char* argv[]) {
 		}
 
 		// Initialize matlab .mat output file
-		MATFile* pmat;
-
+		//MATFile* pmat;
+		
 		// Combine output_path with mats[skv_i], convert to c_str
-		std::string out_file = output_path_string_forward_slash + "/" + mats[skv_i];
-		const char* file = const_cast<char*>(out_file.c_str());
+		//std::string out_file = output_path_string_forward_slash + "/" + mats[skv_i];
+		//const char* file = const_cast<char*>(out_file.c_str());
+		
+		//printf("Creating file %s...\n\n", file);
+		//pmat = matOpen(file, "w");
+		
+		//if (pmat == NULL) {
+		//	printf("Error creating file %s\n", file);
+		//	printf("(Do you have write permission in this directory?)\n");
+		//	return(EXIT_FAILURE);
+		//}
 
-		printf("Creating file %s...\n\n", file);
-		pmat = matOpen(file, "w");
+		
+		
+		
+		
 
-		if (pmat == NULL) {
-			printf("Error creating file %s\n", file);
-			printf("(Do you have write permission in this directory?)\n");
+		std::string out_file_path = output_path_string_forward_slash + "/" + skvs[skv_i] + ".bin";
+		//std::ofstream out_file(out_file_path, std::ios::out | std::ios::binary);
+		out_file.open(out_file_path, std::ios::out | std::ios::binary);
+
+		if (!out_file.is_open()) {
+			std::cerr << "Failed to open output file.\n";
 			return(EXIT_FAILURE);
 		}
+
+
+
+
+
 
 		// read and save camera intrinsics
 		depthsense::skv::helper::camera_intrinsics camera_parameters = skv_reader->get_camera_intrinsic_parameters();
@@ -292,29 +313,49 @@ int main(int argc, char* argv[]) {
 		skv_reader->close();
 		std::cout << "[CLOUDIFY_SAMPLE] SKV closed" << std::endl;
 
-		// Save data to matlab .mat file
+		//// Save data to matlab .mat file
+		//
+		//std::list<std::tuple<int16_t(*)[600][307200], std::string, bool>> vars;
+		//vars.emplace_back(&Confidence, "grayscale", false);
+		//vars.emplace_back(&cloudify_pt_x, "x_value", true);
+		//vars.emplace_back(&cloudify_pt_y, "y_value", false);
+		//vars.emplace_back(&cloudify_pt_z, "z_value", false);
+		//
+		////const int num_threads_mat = 4;
+		//std::mutex mutex_pmat;
+		//
+		//// Loop through each variable to save
+		//for (const auto& var_i : vars) {
+		//	thread_pool.enqueue(write_to_mat_file, std::ref(mutex_pmat), std::ref(pmat), std::ref(*std::get<0>(var_i)), std::get<1>(var_i), std::get<2>(var_i));
+		//}
+		//
+		//// Wait for any remaining threads to finish before continuing with the rest of the program
+		//thread_pool.wait();
+		//
+		//if (matClose(pmat) != 0) {
+		//	printf("Error closing file %s\n", file);
+		//	return(EXIT_FAILURE);
+		//}
 
-		std::list<std::tuple<int16_t(*)[600][307200], std::string, bool>> vars;
-		vars.emplace_back(&Confidence, "grayscale", false);
-		vars.emplace_back(&cloudify_pt_x, "x_value", true);
-		vars.emplace_back(&cloudify_pt_y, "y_value", false);
-		vars.emplace_back(&cloudify_pt_z, "z_value", false);
 
-		//const int num_threads_mat = 4;
-		std::mutex mutex_pmat;
 
-		// Loop through each variable to save
-		for (const auto& var_i : vars) {
-			thread_pool.enqueue(write_to_mat_file, std::ref(mutex_pmat), std::ref(pmat), std::ref(*std::get<0>(var_i)), std::get<1>(var_i), std::get<2>(var_i));
-		}
 
-		// Wait for any remaining threads to finish before continuing with the rest of the program
-		thread_pool.wait();
 
-		if (matClose(pmat) != 0) {
-			printf("Error closing file %s\n", file);
-			return(EXIT_FAILURE);
-		}
+
+		out_file.write(reinterpret_cast<char*>(&cloudify_pt_x[0][0]), sizeof(cloudify_pt_x));
+		out_file.write(reinterpret_cast<char*>(&cloudify_pt_y[0][0]), sizeof(cloudify_pt_y));
+		out_file.write(reinterpret_cast<char*>(&cloudify_pt_z[0][0]), sizeof(cloudify_pt_z));
+		out_file.write(reinterpret_cast<char*>(&Confidence[0][0]), sizeof(Confidence));
+
+		out_file.close();
+
+
+
+
+
+
+
+
 
 		std::cout << "Finished" << std::endl;
 	}

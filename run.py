@@ -47,8 +47,13 @@ class FaceMeshDetector():
         D_signal = np.zeros((7, 1))
         EAR = np.zeros((1))
         filelist = []
+        # for filename in os.listdir(matpath):
+        #     if filename.endswith('.skv.mat'):
+        #         filelist.append(filename)
         for filename in os.listdir(matpath):
-            if filename.endswith('.skv.mat'):
+            if filename.endswith('.skv.bin'):
+                # Remove the ".bin" suffix
+                filename = filename[:-4]
                 filelist.append(filename)
         
         counter = 0
@@ -75,161 +80,236 @@ class FaceMeshDetector():
                 # load and process every .mat file, tracking done by mediapipe
         
                 for filename in filelist:
+                    filename_mat = filename + '.mat'
+                    filename_bin = filename + '.bin'
+
+                    with open(os.path.join(matpath, filename_bin), 'rb') as binary_file:
+                        # try:
+                        #     # mat_data = mat73.loadmat(matpath + filename)
+                        #     mat_data = mat73.loadmat(os.path.join(matpath, filename))
+                        # except:
+                        #     # mat_data = loadmat(matpath + filename)
+                        #     mat_data = loadmat(os.path.join(matpath, filename))
+                        # print(filename)
+                        # gray_all = mat_data['grayscale']
+                        # x_all = mat_data['x_value']
+                        # y_all = mat_data['y_value']
+                        # z_all = mat_data['z_value']
 
 
-                    try:
-                        # mat_data = mat73.loadmat(matpath + filename)
-                        mat_data = mat73.loadmat(os.path.join(matpath, filename))
-                    except:
-                        # mat_data = loadmat(matpath + filename)
-                        mat_data = loadmat(os.path.join(matpath, filename))
-                    print(filename)
-                    gray_all = mat_data['grayscale']
-                    x_all = mat_data['x_value']
-                    y_all = mat_data['y_value']
-                    z_all = mat_data['z_value']
 
-                    counter = counter + 1
-                    print(counter)
+
+
+
+
+
+
+
+
+                        print(filename)
+
+                        # try:
+                        #     # mat_data = mat73.loadmat(matpath + filename)
+                        #     mat_data = mat73.loadmat(os.path.join(matpath, filename_mat))
+                        # except:
+                        #     # mat_data = loadmat(matpath + filename)
+                        #     mat_data = loadmat(os.path.join(matpath, filename_mat))
+                        # mat_gray_all = mat_data['grayscale']
+                        # mat_x_all = mat_data['x_value']
+                        # mat_y_all = mat_data['y_value']
+                        # mat_z_all = mat_data['z_value']
+
+                        
+                        bin_x_all = np.frombuffer(binary_file.read(600 * 307200 * 2), dtype=np.int16).reshape((600, 307200)).transpose()
+                        bin_y_all = np.frombuffer(binary_file.read(600 * 307200 * 2), dtype=np.int16).reshape((600, 307200)).transpose()
+                        bin_z_all = np.frombuffer(binary_file.read(600 * 307200 * 2), dtype=np.int16).reshape((600, 307200)).transpose()
+                        bin_gray_all = np.frombuffer(binary_file.read(600 * 307200 * 2), dtype=np.int16).reshape((600, 307200)).transpose()
+
+                        x_all = bin_x_all
+                        y_all = bin_y_all
+                        z_all = bin_z_all
+                        gray_all = bin_gray_all
+
+                        print(f"Finished loading {filename}")
+
+                        # # Check if the bin loaded data is the same as the mat loaded data
+                        # if np.array_equal(mat_gray_all, bin_gray_all):
+                        #     print("The grayscale data is the same")
+                        # else:
+                        #     print("The grayscale data is different")
+
+                        # if np.array_equal(mat_x_all, bin_x_all):
+                        #     print("The x data is the same")
+                        # else:
+                        #     print("The x data is different")
+                            
+                        # if np.array_equal(mat_y_all, bin_y_all):
+                        #     print("The y data is the same")
+                        # else:
+                        #     print("The y data is different")
+
+                        # if np.array_equal(mat_z_all, bin_z_all):
+                        #     print("The z data is the same")
+                        # else:
+                        #     print("The z data is different")
+                            
+                        # print(f"Finished testing {filename}")
+
+
+
+
+
+
+
+
+
+
+
+
+                        counter = counter + 1
+                        print(counter)
+
+                        # initializing output and intermediate variables
+                        frame_num = np.size(gray_all, 1)
+                        I_signal_current = np.zeros((7,
+                                                    frame_num))  # 1: nose;  2: forehead;   3: nose & cheek  4: left cheek   5: right cheek  6: lower forehead  7: palm
+                        D_signal_current = np.zeros((7, frame_num))
+                        EAR_current = np.zeros((frame_num))
+                        time2 = time.time()
+                        timeelps = time2 - time1
+                        print('Data loading completed, time elapsed: %s seconds' % timeelps)
+
+                        gray_all = np.reshape(gray_all, [img_rows, img_cols, frame_num])
+                        x_all = np.reshape(x_all, [img_rows, img_cols, frame_num])
+                        y_all = np.reshape(y_all, [img_rows, img_cols, frame_num])
+                        z_all = np.reshape(z_all, [img_rows, img_cols, frame_num])
+
+                        frame_num = np.size(gray_all, 2)
+                        # tracking and extracting I, D frame by frame
+                        for j in range(frame_num):
+                            frameTrk = self._mp_preprocess(gray_all[:, :, j])
+                            frameSig = gray_all[:, :, j]
+                            xSig = x_all[:, :, j].astype('int32')
+                            ySig = y_all[:, :, j].astype('int32')
+                            zSig = z_all[:, :, j].astype('int32')
+                            # To improve performance, optionally mark the image as not writeable to
+                            # pass by reference.
+                            frameTrk.flags.writeable = False
+                            frameTrk = cv2.cvtColor(frameTrk, cv2.COLOR_BGR2RGB)
+                            results_face = face_mesh.process(frameTrk)
+                            results_hand = hands.process(frameTrk)
+
+                            if results_face.multi_face_landmarks:
+                                # print('results_face.multi_face_landmarks')
+                                # print(len(results_face.multi_face_landmarks))
+                                face_landmarks = results_face.multi_face_landmarks[0]
+
+                                # find the ROI vertices
+                                landmark_forehead = self._ROI_coord_extract(face_landmarks, 'forehead', img_rows, img_cols)
+                                mask_forehead = self._vtx2mask(landmark_forehead, img_cols, img_rows)
+                                landmark_nose = self._ROI_coord_extract(face_landmarks, 'nose', img_rows, img_cols)
+                                mask_nose = self._vtx2mask(landmark_nose, img_cols, img_rows)
+                                landmark_cn = self._ROI_coord_extract(face_landmarks, 'cheek_n_nose', img_rows, img_cols)
+                                mask_cn = self._vtx2mask(landmark_cn, img_cols, img_rows)
+                                landmark_lc = self._ROI_coord_extract(face_landmarks, 'left_cheek', img_rows, img_cols)
+                                mask_lc = self._vtx2mask(landmark_lc, img_cols, img_rows)
+                                landmark_rc = self._ROI_coord_extract(face_landmarks, 'right_cheek', img_rows, img_cols)
+                                mask_rc = self._vtx2mask(landmark_rc, img_cols, img_rows)
+                                landmark_lf = self._ROI_coord_extract(face_landmarks, 'low_forehead', img_rows, img_cols)
+                                mask_lf = self._vtx2mask(landmark_lf, img_cols, img_rows)
+
+                                # if results_hand.multi_hand_landmarks:
+                                #     hand_landmarks = results_hand.multi_hand_landmarks[0]
+                                #     landmark_palm =  ROI_coord_extract(hand_landmarks, 'palm', img_rows, img_cols)
+                                #     mask_palm = vtx2mask(landmark_palm, img_cols, img_rows)
+                                #
+                                #     I_signal_current[6,j] = np.average(frameSig[np.where(mask_palm > 0)])
+                                #     D_signal_current[6,j] = np.sqrt(np.average(xSig[np.where(mask_palm > 0)])**2 + np.average(ySig[np.where(mask_palm > 0)])**2+np.average(zSig[np.where(mask_palm > 0)])**2)
+
+                                # calculate averaged I and D
+                                I_signal_current[0, j] = np.average(frameSig[np.where(mask_nose > 0)])
+                                D_signal_current[0, j] = np.sqrt(np.average(xSig[np.where(mask_nose > 0)]) ** 2 + np.average(
+                                    ySig[np.where(mask_nose > 0)]) ** 2 + np.average(zSig[np.where(mask_nose > 0)]) ** 2)
+                                I_signal_current[1, j] = np.average(frameSig[np.where(mask_forehead > 0)])
+                                D_signal_current[1, j] = np.sqrt(np.average(xSig[np.where(mask_forehead > 0)]) ** 2 + np.average(
+                                    ySig[np.where(mask_forehead > 0)]) ** 2 + np.average(zSig[np.where(mask_forehead > 0)]) ** 2)
+                                I_signal_current[2, j] = np.average(frameSig[np.where(mask_cn > 0)])
+                                D_signal_current[2, j] = np.sqrt(np.average(xSig[np.where(mask_cn > 0)]) ** 2 + np.average(
+                                    ySig[np.where(mask_cn > 0)]) ** 2 + np.average(zSig[np.where(mask_cn > 0)]) ** 2)
+                                I_signal_current[3, j] = np.average(frameSig[np.where(mask_lc > 0)])
+                                D_signal_current[3, j] = np.sqrt(np.average(xSig[np.where(mask_lc > 0)]) ** 2 + np.average(
+                                    ySig[np.where(mask_lc > 0)]) ** 2 + np.average(zSig[np.where(mask_lc > 0)]) ** 2)
+                                I_signal_current[4, j] = np.average(frameSig[np.where(mask_rc > 0)])
+                                D_signal_current[4, j] = np.sqrt(np.average(xSig[np.where(mask_rc > 0)]) ** 2 + np.average(
+                                    ySig[np.where(mask_rc > 0)]) ** 2 + np.average(zSig[np.where(mask_rc > 0)]) ** 2)
+                                I_signal_current[5, j] = np.average(frameSig[np.where(mask_lf > 0)])
+                                D_signal_current[5, j] = np.sqrt(np.average(xSig[np.where(mask_lf > 0)]) ** 2 + np.average(
+                                    ySig[np.where(mask_lf > 0)]) ** 2 + np.average(zSig[np.where(mask_lf > 0)]) ** 2)
+
+                                # PERCLOS
+                                landmark_leye = self._ROI_coord_extract(face_landmarks, 'left_eye', img_rows, img_cols)
+                                L_ear = self._eye_aspect_ratio(landmark_leye)
+                                landmark_reye = self._ROI_coord_extract(face_landmarks, 'right_eye', img_rows, img_cols)
+                                R_ear = self._eye_aspect_ratio(landmark_reye)
+                                EAR_current[j] = (L_ear + R_ear) /2
+
+
+                                # Draw the face mesh annotations on the image and display
+                                frameTrk.flags.writeable = True
+                                image = cv2.cvtColor(frameTrk, cv2.COLOR_RGB2BGR)
+                                # pts = np.asarray(landmark_forehead)
+                                # pts = pts.reshape((-1, 1, 2))
+                                # img_showROI = cv2.polylines(image, [pts], True, color=(0, 0, 255), thickness=2)
+                                # pts = np.asarray(landmark_nose)
+                                # pts = pts.reshape((-1, 1, 2))
+                                # img_showROI = cv2.polylines(img_showROI, [pts], True, color=(0, 0, 255), thickness=2)
+                                pts = np.asarray(landmark_leye)
+                                pts = pts.reshape((-1, 1, 2))
+                                img_showROI = cv2.polylines(image, [pts], True, color=(0, 0, 255), thickness=2)
+                                pts = np.asarray(landmark_reye)
+                                pts = pts.reshape((-1, 1, 2))
+                                img_showROI = cv2.polylines(img_showROI, [pts], True, color=(0, 0, 255), thickness=2)
+
+                                # pts = np.asarray(landmark_palm)
+                                # pts = pts.reshape((-1, 1, 2))
+                                # img_showROI = cv2.polylines(img_showROI,[pts],True, color = (0,0,255), thickness = 2)
+
+                                cv2.imshow('ROI', img_showROI)
+                                cv2.waitKey(10)
+
+                                if face_landmarks is not None:
+                                    for face_landmarks_i in results_face.multi_face_landmarks:
+                                        mp_drawing.draw_landmarks(
+                                            image=image,
+                                            landmark_list=face_landmarks_i,
+                                            connections=mp_face_mesh.FACEMESH_TESSELATION,
+                                            landmark_drawing_spec=None,
+                                            connection_drawing_spec=mp_drawing_styles
+                                            .get_default_face_mesh_tesselation_style())
+                                        mp_drawing.draw_landmarks(
+                                            image=image,
+                                            landmark_list=face_landmarks_i,
+                                            connections=mp_face_mesh.FACEMESH_CONTOURS,
+                                            landmark_drawing_spec=None,
+                                            connection_drawing_spec=mp_drawing_styles
+                                            .get_default_face_mesh_contours_style())
+                                        mp_drawing.draw_landmarks(
+                                            image=image,
+                                            landmark_list=face_landmarks_i,
+                                            connections=mp_face_mesh.FACEMESH_IRISES,
+                                            landmark_drawing_spec=None,
+                                            connection_drawing_spec=mp_drawing_styles
+                                            .get_default_face_mesh_iris_connections_style())
+                                # Flip the image horizontally for a selfie-view display.
+                                cv2.imshow('MediaPipe Face Mesh', cv2.flip(image, 1))
+                                cv2.waitKey(10)
+
+                        I_signal = np.concatenate((I_signal, I_signal_current), axis=1)
+                        D_signal = np.concatenate((D_signal, D_signal_current), axis=1)
+                        EAR = np.concatenate((EAR, EAR_current),axis=0)
+
+
                     
-                    # initializing output and intermediate variables
-                    frame_num = np.size(gray_all, 1)
-                    I_signal_current = np.zeros((7,
-                                                frame_num))  # 1: nose;  2: forehead;   3: nose & cheek  4: left cheek   5: right cheek  6: lower forehead  7: palm
-                    D_signal_current = np.zeros((7, frame_num))
-                    EAR_current = np.zeros((frame_num))
-                    time2 = time.time()
-                    timeelps = time2 - time1
-                    print('Data loading completed, time elapsed: %s seconds' % timeelps)
-
-                    gray_all = np.reshape(gray_all, [img_rows, img_cols, frame_num])
-                    x_all = np.reshape(x_all, [img_rows, img_cols, frame_num])
-                    y_all = np.reshape(y_all, [img_rows, img_cols, frame_num])
-                    z_all = np.reshape(z_all, [img_rows, img_cols, frame_num])
-
-                    frame_num = np.size(gray_all, 2)
-                    # tracking and extracting I, D frame by frame
-                    for j in range(frame_num):
-                        frameTrk = self._mp_preprocess(gray_all[:, :, j])
-                        frameSig = gray_all[:, :, j]
-                        xSig = x_all[:, :, j].astype('int32')
-                        ySig = y_all[:, :, j].astype('int32')
-                        zSig = z_all[:, :, j].astype('int32')
-                        # To improve performance, optionally mark the image as not writeable to
-                        # pass by reference.
-                        frameTrk.flags.writeable = False
-                        frameTrk = cv2.cvtColor(frameTrk, cv2.COLOR_BGR2RGB)
-                        results_face = face_mesh.process(frameTrk)
-                        results_hand = hands.process(frameTrk)
-
-                        if results_face.multi_face_landmarks:
-                            # print('results_face.multi_face_landmarks')
-                            # print(len(results_face.multi_face_landmarks))
-                            face_landmarks = results_face.multi_face_landmarks[0]
-
-                            # find the ROI vertices
-                            landmark_forehead = self._ROI_coord_extract(face_landmarks, 'forehead', img_rows, img_cols)
-                            mask_forehead = self._vtx2mask(landmark_forehead, img_cols, img_rows)
-                            landmark_nose = self._ROI_coord_extract(face_landmarks, 'nose', img_rows, img_cols)
-                            mask_nose = self._vtx2mask(landmark_nose, img_cols, img_rows)
-                            landmark_cn = self._ROI_coord_extract(face_landmarks, 'cheek_n_nose', img_rows, img_cols)
-                            mask_cn = self._vtx2mask(landmark_cn, img_cols, img_rows)
-                            landmark_lc = self._ROI_coord_extract(face_landmarks, 'left_cheek', img_rows, img_cols)
-                            mask_lc = self._vtx2mask(landmark_lc, img_cols, img_rows)
-                            landmark_rc = self._ROI_coord_extract(face_landmarks, 'right_cheek', img_rows, img_cols)
-                            mask_rc = self._vtx2mask(landmark_rc, img_cols, img_rows)
-                            landmark_lf = self._ROI_coord_extract(face_landmarks, 'low_forehead', img_rows, img_cols)
-                            mask_lf = self._vtx2mask(landmark_lf, img_cols, img_rows)
-
-                            # if results_hand.multi_hand_landmarks:
-                            #     hand_landmarks = results_hand.multi_hand_landmarks[0]
-                            #     landmark_palm =  ROI_coord_extract(hand_landmarks, 'palm', img_rows, img_cols)
-                            #     mask_palm = vtx2mask(landmark_palm, img_cols, img_rows)
-                            #
-                            #     I_signal_current[6,j] = np.average(frameSig[np.where(mask_palm > 0)])
-                            #     D_signal_current[6,j] = np.sqrt(np.average(xSig[np.where(mask_palm > 0)])**2 + np.average(ySig[np.where(mask_palm > 0)])**2+np.average(zSig[np.where(mask_palm > 0)])**2)
-
-                            # calculate averaged I and D
-                            I_signal_current[0, j] = np.average(frameSig[np.where(mask_nose > 0)])
-                            D_signal_current[0, j] = np.sqrt(np.average(xSig[np.where(mask_nose > 0)]) ** 2 + np.average(
-                                ySig[np.where(mask_nose > 0)]) ** 2 + np.average(zSig[np.where(mask_nose > 0)]) ** 2)
-                            I_signal_current[1, j] = np.average(frameSig[np.where(mask_forehead > 0)])
-                            D_signal_current[1, j] = np.sqrt(np.average(xSig[np.where(mask_forehead > 0)]) ** 2 + np.average(
-                                ySig[np.where(mask_forehead > 0)]) ** 2 + np.average(zSig[np.where(mask_forehead > 0)]) ** 2)
-                            I_signal_current[2, j] = np.average(frameSig[np.where(mask_cn > 0)])
-                            D_signal_current[2, j] = np.sqrt(np.average(xSig[np.where(mask_cn > 0)]) ** 2 + np.average(
-                                ySig[np.where(mask_cn > 0)]) ** 2 + np.average(zSig[np.where(mask_cn > 0)]) ** 2)
-                            I_signal_current[3, j] = np.average(frameSig[np.where(mask_lc > 0)])
-                            D_signal_current[3, j] = np.sqrt(np.average(xSig[np.where(mask_lc > 0)]) ** 2 + np.average(
-                                ySig[np.where(mask_lc > 0)]) ** 2 + np.average(zSig[np.where(mask_lc > 0)]) ** 2)
-                            I_signal_current[4, j] = np.average(frameSig[np.where(mask_rc > 0)])
-                            D_signal_current[4, j] = np.sqrt(np.average(xSig[np.where(mask_rc > 0)]) ** 2 + np.average(
-                                ySig[np.where(mask_rc > 0)]) ** 2 + np.average(zSig[np.where(mask_rc > 0)]) ** 2)
-                            I_signal_current[5, j] = np.average(frameSig[np.where(mask_lf > 0)])
-                            D_signal_current[5, j] = np.sqrt(np.average(xSig[np.where(mask_lf > 0)]) ** 2 + np.average(
-                                ySig[np.where(mask_lf > 0)]) ** 2 + np.average(zSig[np.where(mask_lf > 0)]) ** 2)
-
-                            # PERCLOS
-                            landmark_leye = self._ROI_coord_extract(face_landmarks, 'left_eye', img_rows, img_cols)
-                            L_ear = self._eye_aspect_ratio(landmark_leye)
-                            landmark_reye = self._ROI_coord_extract(face_landmarks, 'right_eye', img_rows, img_cols)
-                            R_ear = self._eye_aspect_ratio(landmark_reye)
-                            EAR_current[j] = (L_ear + R_ear) /2
-
-
-                            # Draw the face mesh annotations on the image and display
-                            frameTrk.flags.writeable = True
-                            image = cv2.cvtColor(frameTrk, cv2.COLOR_RGB2BGR)
-                            # pts = np.asarray(landmark_forehead)
-                            # pts = pts.reshape((-1, 1, 2))
-                            # img_showROI = cv2.polylines(image, [pts], True, color=(0, 0, 255), thickness=2)
-                            # pts = np.asarray(landmark_nose)
-                            # pts = pts.reshape((-1, 1, 2))
-                            # img_showROI = cv2.polylines(img_showROI, [pts], True, color=(0, 0, 255), thickness=2)
-                            pts = np.asarray(landmark_leye)
-                            pts = pts.reshape((-1, 1, 2))
-                            img_showROI = cv2.polylines(image, [pts], True, color=(0, 0, 255), thickness=2)
-                            pts = np.asarray(landmark_reye)
-                            pts = pts.reshape((-1, 1, 2))
-                            img_showROI = cv2.polylines(img_showROI, [pts], True, color=(0, 0, 255), thickness=2)
-
-                            # pts = np.asarray(landmark_palm)
-                            # pts = pts.reshape((-1, 1, 2))
-                            # img_showROI = cv2.polylines(img_showROI,[pts],True, color = (0,0,255), thickness = 2)
-
-                            cv2.imshow('ROI', img_showROI)
-                            cv2.waitKey(10)
-
-                            if face_landmarks is not None:
-                                for face_landmarks_i in results_face.multi_face_landmarks:
-                                    mp_drawing.draw_landmarks(
-                                        image=image,
-                                        landmark_list=face_landmarks_i,
-                                        connections=mp_face_mesh.FACEMESH_TESSELATION,
-                                        landmark_drawing_spec=None,
-                                        connection_drawing_spec=mp_drawing_styles
-                                        .get_default_face_mesh_tesselation_style())
-                                    mp_drawing.draw_landmarks(
-                                        image=image,
-                                        landmark_list=face_landmarks_i,
-                                        connections=mp_face_mesh.FACEMESH_CONTOURS,
-                                        landmark_drawing_spec=None,
-                                        connection_drawing_spec=mp_drawing_styles
-                                        .get_default_face_mesh_contours_style())
-                                    mp_drawing.draw_landmarks(
-                                        image=image,
-                                        landmark_list=face_landmarks_i,
-                                        connections=mp_face_mesh.FACEMESH_IRISES,
-                                        landmark_drawing_spec=None,
-                                        connection_drawing_spec=mp_drawing_styles
-                                        .get_default_face_mesh_iris_connections_style())
-                            # Flip the image horizontally for a selfie-view display.
-                            cv2.imshow('MediaPipe Face Mesh', cv2.flip(image, 1))
-                            cv2.waitKey(10)
-
-                    I_signal = np.concatenate((I_signal, I_signal_current), axis=1)
-                    D_signal = np.concatenate((D_signal, D_signal_current), axis=1)
-                    EAR = np.concatenate((EAR, EAR_current),axis=0)
         I_signal = np.delete(I_signal, 0, 1)
         D_signal = np.delete(D_signal, 0, 1)
         EAR = np.delete(EAR,0,0)
@@ -628,12 +708,12 @@ if __name__ == '__main__':
 
     skvs_dir = os.path.join(os.getcwd(), 'skvs')
 
-    check_for_skvs(skvs_dir)
+    # check_for_skvs(skvs_dir)
 
-    skv_to_mat(skvs_dir)
+    # skv_to_mat(skvs_dir)
 
     mat_to_bfsig(skvs_dir)
 
-    bfsig_to_plot()
+    # bfsig_to_plot()
 
     print('Done!')
