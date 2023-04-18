@@ -570,9 +570,6 @@ if __name__ == '__main__':
     # Get the path to the new .skv file
     skvs_dir = record_skv()
 
-    # print("skvs_dir:")
-    # print(skvs_dir)
-
     # For each .skv file in skvs_dir, convert to .mat file using imx520_sample.exe and save to ./skvs/mat/
     for skv_filename in os.listdir(skvs_dir):
         # print("skv_filename:")
@@ -589,17 +586,13 @@ if __name__ == '__main__':
         # Run imx520_sample.exe
         process = subprocess.run([imx520_sample_exe_path, "-i", skv_path, "-o", output_mat_path], shell=True)
 
-    # Run facial_skBF_facemeshTrak.py
-    # process = subprocess.run(["python", "./facial-skBF-facemeshTrak/facial_skBF_facemeshTrak.py"])
+    # Tag regions in face and generate bloodflow signature .mat file
     myFaceMeshDetector = FaceMeshDetector(input_mats_dir="./skvs/mat/", output_bfsig_name="auto_bfsig")
     myFaceMeshDetector.run()
 
     # Run plotting matlab script
-    # process = subprocess.run(["matlab", "-r", "auto_matlab/process_thermal_SINGLE"])
     # Create path to matlab script
     matlab_script_path = os.path.join(os.getcwd(), "auto_matlab/process_thermal_SINGLE.m")
-    # process = subprocess.run(["matlab", "-r", "\"run(matlab_script_path);\""])
     process = subprocess.run(["matlab", "-r", "run('" + matlab_script_path + "');"], shell=True)
-    # matlab -r "run('C:\path\to\my_script.m');"
 
     print('Done!')
