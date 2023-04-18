@@ -1,7 +1,11 @@
 import os
 
 correct_path = "./mat_out_correct/"
+# from VS project
 out_path = "./mat_out/"
+
+# from run.py
+# out_path = "../../skvs/mat"
 
 for correct_file in os.listdir(correct_path):
     if correct_file.endswith(".mat"):

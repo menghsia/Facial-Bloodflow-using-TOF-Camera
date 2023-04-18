@@ -20,6 +20,7 @@ import os
 from matplotlib.widgets import RectangleSelector
 import shutil
 
+# import tensorflow as tf
 
 # facial_skBF_facemeshTrak.py
 class FaceMeshDetector():
@@ -77,9 +78,11 @@ class FaceMeshDetector():
 
 
                     try:
-                        mat_data = mat73.loadmat(matpath + filename)
+                        # mat_data = mat73.loadmat(matpath + filename)
+                        mat_data = mat73.loadmat(os.path.join(matpath, filename))
                     except:
-                        mat_data = loadmat(matpath + filename)
+                        # mat_data = loadmat(matpath + filename)
+                        mat_data = loadmat(os.path.join(matpath, filename))
                     print(filename)
                     gray_all = mat_data['grayscale']
                     x_all = mat_data['x_value']
@@ -566,33 +569,71 @@ def record_skv():
 #   - process_thermal.m
 #   - Outputs plots of the heart rate
 
-if __name__ == '__main__':
-    # Get the path to the new .skv file
-    skvs_dir = record_skv()
+def check_for_skvs(skvs_dir):
+    skvs_before_recording = set(filter(lambda x: x[0].endswith('.skv'), map(lambda x: (x, os.path.getctime(os.path.join(skvs_dir, x))), os.listdir(skvs_dir))))
 
-    # For each .skv file in skvs_dir, convert to .mat file using imx520_sample.exe and save to ./skvs/mat/
-    for skv_filename in os.listdir(skvs_dir):
-        # print("skv_filename:")
-        # print(skv_filename)
-        skv_path = os.path.join(skvs_dir, skv_filename)
-        # print("skv_path:")
-        # print(skv_path)
+    # if skvs_before_recording empty, exit
+    if not skvs_before_recording:
+        print('No .skv files found in ./skvs/')
+        sys.exit()
 
-        # Convert .skv video file into .mat file
-        # Get absolute path to imx520_sample.exe
-        imx520_sample_exe_path = os.path.join(os.getcwd(), "skv_to_mat/compiled_releases/r1/imx520_sample.exe")
-        # Get absolute path to output .mat file
-        output_mat_path = os.path.join(os.getcwd(), "skvs/mat/" + skv_filename + ".mat")
-        # Run imx520_sample.exe
-        process = subprocess.run([imx520_sample_exe_path, "-i", skv_path, "-o", output_mat_path], shell=True)
+def skv_to_mat(skvs_dir):
+    ## For each .skv file in skvs_dir, convert to .mat file using imx520_sample.exe and save to ./skvs/mat/
+    #for skv_filename in os.listdir(skvs_dir):
+    #    # print("skv_filename:")
+    #    # print(skv_filename)
+    #    skv_path = os.path.join(skvs_dir, skv_filename)
+    #    # print("skv_path:")
+    #    # print(skv_path)
+    #
+    #    # Convert .skv video file into .mat file
+    #    # Get absolute path to imx520_sample.exe
+    #    imx520_sample_exe_path = os.path.join(os.getcwd(), "skv_to_mat/compiled_releases/r1/imx520_sample.exe")
+    #    # Get absolute path to output .mat file
+    #    output_mat_path = os.path.join(os.getcwd(), "skvs/mat/" + skv_filename + ".mat")
+    #    # Run imx520_sample.exe
+    #    process = subprocess.run([imx520_sample_exe_path, "-i", skv_path, "-o", output_mat_path], shell=True)
 
+    # Convert all .skv video files in ./skvs/ into .mat files using imx520_sample.exe and save to ./skvs/mat/
+    # Get absolute path to imx520_sample.exe
+    imx520_sample_exe_path = os.path.join(os.getcwd(), "skv_to_mat/compiled_releases/r2_2/imx520_sample.exe")
+    # Get absolute path to dir to save output .mat files to
+    output_mat_dir = os.path.join(skvs_dir, "mat")
+    # Run imx520_sample.exe
+    # ./imx520_sample.exe -i ./skvs/ -o ./skvs/mat/ -d
+    process = subprocess.run([imx520_sample_exe_path, "-i", skvs_dir, "-o", output_mat_dir, "-d"], shell=True)
+
+def mat_to_bfsig(skvs_dir):
     # Tag regions in face and generate bloodflow signature .mat file
-    myFaceMeshDetector = FaceMeshDetector(input_mats_dir="./skvs/mat/", output_bfsig_name="auto_bfsig")
+    # myFaceMeshDetector = FaceMeshDetector(input_mats_dir="./skvs/mat/", output_bfsig_name="auto_bfsig")
+    myFaceMeshDetector = FaceMeshDetector(input_mats_dir=os.path.join(skvs_dir, "mat"), output_bfsig_name="auto_bfsig")
     myFaceMeshDetector.run()
 
+def bfsig_to_plot():
     # Run plotting matlab script
     # Create path to matlab script
     matlab_script_path = os.path.join(os.getcwd(), "auto_matlab/process_thermal_SINGLE.m")
     process = subprocess.run(["matlab", "-r", "run('" + matlab_script_path + "');"], shell=True)
+
+if __name__ == '__main__':
+    # print(tf.config.list_physical_devices('GPU'))
+
+
+
+
+
+
+    # Get the path to the new .skv file
+    # skvs_dir = record_skv()
+
+    skvs_dir = os.path.join(os.getcwd(), 'skvs')
+
+    check_for_skvs(skvs_dir)
+
+    skv_to_mat(skvs_dir)
+
+    mat_to_bfsig(skvs_dir)
+
+    bfsig_to_plot()
 
     print('Done!')
