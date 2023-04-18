@@ -7,6 +7,7 @@ skv_to_mat/build/
 skv_to_mat/out/
 vs_output.mat
 skvs/mat/auto_bfsig.mat
+skvs/mat/20221003-Sparsh_Fex_bfsig.mat
 
 # This is a sample .gitignore file that's useful for C++ projects.
 #
