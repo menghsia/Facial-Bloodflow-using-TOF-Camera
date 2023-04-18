@@ -80,7 +80,7 @@ class FaceMeshDetector():
                 # load and process every .mat file, tracking done by mediapipe
         
                 for filename in filelist:
-                    filename_mat = filename + '.mat'
+                    # filename_mat = filename + '.mat'
                     filename_bin = filename + '.bin'
 
                     with open(os.path.join(matpath, filename_bin), 'rb') as binary_file:
@@ -120,17 +120,12 @@ class FaceMeshDetector():
                         # mat_z_all = mat_data['z_value']
 
                         
-                        bin_x_all = np.frombuffer(binary_file.read(600 * 307200 * 2), dtype=np.int16).reshape((600, 307200)).transpose()
-                        bin_y_all = np.frombuffer(binary_file.read(600 * 307200 * 2), dtype=np.int16).reshape((600, 307200)).transpose()
-                        bin_z_all = np.frombuffer(binary_file.read(600 * 307200 * 2), dtype=np.int16).reshape((600, 307200)).transpose()
-                        bin_gray_all = np.frombuffer(binary_file.read(600 * 307200 * 2), dtype=np.int16).reshape((600, 307200)).transpose()
+                        x_all = np.frombuffer(binary_file.read(600 * 307200 * 2), dtype=np.int16).reshape((600, 307200)).transpose()
+                        y_all = np.frombuffer(binary_file.read(600 * 307200 * 2), dtype=np.int16).reshape((600, 307200)).transpose()
+                        z_all = np.frombuffer(binary_file.read(600 * 307200 * 2), dtype=np.int16).reshape((600, 307200)).transpose()
+                        gray_all = np.frombuffer(binary_file.read(600 * 307200 * 2), dtype=np.int16).reshape((600, 307200)).transpose()
 
-                        x_all = bin_x_all
-                        y_all = bin_y_all
-                        z_all = bin_z_all
-                        gray_all = bin_gray_all
-
-                        print(f"Finished loading {filename}")
+                        # print(f"Finished loading {filename}")
 
                         # # Check if the bin loaded data is the same as the mat loaded data
                         # if np.array_equal(mat_gray_all, bin_gray_all):
@@ -708,12 +703,12 @@ if __name__ == '__main__':
 
     skvs_dir = os.path.join(os.getcwd(), 'skvs')
 
-    # check_for_skvs(skvs_dir)
+    check_for_skvs(skvs_dir)
 
-    # skv_to_mat(skvs_dir)
+    skv_to_mat(skvs_dir)
 
     mat_to_bfsig(skvs_dir)
 
-    # bfsig_to_plot()
+    bfsig_to_plot()
 
     print('Done!')
