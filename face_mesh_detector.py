@@ -509,3 +509,6 @@ class FaceMeshDetector():
         # The EAR Equation
         EAR = (A + B + C) / (3.0 * D)
         return EAR
+
+if __name__ == "__main__":
+    print("face_mesh_detector.py main")
