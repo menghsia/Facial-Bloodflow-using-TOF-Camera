@@ -6,3 +6,4 @@ scipy
 mat73
 matplotlib
 matlabengine
+hdf5storage
