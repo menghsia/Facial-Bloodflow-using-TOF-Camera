@@ -1,20 +1,18 @@
 import os
+import time
+import math
+import cv2
 import numpy as np
 import mediapipe as mp
+import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw
-import math
 from scipy.io import savemat
 # from scipy.io import loadmat
-import cv2
 from typing import Tuple, Union
 from scipy.spatial import distance as dist
-import matplotlib.pyplot as plt
-import time
-import os
 
 # import h5py
 # import hdf5storage
-import numpy as np
 
 class FaceMeshDetector():
     def __init__(self, input_mats_dir, output_bfsig_name):
@@ -28,9 +26,11 @@ class FaceMeshDetector():
         # height = 480
         img_rows = 480
 
-        I_signal = np.zeros((7, 1))
-        D_signal = np.zeros((7, 1))
-        EAR = np.zeros((1))
+        intensity_signal = np.zeros((7, 1))
+        depth_signal = np.zeros((7, 1))
+        ear_signal = np.zeros((1))
+
+        # Get list of all input files in input_mats_dir (./skvs/mat/)
         filelist = []
         for filename in os.listdir(self.input_mats_dir):
             if filename.endswith('.skv.bin'):
@@ -40,7 +40,7 @@ class FaceMeshDetector():
         
         counter = 0
         
-        # defining mediapipe detector
+        # Define MediaPipe detector
         mp_drawing = mp.solutions.drawing_utils
         mp_drawing_styles = mp.solutions.drawing_styles
         mp_face_mesh = mp.solutions.face_mesh
@@ -82,9 +82,9 @@ class FaceMeshDetector():
                     # initializing output and intermediate variables
                     frame_num = np.size(gray_all, 1)
                     # 1: nose;  2: forehead;   3: nose & cheek  4: left cheek   5: right cheek  6: lower forehead  7: palm
-                    I_signal_current = np.zeros((7, frame_num))
-                    D_signal_current = np.zeros((7, frame_num))
-                    EAR_current = np.zeros((frame_num))
+                    intensity_signal_current = np.zeros((7, frame_num))
+                    depth_signal_current = np.zeros((7, frame_num))
+                    ear_signal_current = np.zeros((frame_num))
                     time2 = time.time()
                     timeelps = time2 - time1
                     print('Data loading completed, time elapsed: %s seconds' % timeelps)
@@ -127,25 +127,25 @@ class FaceMeshDetector():
                             mask_low_forehead = self._vtx2mask(landmark_low_forehead, img_cols, img_rows)
 
                             # calculate averaged I and D
-                            I_signal_current[0, j] = np.average(frameSig[np.where(mask_nose > 0)])
-                            D_signal_current[0, j] = np.sqrt(np.average(xSig[np.where(mask_nose > 0)]) ** 2 + np.average(ySig[np.where(mask_nose > 0)]) ** 2 + np.average(zSig[np.where(mask_nose > 0)]) ** 2)
-                            I_signal_current[1, j] = np.average(frameSig[np.where(mask_forehead > 0)])
-                            D_signal_current[1, j] = np.sqrt(np.average(xSig[np.where(mask_forehead > 0)]) ** 2 + np.average(ySig[np.where(mask_forehead > 0)]) ** 2 + np.average(zSig[np.where(mask_forehead > 0)]) ** 2)
-                            I_signal_current[2, j] = np.average(frameSig[np.where(mask_cheek_and_nose > 0)])
-                            D_signal_current[2, j] = np.sqrt(np.average(xSig[np.where(mask_cheek_and_nose > 0)]) ** 2 + np.average(ySig[np.where(mask_cheek_and_nose > 0)]) ** 2 + np.average(zSig[np.where(mask_cheek_and_nose > 0)]) ** 2)
-                            I_signal_current[3, j] = np.average(frameSig[np.where(mask_left_cheek > 0)])
-                            D_signal_current[3, j] = np.sqrt(np.average(xSig[np.where(mask_left_cheek > 0)]) ** 2 + np.average(ySig[np.where(mask_left_cheek > 0)]) ** 2 + np.average(zSig[np.where(mask_left_cheek > 0)]) ** 2)
-                            I_signal_current[4, j] = np.average(frameSig[np.where(mask_right_cheek > 0)])
-                            D_signal_current[4, j] = np.sqrt(np.average(xSig[np.where(mask_right_cheek > 0)]) ** 2 + np.average(ySig[np.where(mask_right_cheek > 0)]) ** 2 + np.average(zSig[np.where(mask_right_cheek > 0)]) ** 2)
-                            I_signal_current[5, j] = np.average(frameSig[np.where(mask_low_forehead > 0)])
-                            D_signal_current[5, j] = np.sqrt(np.average(xSig[np.where(mask_low_forehead > 0)]) ** 2 + np.average(ySig[np.where(mask_low_forehead > 0)]) ** 2 + np.average(zSig[np.where(mask_low_forehead > 0)]) ** 2)
+                            intensity_signal_current[0, j] = np.average(frameSig[np.where(mask_nose > 0)])
+                            depth_signal_current[0, j] = np.sqrt(np.average(xSig[np.where(mask_nose > 0)]) ** 2 + np.average(ySig[np.where(mask_nose > 0)]) ** 2 + np.average(zSig[np.where(mask_nose > 0)]) ** 2)
+                            intensity_signal_current[1, j] = np.average(frameSig[np.where(mask_forehead > 0)])
+                            depth_signal_current[1, j] = np.sqrt(np.average(xSig[np.where(mask_forehead > 0)]) ** 2 + np.average(ySig[np.where(mask_forehead > 0)]) ** 2 + np.average(zSig[np.where(mask_forehead > 0)]) ** 2)
+                            intensity_signal_current[2, j] = np.average(frameSig[np.where(mask_cheek_and_nose > 0)])
+                            depth_signal_current[2, j] = np.sqrt(np.average(xSig[np.where(mask_cheek_and_nose > 0)]) ** 2 + np.average(ySig[np.where(mask_cheek_and_nose > 0)]) ** 2 + np.average(zSig[np.where(mask_cheek_and_nose > 0)]) ** 2)
+                            intensity_signal_current[3, j] = np.average(frameSig[np.where(mask_left_cheek > 0)])
+                            depth_signal_current[3, j] = np.sqrt(np.average(xSig[np.where(mask_left_cheek > 0)]) ** 2 + np.average(ySig[np.where(mask_left_cheek > 0)]) ** 2 + np.average(zSig[np.where(mask_left_cheek > 0)]) ** 2)
+                            intensity_signal_current[4, j] = np.average(frameSig[np.where(mask_right_cheek > 0)])
+                            depth_signal_current[4, j] = np.sqrt(np.average(xSig[np.where(mask_right_cheek > 0)]) ** 2 + np.average(ySig[np.where(mask_right_cheek > 0)]) ** 2 + np.average(zSig[np.where(mask_right_cheek > 0)]) ** 2)
+                            intensity_signal_current[5, j] = np.average(frameSig[np.where(mask_low_forehead > 0)])
+                            depth_signal_current[5, j] = np.sqrt(np.average(xSig[np.where(mask_low_forehead > 0)]) ** 2 + np.average(ySig[np.where(mask_low_forehead > 0)]) ** 2 + np.average(zSig[np.where(mask_low_forehead > 0)]) ** 2)
 
                             # PERCLOS
                             landmark_leye = self._ROI_coord_extract(face_landmarks, 'left_eye', img_rows, img_cols)
                             L_ear = self._eye_aspect_ratio(landmark_leye)
                             landmark_reye = self._ROI_coord_extract(face_landmarks, 'right_eye', img_rows, img_cols)
                             R_ear = self._eye_aspect_ratio(landmark_reye)
-                            EAR_current[j] = (L_ear + R_ear) /2
+                            ear_signal_current[j] = (L_ear + R_ear) /2
 
 
                             # Draw the face mesh annotations on the image and display
@@ -198,16 +198,16 @@ class FaceMeshDetector():
                             cv2.imshow('MediaPipe Face Mesh', cv2.flip(image, 1))
                             cv2.waitKey(10)
 
-                    I_signal = np.concatenate((I_signal, I_signal_current), axis=1)
-                    D_signal = np.concatenate((D_signal, D_signal_current), axis=1)
-                    EAR = np.concatenate((EAR, EAR_current),axis=0)
+                    intensity_signal = np.concatenate((intensity_signal, intensity_signal_current), axis=1)
+                    depth_signal = np.concatenate((depth_signal, depth_signal_current), axis=1)
+                    ear_signal = np.concatenate((ear_signal, ear_signal_current),axis=0)
 
 
                     
-        I_signal = np.delete(I_signal, 0, 1)
-        D_signal = np.delete(D_signal, 0, 1)
-        EAR = np.delete(EAR,0,0)
-        mdic = {"Depth": D_signal, 'I_raw': I_signal, 'EAR': EAR} # EAR: eye aspect ratio
+        intensity_signal = np.delete(intensity_signal, 0, 1)
+        depth_signal = np.delete(depth_signal, 0, 1)
+        ear_signal = np.delete(ear_signal,0,0)
+        mdic = {"Depth": depth_signal, 'I_raw': intensity_signal, 'EAR': ear_signal} # EAR: eye aspect ratio
         savemat(os.path.join(self.input_mats_dir, self.output_bfsig_name + '.mat'), mdic)
         
         print('finished')
