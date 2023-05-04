@@ -22,27 +22,12 @@ class FaceMeshDetector():
         self.output_bfsig_name = output_bfsig_name
     
     def run(self):
-        # self.input_mats_dir = 'C:/Users/MNI Lab/Documents/GitHub/prgrm/facial-blood-ToF/skv_mat/'
-        # self.output_bfsig_name = '20221003-Sparsh_Fex_bfsig'
-
-        # self.input_mats_dir = './skvs/mat/'
-        # self.output_bfsig_name = '20221003-Sparsh_Fex_bfsig'
-
-        # matpath = self.input_mats_dir
-        # matname = self.output_bfsig_name
-
-        # parameters initialization
-        
-        start_frame = 0
         img_cols = 640
         img_rows = 480
         I_signal = np.zeros((7, 1))
         D_signal = np.zeros((7, 1))
         EAR = np.zeros((1))
         filelist = []
-        # for filename in os.listdir(self.input_mats_dir):
-        #     if filename.endswith('.skv.mat'):
-        #         filelist.append(filename)
         for filename in os.listdir(self.input_mats_dir):
             if filename.endswith('.skv.bin'):
                 # Remove the ".bin" suffix
@@ -71,53 +56,11 @@ class FaceMeshDetector():
                 time1 = time.time()
         
                 # load and process every .mat file, tracking done by mediapipe
-        
                 for filename in filelist:
-                    # filename_mat = filename + '.mat'
                     filename_bin = filename + '.bin'
                     filepath_bin = os.path.join(self.input_mats_dir, filename_bin)
-
-                    # with open(os.path.join(self.input_mats_dir, filename_bin), 'rb') as binary_file:
-                    # try:
-                    #     # mat_data = mat73.loadmat(self.input_mats_dir + filename)
-                    #     mat_data = mat73.loadmat(os.path.join(self.input_mats_dir, filename))
-                    # except:
-                    #     # mat_data = loadmat(self.input_mats_dir + filename)
-                    #     mat_data = loadmat(os.path.join(self.input_mats_dir, filename))
-                    # print(filename)
-                    # gray_all = mat_data['grayscale']
-                    # x_all = mat_data['x_value']
-                    # y_all = mat_data['y_value']
-                    # z_all = mat_data['z_value']
-
-
-
-
-
-
-
-
-
-
-
-                    print(filename)
-
-                    # try:
-                    #     # mat_data = mat73.loadmat(self.input_mats_dir + filename)
-                    #     mat_data = mat73.loadmat(os.path.join(self.input_mats_dir, filename_mat))
-                    # except:
-                    #     # mat_data = loadmat(self.input_mats_dir + filename)
-                    #     mat_data = loadmat(os.path.join(self.input_mats_dir, filename_mat))
-                    # mat_gray_all = mat_data['grayscale']
-                    # mat_x_all = mat_data['x_value']
-                    # mat_y_all = mat_data['y_value']
-                    # mat_z_all = mat_data['z_value']
-
                     
-                    # x_all = np.frombuffer(binary_file.read(600 * 307200 * 2), dtype=np.int16).reshape((600, 307200)).transpose()
-                    # y_all = np.frombuffer(binary_file.read(600 * 307200 * 2), dtype=np.int16).reshape((600, 307200)).transpose()
-                    # z_all = np.frombuffer(binary_file.read(600 * 307200 * 2), dtype=np.int16).reshape((600, 307200)).transpose()
-                    # gray_all = np.frombuffer(binary_file.read(600 * 307200 * 2), dtype=np.int16).reshape((600, 307200)).transpose()
+                    print(filename)
 
                     x_all, y_all, z_all, gray_all = self._read_binary_file(filepath_bin)
                     
@@ -127,49 +70,13 @@ class FaceMeshDetector():
                     # end_time = time.time()
                     # print(f"Finished converting {filename} to mat file in {end_time - start_time} seconds")
 
-                    # print(f"Finished loading {filename}")
-
-                    # # Check if the bin loaded data is the same as the mat loaded data
-                    # if np.array_equal(mat_gray_all, bin_gray_all):
-                    #     print("The grayscale data is the same")
-                    # else:
-                    #     print("The grayscale data is different")
-
-                    # if np.array_equal(mat_x_all, bin_x_all):
-                    #     print("The x data is the same")
-                    # else:
-                    #     print("The x data is different")
-                        
-                    # if np.array_equal(mat_y_all, bin_y_all):
-                    #     print("The y data is the same")
-                    # else:
-                    #     print("The y data is different")
-
-                    # if np.array_equal(mat_z_all, bin_z_all):
-                    #     print("The z data is the same")
-                    # else:
-                    #     print("The z data is different")
-                        
-                    # print(f"Finished testing {filename}")
-
-
-
-
-
-
-
-
-
-
-
-
                     counter = counter + 1
                     print(counter)
 
                     # initializing output and intermediate variables
                     frame_num = np.size(gray_all, 1)
-                    I_signal_current = np.zeros((7,
-                                                frame_num))  # 1: nose;  2: forehead;   3: nose & cheek  4: left cheek   5: right cheek  6: lower forehead  7: palm
+                    # 1: nose;  2: forehead;   3: nose & cheek  4: left cheek   5: right cheek  6: lower forehead  7: palm
+                    I_signal_current = np.zeros((7, frame_num))
                     D_signal_current = np.zeros((7, frame_num))
                     EAR_current = np.zeros((frame_num))
                     time2 = time.time()
@@ -194,11 +101,9 @@ class FaceMeshDetector():
                         frameTrk.flags.writeable = False
                         frameTrk = cv2.cvtColor(frameTrk, cv2.COLOR_BGR2RGB)
                         results_face = face_mesh.process(frameTrk)
-                        results_hand = hands.process(frameTrk)
+                        # results_hand = hands.process(frameTrk)
 
                         if results_face.multi_face_landmarks:
-                            # print('results_face.multi_face_landmarks')
-                            # print(len(results_face.multi_face_landmarks))
                             face_landmarks = results_face.multi_face_landmarks[0]
 
                             # find the ROI vertices
@@ -214,14 +119,6 @@ class FaceMeshDetector():
                             mask_rc = self._vtx2mask(landmark_rc, img_cols, img_rows)
                             landmark_lf = self._ROI_coord_extract(face_landmarks, 'low_forehead', img_rows, img_cols)
                             mask_lf = self._vtx2mask(landmark_lf, img_cols, img_rows)
-
-                            # if results_hand.multi_hand_landmarks:
-                            #     hand_landmarks = results_hand.multi_hand_landmarks[0]
-                            #     landmark_palm =  ROI_coord_extract(hand_landmarks, 'palm', img_rows, img_cols)
-                            #     mask_palm = vtx2mask(landmark_palm, img_cols, img_rows)
-                            #
-                            #     I_signal_current[6,j] = np.average(frameSig[np.where(mask_palm > 0)])
-                            #     D_signal_current[6,j] = np.sqrt(np.average(xSig[np.where(mask_palm > 0)])**2 + np.average(ySig[np.where(mask_palm > 0)])**2+np.average(zSig[np.where(mask_palm > 0)])**2)
 
                             # calculate averaged I and D
                             I_signal_current[0, j] = np.average(frameSig[np.where(mask_nose > 0)])
