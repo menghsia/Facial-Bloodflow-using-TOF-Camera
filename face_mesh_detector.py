@@ -22,7 +22,7 @@ class FaceMeshDetector():
         # Filename of output .mat file (likely auto_bfsig.mat)
         self.output_filename = output_filename
     
-    def run(self):
+    def run(self, visualize_ROI=False, visualize_FaceMesh=False):
         # The IMX520 sensor has a resolution of 640x480=307200 pixels per frame (width x height)
         # width = 640
         img_cols = 640
@@ -170,56 +170,12 @@ class FaceMeshDetector():
                             R_ear = self._eye_aspect_ratio(landmark_reye)
                             ear_signal_current[frame] = (L_ear + R_ear) /2
 
-
-                            # Draw the face mesh annotations on the image and display
-                            frameTrk.flags.writeable = True
-                            image = cv2.cvtColor(frameTrk, cv2.COLOR_RGB2BGR)
-                            # pts = np.asarray(landmark_forehead)
-                            # pts = pts.reshape((-1, 1, 2))
-                            # img_showROI = cv2.polylines(image, [pts], True, color=(0, 0, 255), thickness=2)
-                            # pts = np.asarray(landmark_nose)
-                            # pts = pts.reshape((-1, 1, 2))
-                            # img_showROI = cv2.polylines(img_showROI, [pts], True, color=(0, 0, 255), thickness=2)
-                            pts = np.asarray(landmark_leye)
-                            pts = pts.reshape((-1, 1, 2))
-                            img_showROI = cv2.polylines(image, [pts], True, color=(0, 0, 255), thickness=2)
-                            pts = np.asarray(landmark_reye)
-                            pts = pts.reshape((-1, 1, 2))
-                            img_showROI = cv2.polylines(img_showROI, [pts], True, color=(0, 0, 255), thickness=2)
-
-                            # pts = np.asarray(landmark_palm)
-                            # pts = pts.reshape((-1, 1, 2))
-                            # img_showROI = cv2.polylines(img_showROI,[pts],True, color = (0,0,255), thickness = 2)
-
-                            cv2.imshow('ROI', img_showROI)
-                            cv2.waitKey(10)
-
-                            if face_landmarks is not None:
-                                for face_landmarks_i in results_face.multi_face_landmarks:
-                                    mp_drawing.draw_landmarks(
-                                        image=image,
-                                        landmark_list=face_landmarks_i,
-                                        connections=mp_face_mesh.FACEMESH_TESSELATION,
-                                        landmark_drawing_spec=None,
-                                        connection_drawing_spec=mp_drawing_styles
-                                        .get_default_face_mesh_tesselation_style())
-                                    mp_drawing.draw_landmarks(
-                                        image=image,
-                                        landmark_list=face_landmarks_i,
-                                        connections=mp_face_mesh.FACEMESH_CONTOURS,
-                                        landmark_drawing_spec=None,
-                                        connection_drawing_spec=mp_drawing_styles
-                                        .get_default_face_mesh_contours_style())
-                                    mp_drawing.draw_landmarks(
-                                        image=image,
-                                        landmark_list=face_landmarks_i,
-                                        connections=mp_face_mesh.FACEMESH_IRISES,
-                                        landmark_drawing_spec=None,
-                                        connection_drawing_spec=mp_drawing_styles
-                                        .get_default_face_mesh_iris_connections_style())
-                            # Flip the image horizontally for a selfie-view display.
-                            cv2.imshow('MediaPipe Face Mesh', cv2.flip(image, 1))
-                            cv2.waitKey(10)
+                            # Show visualizations
+                            if visualize_ROI:
+                                self._visualize_ROI(frameTrk, landmark_leye, landmark_reye)
+                            
+                            if visualize_FaceMesh:
+                                self._visualize_FaceMesh(frameTrk, face_landmarks, results_face, mp_drawing_styles, mp_drawing, mp_face_mesh)
 
                     intensity_signals = np.concatenate((intensity_signals, intensity_signal_current), axis=1)
                     depth_signals = np.concatenate((depth_signals, depth_signal_current), axis=1)
@@ -234,6 +190,68 @@ class FaceMeshDetector():
         savemat(os.path.join(self.input_dir, self.output_filename + '.mat'), mdic)
         
         print('finished')
+
+    def _visualize_ROI(self, frameTrk, landmark_leye, landmark_reye):
+        # Draw the face mesh annotations on the image and display
+        frameTrk.flags.writeable = True
+        image = cv2.cvtColor(frameTrk, cv2.COLOR_RGB2BGR)
+
+        # pts = np.asarray(landmark_forehead)
+        # pts = pts.reshape((-1, 1, 2))
+        # img_showROI = cv2.polylines(image, [pts], True, color=(0, 0, 255), thickness=2)
+        # pts = np.asarray(landmark_nose)
+        # pts = pts.reshape((-1, 1, 2))
+        # img_showROI = cv2.polylines(img_showROI, [pts], True, color=(0, 0, 255), thickness=2)
+        pts = np.asarray(landmark_leye)
+        pts = pts.reshape((-1, 1, 2))
+        img_showROI = cv2.polylines(image, [pts], True, color=(0, 0, 255), thickness=2)
+        pts = np.asarray(landmark_reye)
+        pts = pts.reshape((-1, 1, 2))
+        img_showROI = cv2.polylines(img_showROI, [pts], True, color=(0, 0, 255), thickness=2)
+
+        # pts = np.asarray(landmark_palm)
+        # pts = pts.reshape((-1, 1, 2))
+        # img_showROI = cv2.polylines(img_showROI,[pts],True, color = (0,0,255), thickness = 2)
+
+        cv2.imshow('ROI', img_showROI)
+        cv2.waitKey(10)
+
+        return
+
+    def _visualize_FaceMesh(self, frameTrk, face_landmarks, results_face, mp_drawing_styles, mp_drawing, mp_face_mesh):
+        # Draw the face mesh annotations on the image and display
+        frameTrk.flags.writeable = True
+        image = cv2.cvtColor(frameTrk, cv2.COLOR_RGB2BGR)
+
+        if face_landmarks is not None:
+            for face_landmarks_i in results_face.multi_face_landmarks:
+                mp_drawing.draw_landmarks(
+                    image=image,
+                    landmark_list=face_landmarks_i,
+                    connections=mp_face_mesh.FACEMESH_TESSELATION,
+                    landmark_drawing_spec=None,
+                    connection_drawing_spec=mp_drawing_styles
+                    .get_default_face_mesh_tesselation_style())
+                mp_drawing.draw_landmarks(
+                    image=image,
+                    landmark_list=face_landmarks_i,
+                    connections=mp_face_mesh.FACEMESH_CONTOURS,
+                    landmark_drawing_spec=None,
+                    connection_drawing_spec=mp_drawing_styles
+                    .get_default_face_mesh_contours_style())
+                mp_drawing.draw_landmarks(
+                    image=image,
+                    landmark_list=face_landmarks_i,
+                    connections=mp_face_mesh.FACEMESH_IRISES,
+                    landmark_drawing_spec=None,
+                    connection_drawing_spec=mp_drawing_styles
+                    .get_default_face_mesh_iris_connections_style())
+        
+        # Flip the image horizontally for a selfie-view display.
+        cv2.imshow('MediaPipe Face Mesh', cv2.flip(image, 1))
+        cv2.waitKey(10)
+
+        return
 
     def _read_binary_file(self, filepath):
         x_all, y_all, z_all, gray_all = None, None, None, None
