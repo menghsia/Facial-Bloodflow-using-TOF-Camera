@@ -22,8 +22,12 @@ class FaceMeshDetector():
         self.output_bfsig_name = output_bfsig_name
     
     def run(self):
+        # The IMX520 sensor has a resolution of 640x480=307200 pixels per frame (width x height)
+        # width = 640
         img_cols = 640
+        # height = 480
         img_rows = 480
+
         I_signal = np.zeros((7, 1))
         D_signal = np.zeros((7, 1))
         EAR = np.zeros((1))
@@ -55,7 +59,9 @@ class FaceMeshDetector():
         
                 time1 = time.time()
         
-                # load and process every .mat file, tracking done by mediapipe
+                # Load and process every .mat file, tracking done by MediaPipe
+                
+                # Loop through each file
                 for filename in filelist:
                     filename_bin = filename + '.bin'
                     filepath_bin = os.path.join(self.input_mats_dir, filename_bin)
@@ -111,34 +117,28 @@ class FaceMeshDetector():
                             mask_forehead = self._vtx2mask(landmark_forehead, img_cols, img_rows)
                             landmark_nose = self._ROI_coord_extract(face_landmarks, 'nose', img_rows, img_cols)
                             mask_nose = self._vtx2mask(landmark_nose, img_cols, img_rows)
-                            landmark_cn = self._ROI_coord_extract(face_landmarks, 'cheek_n_nose', img_rows, img_cols)
-                            mask_cn = self._vtx2mask(landmark_cn, img_cols, img_rows)
-                            landmark_lc = self._ROI_coord_extract(face_landmarks, 'left_cheek', img_rows, img_cols)
-                            mask_lc = self._vtx2mask(landmark_lc, img_cols, img_rows)
-                            landmark_rc = self._ROI_coord_extract(face_landmarks, 'right_cheek', img_rows, img_cols)
-                            mask_rc = self._vtx2mask(landmark_rc, img_cols, img_rows)
-                            landmark_lf = self._ROI_coord_extract(face_landmarks, 'low_forehead', img_rows, img_cols)
-                            mask_lf = self._vtx2mask(landmark_lf, img_cols, img_rows)
+                            landmark_cheek_and_nose = self._ROI_coord_extract(face_landmarks, 'cheek_n_nose', img_rows, img_cols)
+                            mask_cheek_and_nose = self._vtx2mask(landmark_cheek_and_nose, img_cols, img_rows)
+                            landmark_left_cheek = self._ROI_coord_extract(face_landmarks, 'left_cheek', img_rows, img_cols)
+                            mask_left_cheek = self._vtx2mask(landmark_left_cheek, img_cols, img_rows)
+                            landmark_right_cheek = self._ROI_coord_extract(face_landmarks, 'right_cheek', img_rows, img_cols)
+                            mask_right_cheek = self._vtx2mask(landmark_right_cheek, img_cols, img_rows)
+                            landmark_low_forehead = self._ROI_coord_extract(face_landmarks, 'low_forehead', img_rows, img_cols)
+                            mask_low_forehead = self._vtx2mask(landmark_low_forehead, img_cols, img_rows)
 
                             # calculate averaged I and D
                             I_signal_current[0, j] = np.average(frameSig[np.where(mask_nose > 0)])
-                            D_signal_current[0, j] = np.sqrt(np.average(xSig[np.where(mask_nose > 0)]) ** 2 + np.average(
-                                ySig[np.where(mask_nose > 0)]) ** 2 + np.average(zSig[np.where(mask_nose > 0)]) ** 2)
+                            D_signal_current[0, j] = np.sqrt(np.average(xSig[np.where(mask_nose > 0)]) ** 2 + np.average(ySig[np.where(mask_nose > 0)]) ** 2 + np.average(zSig[np.where(mask_nose > 0)]) ** 2)
                             I_signal_current[1, j] = np.average(frameSig[np.where(mask_forehead > 0)])
-                            D_signal_current[1, j] = np.sqrt(np.average(xSig[np.where(mask_forehead > 0)]) ** 2 + np.average(
-                                ySig[np.where(mask_forehead > 0)]) ** 2 + np.average(zSig[np.where(mask_forehead > 0)]) ** 2)
-                            I_signal_current[2, j] = np.average(frameSig[np.where(mask_cn > 0)])
-                            D_signal_current[2, j] = np.sqrt(np.average(xSig[np.where(mask_cn > 0)]) ** 2 + np.average(
-                                ySig[np.where(mask_cn > 0)]) ** 2 + np.average(zSig[np.where(mask_cn > 0)]) ** 2)
-                            I_signal_current[3, j] = np.average(frameSig[np.where(mask_lc > 0)])
-                            D_signal_current[3, j] = np.sqrt(np.average(xSig[np.where(mask_lc > 0)]) ** 2 + np.average(
-                                ySig[np.where(mask_lc > 0)]) ** 2 + np.average(zSig[np.where(mask_lc > 0)]) ** 2)
-                            I_signal_current[4, j] = np.average(frameSig[np.where(mask_rc > 0)])
-                            D_signal_current[4, j] = np.sqrt(np.average(xSig[np.where(mask_rc > 0)]) ** 2 + np.average(
-                                ySig[np.where(mask_rc > 0)]) ** 2 + np.average(zSig[np.where(mask_rc > 0)]) ** 2)
-                            I_signal_current[5, j] = np.average(frameSig[np.where(mask_lf > 0)])
-                            D_signal_current[5, j] = np.sqrt(np.average(xSig[np.where(mask_lf > 0)]) ** 2 + np.average(
-                                ySig[np.where(mask_lf > 0)]) ** 2 + np.average(zSig[np.where(mask_lf > 0)]) ** 2)
+                            D_signal_current[1, j] = np.sqrt(np.average(xSig[np.where(mask_forehead > 0)]) ** 2 + np.average(ySig[np.where(mask_forehead > 0)]) ** 2 + np.average(zSig[np.where(mask_forehead > 0)]) ** 2)
+                            I_signal_current[2, j] = np.average(frameSig[np.where(mask_cheek_and_nose > 0)])
+                            D_signal_current[2, j] = np.sqrt(np.average(xSig[np.where(mask_cheek_and_nose > 0)]) ** 2 + np.average(ySig[np.where(mask_cheek_and_nose > 0)]) ** 2 + np.average(zSig[np.where(mask_cheek_and_nose > 0)]) ** 2)
+                            I_signal_current[3, j] = np.average(frameSig[np.where(mask_left_cheek > 0)])
+                            D_signal_current[3, j] = np.sqrt(np.average(xSig[np.where(mask_left_cheek > 0)]) ** 2 + np.average(ySig[np.where(mask_left_cheek > 0)]) ** 2 + np.average(zSig[np.where(mask_left_cheek > 0)]) ** 2)
+                            I_signal_current[4, j] = np.average(frameSig[np.where(mask_right_cheek > 0)])
+                            D_signal_current[4, j] = np.sqrt(np.average(xSig[np.where(mask_right_cheek > 0)]) ** 2 + np.average(ySig[np.where(mask_right_cheek > 0)]) ** 2 + np.average(zSig[np.where(mask_right_cheek > 0)]) ** 2)
+                            I_signal_current[5, j] = np.average(frameSig[np.where(mask_low_forehead > 0)])
+                            D_signal_current[5, j] = np.sqrt(np.average(xSig[np.where(mask_low_forehead > 0)]) ** 2 + np.average(ySig[np.where(mask_low_forehead > 0)]) ** 2 + np.average(zSig[np.where(mask_low_forehead > 0)]) ** 2)
 
                             # PERCLOS
                             landmark_leye = self._ROI_coord_extract(face_landmarks, 'left_eye', img_rows, img_cols)
