@@ -2,11 +2,10 @@ import os
 import sys
 import subprocess
 import shutil
-from face_mesh_detector import FaceMeshDetector
-# import tensorflow as tf
 import argparse
+# import tensorflow as tf
 
-
+from face_mesh_detector import FaceMeshDetector
 
 # Steps:
 # - Use Automotive Suite to record a video clip (.skv file)
@@ -19,9 +18,6 @@ import argparse
 # 	- where??
 # - open process_thermal.m
 # - this outputs charts of the heart rate
-
-
-
 
 # Record skv video file
 #   - Open Automotive Suite to let user manually record a video clip (.skv file)
