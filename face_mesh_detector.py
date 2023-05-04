@@ -32,6 +32,7 @@ class FaceMeshDetector():
         # matname = self.output_bfsig_name
 
         # parameters initialization
+        # comment for commit
         
         start_frame = 0
         img_cols = 640
