@@ -3,6 +3,7 @@ import sys
 import subprocess
 import shutil
 import argparse
+import time
 # import tensorflow as tf
 
 from face_mesh_detector import FaceMeshDetector
@@ -200,7 +201,10 @@ if __name__ == '__main__':
         skv_to_mat(skvs_dir)
     
     if args.mat_to_bfsig:
+        start_time = time.time()
         mat_to_bfsig(skvs_dir)
+        end_time = time.time()
+        print("mat_to_bfsig() took " + str(end_time - start_time) + " seconds to run")
     
     if args.bfsig_to_plot:
         bfsig_to_plot()
