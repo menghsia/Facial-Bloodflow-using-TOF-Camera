@@ -30,7 +30,7 @@ class FaceMeshDetector():
         img_rows = 480
 
         # Array of intensity signal arrays
-        # Each element is (7, num_frames) = (7, 600) for 7 ROIs (regions of interest) and 600 frames per input video file
+        # Each element is (7, num_frames) = (7, 600) for 7 ROIs (regions of interest) and (likely) 600 frames per input video file
         intensity_signals = np.zeros((7, 1))
 
         # Array of depth signal arrays
@@ -46,74 +46,82 @@ class FaceMeshDetector():
                 # Remove the ".bin" suffix
                 filename = filename[:-4]
                 filelist.append(filename)
+
+        # Load and process every input video file. Track and map face using MediaPipe.
+
+        file_num = 0
+        num_files_to_process = len(filelist)
         
-        counter = 0
-        
-        # Define MediaPipe detector
+        # Define MediaPipe detectors
         mp_drawing = mp.solutions.drawing_utils
         mp_drawing_styles = mp.solutions.drawing_styles
         mp_face_mesh = mp.solutions.face_mesh
         mp_hands = mp.solutions.hands
         
-        drawing_spec = mp_drawing.DrawingSpec(thickness=1, circle_radius=1)
-        with mp_face_mesh.FaceMesh(
-                max_num_faces=1,
-                refine_landmarks=True,
-                min_detection_confidence=0.5,
-                min_tracking_confidence=0.5) as face_mesh:
-            with mp_hands.Hands(
-                    model_complexity=0,
-                    min_detection_confidence=0.5,
-                    min_tracking_confidence=0.5) as hands:
-        
-                time1 = time.time()
-        
-                # Load and process every .mat file, tracking done by MediaPipe
-                
+        # drawing_spec = mp_drawing.DrawingSpec(thickness=1, circle_radius=1)
+
+        # This might be worth trying to increase accuracy:
+        # Increasing min_tracking_confidence [0.0, 1.0] will generally improve the quality of the landmarks at the expense of a higher latency.
+        # To improve performance, optionally mark the image as not writeable to pass by reference.
+        # with mp_face_mesh.FaceMesh(static_image_mode=False, max_num_faces=1, refine_landmarks=True, min_detection_confidence=0.5, min_tracking_confidence=0.5) as face_mesh:
+
+        with mp_face_mesh.FaceMesh(static_image_mode=False, max_num_faces=1, refine_landmarks=True, min_detection_confidence=0.5, min_tracking_confidence=0.5) as face_mesh:
+            with mp_hands.Hands(model_complexity=0, min_detection_confidence=0.5, min_tracking_confidence=0.5) as hands:
                 # Loop through each file
                 for filename in filelist:
-                    filename_bin = filename + '.bin'
-                    filepath_bin = os.path.join(self.input_dir, filename_bin)
-                    
-                    print(filename)
+                    file_num = file_num + 1
+                    print(f"Processing file {file_num}/{num_files_to_process}: {filename}...")
 
-                    x_all, y_all, z_all, gray_all = self._read_binary_file(filepath_bin)
+                    # Load the file
+                    filepath = os.path.join(self.input_dir, filename + '.bin')
+                    x_all, y_all, z_all, gray_all = self._read_binary_file(filepath)
                     
-                    # Save the loaded data to a mat file (takes about 2.5 seconds)
-                    # start_time = time.time()
+                    # Save the loaded data to a mat file
                     # self._save_to_mat_file(x_all, y_all, z_all, gray_all, output_dir_path=self.input_mats_dir, filename=filename)
-                    # end_time = time.time()
-                    # print(f"Finished converting {filename} to mat file in {end_time - start_time} seconds")
 
-                    counter = counter + 1
-                    print(counter)
+                    # Get number of frames (columns) in this video clip
+                    # num_frames = np.size(gray_all, 1)
+                    num_frames = np.shape(gray_all)[1]
 
-                    # initializing output and intermediate variables
+                    # ROI indices:
+                    # 0: nose
+                    # 1: forehead
+                    # 2: cheek_and_nose
+                    # 3: left_cheek
+                    # 4: right_cheek
+                    # 5: low_forehead
+                    # 6: palm
 
-                    # Get number of frames in this video clip
-                    num_frames = np.size(gray_all, 1)
-                    
-                    # 1: nose;  2: forehead;   3: nose & cheek  4: left cheek   5: right cheek  6: lower forehead  7: palm
+                    # Arrays storing intensity and depth signals for all ROIs in this video clip (num_ROIs, num_frames) = (7, 600)
                     intensity_signal_current = np.zeros((7, num_frames))
                     depth_signal_current = np.zeros((7, num_frames))
                     ear_signal_current = np.zeros(num_frames)
-                    time2 = time.time()
-                    timeelps = time2 - time1
-                    print('Data loading completed, time elapsed: %s seconds' % timeelps)
 
-                    gray_all = np.reshape(gray_all, [img_rows, img_cols, num_frames])
-                    x_all = np.reshape(x_all, [img_rows, img_cols, num_frames])
-                    y_all = np.reshape(y_all, [img_rows, img_cols, num_frames])
-                    z_all = np.reshape(z_all, [img_rows, img_cols, num_frames])
+                    # Each array is currently (height*width, num_frames) = (480*640, num_frames) = (307200, num_frames)
+                    # Reshape to (height, width, num_frames) = (480, 640, num_frames)
+                    x_all = x_all.reshape([img_rows, img_cols, num_frames])
+                    y_all = y_all.reshape([img_rows, img_cols, num_frames])
+                    z_all = z_all.reshape([img_rows, img_cols, num_frames])
+                    gray_all = gray_all.reshape([img_rows, img_cols, num_frames])
 
-                    num_frames = np.size(gray_all, 2)
-                    # tracking and extracting I, D frame by frame
-                    for j in range(num_frames):
-                        frameTrk = self._mp_preprocess(gray_all[:, :, j])
-                        frameSig = gray_all[:, :, j]
-                        xSig = x_all[:, :, j].astype('int32')
-                        ySig = y_all[:, :, j].astype('int32')
-                        zSig = z_all[:, :, j].astype('int32')
+                    # num_frames = np.size(gray_all, 2)
+                    
+                    # Loop through all frames
+                    for frame in range(num_frames):
+                        # Track face and extract intensity and depth for all ROIs in this frame
+                        frameTrk = self._mp_preprocess(gray_all[:, :, frame])
+                        frameSig = gray_all[:, :, frame]
+
+                        # Why are we using int32? The data we load in is int16.
+                        # Output with int16 was equivalent to output with int32.
+                        # int16 runtime was a little faster (1 second faster on 600 frame file).
+                        # xSig = x_all[:, :, frame].astype('int32')
+                        # ySig = y_all[:, :, frame].astype('int32')
+                        # zSig = z_all[:, :, frame].astype('int32')
+                        x_frame = x_all[:, :, frame].astype('int16')
+                        y_frame = y_all[:, :, frame].astype('int16')
+                        z_frame = z_all[:, :, frame].astype('int16')
+                        
                         # To improve performance, optionally mark the image as not writeable to
                         # pass by reference.
                         frameTrk.flags.writeable = False
@@ -138,26 +146,26 @@ class FaceMeshDetector():
                             landmark_low_forehead = self._ROI_coord_extract(face_landmarks, 'low_forehead', img_rows, img_cols)
                             mask_low_forehead = self._vtx2mask(landmark_low_forehead, img_cols, img_rows)
 
-                            # calculate averaged I and D
-                            intensity_signal_current[0, j] = np.average(frameSig[np.where(mask_nose > 0)])
-                            depth_signal_current[0, j] = np.sqrt(np.average(xSig[np.where(mask_nose > 0)]) ** 2 + np.average(ySig[np.where(mask_nose > 0)]) ** 2 + np.average(zSig[np.where(mask_nose > 0)]) ** 2)
-                            intensity_signal_current[1, j] = np.average(frameSig[np.where(mask_forehead > 0)])
-                            depth_signal_current[1, j] = np.sqrt(np.average(xSig[np.where(mask_forehead > 0)]) ** 2 + np.average(ySig[np.where(mask_forehead > 0)]) ** 2 + np.average(zSig[np.where(mask_forehead > 0)]) ** 2)
-                            intensity_signal_current[2, j] = np.average(frameSig[np.where(mask_cheek_and_nose > 0)])
-                            depth_signal_current[2, j] = np.sqrt(np.average(xSig[np.where(mask_cheek_and_nose > 0)]) ** 2 + np.average(ySig[np.where(mask_cheek_and_nose > 0)]) ** 2 + np.average(zSig[np.where(mask_cheek_and_nose > 0)]) ** 2)
-                            intensity_signal_current[3, j] = np.average(frameSig[np.where(mask_left_cheek > 0)])
-                            depth_signal_current[3, j] = np.sqrt(np.average(xSig[np.where(mask_left_cheek > 0)]) ** 2 + np.average(ySig[np.where(mask_left_cheek > 0)]) ** 2 + np.average(zSig[np.where(mask_left_cheek > 0)]) ** 2)
-                            intensity_signal_current[4, j] = np.average(frameSig[np.where(mask_right_cheek > 0)])
-                            depth_signal_current[4, j] = np.sqrt(np.average(xSig[np.where(mask_right_cheek > 0)]) ** 2 + np.average(ySig[np.where(mask_right_cheek > 0)]) ** 2 + np.average(zSig[np.where(mask_right_cheek > 0)]) ** 2)
-                            intensity_signal_current[5, j] = np.average(frameSig[np.where(mask_low_forehead > 0)])
-                            depth_signal_current[5, j] = np.sqrt(np.average(xSig[np.where(mask_low_forehead > 0)]) ** 2 + np.average(ySig[np.where(mask_low_forehead > 0)]) ** 2 + np.average(zSig[np.where(mask_low_forehead > 0)]) ** 2)
+                            # calculate averaged intensity and depth for each ROI
+                            intensity_signal_current[0, frame] = np.average(frameSig[np.where(mask_nose > 0)])
+                            depth_signal_current[0, frame] = np.sqrt(np.average(x_frame[np.where(mask_nose > 0)]) ** 2 + np.average(y_frame[np.where(mask_nose > 0)]) ** 2 + np.average(z_frame[np.where(mask_nose > 0)]) ** 2)
+                            intensity_signal_current[1, frame] = np.average(frameSig[np.where(mask_forehead > 0)])
+                            depth_signal_current[1, frame] = np.sqrt(np.average(x_frame[np.where(mask_forehead > 0)]) ** 2 + np.average(y_frame[np.where(mask_forehead > 0)]) ** 2 + np.average(z_frame[np.where(mask_forehead > 0)]) ** 2)
+                            intensity_signal_current[2, frame] = np.average(frameSig[np.where(mask_cheek_and_nose > 0)])
+                            depth_signal_current[2, frame] = np.sqrt(np.average(x_frame[np.where(mask_cheek_and_nose > 0)]) ** 2 + np.average(y_frame[np.where(mask_cheek_and_nose > 0)]) ** 2 + np.average(z_frame[np.where(mask_cheek_and_nose > 0)]) ** 2)
+                            intensity_signal_current[3, frame] = np.average(frameSig[np.where(mask_left_cheek > 0)])
+                            depth_signal_current[3, frame] = np.sqrt(np.average(x_frame[np.where(mask_left_cheek > 0)]) ** 2 + np.average(y_frame[np.where(mask_left_cheek > 0)]) ** 2 + np.average(z_frame[np.where(mask_left_cheek > 0)]) ** 2)
+                            intensity_signal_current[4, frame] = np.average(frameSig[np.where(mask_right_cheek > 0)])
+                            depth_signal_current[4, frame] = np.sqrt(np.average(x_frame[np.where(mask_right_cheek > 0)]) ** 2 + np.average(y_frame[np.where(mask_right_cheek > 0)]) ** 2 + np.average(z_frame[np.where(mask_right_cheek > 0)]) ** 2)
+                            intensity_signal_current[5, frame] = np.average(frameSig[np.where(mask_low_forehead > 0)])
+                            depth_signal_current[5, frame] = np.sqrt(np.average(x_frame[np.where(mask_low_forehead > 0)]) ** 2 + np.average(y_frame[np.where(mask_low_forehead > 0)]) ** 2 + np.average(z_frame[np.where(mask_low_forehead > 0)]) ** 2)
 
                             # PERCLOS
                             landmark_leye = self._ROI_coord_extract(face_landmarks, 'left_eye', img_rows, img_cols)
                             L_ear = self._eye_aspect_ratio(landmark_leye)
                             landmark_reye = self._ROI_coord_extract(face_landmarks, 'right_eye', img_rows, img_cols)
                             R_ear = self._eye_aspect_ratio(landmark_reye)
-                            ear_signal_current[j] = (L_ear + R_ear) /2
+                            ear_signal_current[frame] = (L_ear + R_ear) /2
 
 
                             # Draw the face mesh annotations on the image and display
