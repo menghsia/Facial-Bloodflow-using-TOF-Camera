@@ -113,6 +113,29 @@ class FaceMeshDetector():
                                                    intensity_signal_current=intensity_signal_current, depth_signal_current=depth_signal_current, ear_signal_current=ear_signal_current,
                                                    mp_drawing=mp_drawing, mp_drawing_styles=mp_drawing_styles, mp_face_mesh=mp_face_mesh,
                                                    visualize_ROI=visualize_ROI, visualize_FaceMesh=visualize_FaceMesh)
+                        
+
+
+
+
+
+                    # Change _process_single_frame to return intensity_signal_current, depth_signal_current, ear_signal_current instead of modifying them in-place.
+                    # This will allow us to use multiprocessing. Python multiprocessing copies variables to each process, so we can't modify them in-place.
+                    # Maybe then we can do this(?):
+                    # intensity_signals[:, file_num - 1] = intensity_signal_current
+                    # depth_signals[:, file_num - 1] = depth_signal_current
+                    # ear_signal[file_num - 1] = ear_signal_current
+
+                    # Another idea: Shared arrays
+
+
+
+
+
+
+
+
+
 
                     intensity_signals = np.concatenate((intensity_signals, intensity_signal_current), axis=1)
                     depth_signals = np.concatenate((depth_signals, depth_signal_current), axis=1)
