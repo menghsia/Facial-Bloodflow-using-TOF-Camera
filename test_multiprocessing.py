@@ -1,36 +1,56 @@
+import concurrent
+import time
+from multiprocessing import shared_memory
 import numpy as np
-from multiprocessing import Process, Manager
+import multiprocessing
+from concurrent.futures.process import ProcessPoolExecutor
 
-def my_function(shared_array, start_idx, end_idx):
-    # Access shared array as a NumPy array
-    np_array = np.frombuffer(shared_array.get_obj())
+NUM_WORKERS = multiprocessing.cpu_count()
+np.random.seed(42)
+ARRAY_SIZE = int(2e8)
+ARRAY_SHAPE = (ARRAY_SIZE,)
+NP_SHARED_NAME = 'npshared'
+NP_DATA_TYPE = np.float64
+data = np.random.random(ARRAY_SIZE)
 
-    # Modify the shared array by setting values within the specified range
-    for i in range(start_idx, end_idx):
-        np_array[i] = i
 
+def create_shared_memory_nparray(data):
+    d_size = np.dtype(NP_DATA_TYPE).itemsize * np.prod(ARRAY_SHAPE)
+
+    shm = shared_memory.SharedMemory(create=True, size=d_size, name=NP_SHARED_NAME)
+    # numpy array on shared memory buffer
+    dst = np.ndarray(shape=ARRAY_SHAPE, dtype=NP_DATA_TYPE, buffer=shm.buf)
+    dst[:] = data[:]
+    print(f'NP SIZE: {(dst.nbytes / 1024) / 1024}')
+    return shm
+
+
+def release_shared(name):
+    shm = shared_memory.SharedMemory(name=name)
+    shm.close()
+    shm.unlink()  # Free and release the shared memory block
+
+    
+def np_sum(name, start, stop):
+    # not mandatory to init it here, just for demostration purposes.
+    shm = shared_memory.SharedMemory(name=name)
+    np_array = np.ndarray(ARRAY_SHAPE, dtype=NP_DATA_TYPE, buffer=shm.buf)
+    return np.sum(np_array[start:stop])
+
+  
+def benchmark():
+    chunk_size = int(ARRAY_SIZE / NUM_WORKERS)
+    futures = []
+    ts = time.time_ns()
+    with ProcessPoolExecutor(max_workers=NUM_WORKERS) as executor:
+        for i in range(0, NUM_WORKERS):
+            start = i + chunk_size if i == 0 else 0
+            futures.append(executor.submit(np_sum, NP_SHARED_NAME, start, i + chunk_size))
+    futures, _ = concurrent.futures.wait(futures)
+    return (time.time_ns() - start_time) / 1_000_000
+
+  
 if __name__ == '__main__':
-    # Create a NumPy array
-    # original_array = np.zeros(10)
-    original_array = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-
-    # Create a shared array using a multiprocessing Manager
-    manager = Manager()
-    shared_array = manager.Array('i', original_array)
-
-    # Copy the original array into the shared array
-    np.frombuffer(shared_array.get_obj())[:] = original_array[:]
-
-    # Start two processes to run my_function with different ranges of indices
-    p1 = Process(target=my_function, args=(shared_array, 0, 5))
-    p2 = Process(target=my_function, args=(shared_array, 5, 10))
-    p1.start()
-    p2.start()
-    p1.join()
-    p2.join()
-
-    # Copy the modified shared array back into the original array
-    original_array[:] = np.frombuffer(shared_array.get_obj())[:]
-
-    # Print the original array to verify that it was modified
-    print(original_array)
+    shm = create_shared_memory_nparray(data)
+    benchmark2()
+    release_shared(NP_SHARED_NAME)
