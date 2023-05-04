@@ -18,7 +18,7 @@ class FaceMeshDetector():
     def __init__(self, input_dir, output_filename):
         # Directory where input files are located (likely ./skvs/mat/)
         self.input_dir = input_dir
-        
+
         # Filename of output .mat file (likely auto_bfsig.mat)
         self.output_filename = output_filename
     
@@ -29,8 +29,14 @@ class FaceMeshDetector():
         # height = 480
         img_rows = 480
 
-        intensity_signal = np.zeros((7, 1))
-        depth_signal = np.zeros((7, 1))
+        # Array of intensity signal arrays
+        # Each element is (7, num_frames) = (7, 600) for 7 ROIs (regions of interest) and 600 frames per input video file
+        intensity_signals = np.zeros((7, 1))
+
+        # Array of depth signal arrays
+        depth_signals = np.zeros((7, 1))
+
+        # Not sure what this is for
         ear_signal = np.zeros((1))
 
         # Get list of all input files in input_mats_dir (./skvs/mat/)
@@ -83,23 +89,26 @@ class FaceMeshDetector():
                     print(counter)
 
                     # initializing output and intermediate variables
-                    frame_num = np.size(gray_all, 1)
+
+                    # Get number of frames in this video clip
+                    num_frames = np.size(gray_all, 1)
+                    
                     # 1: nose;  2: forehead;   3: nose & cheek  4: left cheek   5: right cheek  6: lower forehead  7: palm
-                    intensity_signal_current = np.zeros((7, frame_num))
-                    depth_signal_current = np.zeros((7, frame_num))
-                    ear_signal_current = np.zeros((frame_num))
+                    intensity_signal_current = np.zeros((7, num_frames))
+                    depth_signal_current = np.zeros((7, num_frames))
+                    ear_signal_current = np.zeros(num_frames)
                     time2 = time.time()
                     timeelps = time2 - time1
                     print('Data loading completed, time elapsed: %s seconds' % timeelps)
 
-                    gray_all = np.reshape(gray_all, [img_rows, img_cols, frame_num])
-                    x_all = np.reshape(x_all, [img_rows, img_cols, frame_num])
-                    y_all = np.reshape(y_all, [img_rows, img_cols, frame_num])
-                    z_all = np.reshape(z_all, [img_rows, img_cols, frame_num])
+                    gray_all = np.reshape(gray_all, [img_rows, img_cols, num_frames])
+                    x_all = np.reshape(x_all, [img_rows, img_cols, num_frames])
+                    y_all = np.reshape(y_all, [img_rows, img_cols, num_frames])
+                    z_all = np.reshape(z_all, [img_rows, img_cols, num_frames])
 
-                    frame_num = np.size(gray_all, 2)
+                    num_frames = np.size(gray_all, 2)
                     # tracking and extracting I, D frame by frame
-                    for j in range(frame_num):
+                    for j in range(num_frames):
                         frameTrk = self._mp_preprocess(gray_all[:, :, j])
                         frameSig = gray_all[:, :, j]
                         xSig = x_all[:, :, j].astype('int32')
@@ -201,16 +210,16 @@ class FaceMeshDetector():
                             cv2.imshow('MediaPipe Face Mesh', cv2.flip(image, 1))
                             cv2.waitKey(10)
 
-                    intensity_signal = np.concatenate((intensity_signal, intensity_signal_current), axis=1)
-                    depth_signal = np.concatenate((depth_signal, depth_signal_current), axis=1)
+                    intensity_signals = np.concatenate((intensity_signals, intensity_signal_current), axis=1)
+                    depth_signals = np.concatenate((depth_signals, depth_signal_current), axis=1)
                     ear_signal = np.concatenate((ear_signal, ear_signal_current),axis=0)
 
 
                     
-        intensity_signal = np.delete(intensity_signal, 0, 1)
-        depth_signal = np.delete(depth_signal, 0, 1)
+        intensity_signals = np.delete(intensity_signals, 0, 1)
+        depth_signals = np.delete(depth_signals, 0, 1)
         ear_signal = np.delete(ear_signal,0,0)
-        mdic = {"Depth": depth_signal, 'I_raw': intensity_signal, 'EAR': ear_signal} # EAR: eye aspect ratio
+        mdic = {"Depth": depth_signals, 'I_raw': intensity_signals, 'EAR': ear_signal} # EAR: eye aspect ratio
         savemat(os.path.join(self.input_dir, self.output_filename + '.mat'), mdic)
         
         print('finished')
