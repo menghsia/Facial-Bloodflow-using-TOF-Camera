@@ -4,6 +4,7 @@ import subprocess
 import shutil
 from face_mesh_detector import FaceMeshDetector
 # import tensorflow as tf
+import argparse
 
 
 
@@ -174,14 +175,23 @@ def bfsig_to_plot():
     matlab_script_path = os.path.join(os.getcwd(), "auto_matlab/process_thermal_SINGLE.m")
     process = subprocess.run(["matlab", "-r", "run('" + matlab_script_path + "');"], shell=True)
 
+def process_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--skv_to_mat', action='store_true')
+    parser.add_argument('--mat_to_bfsig', action='store_true')
+    parser.add_argument('--bfsig_to_plot', action='store_true')
+    args = parser.parse_args()
+
+    # If no args are provided, set all 3 bools to True
+    if not any(vars(args).values()):
+        args.skv_to_mat = True
+        args.mat_to_bfsig = True
+        args.bfsig_to_plot = True
+    
+    return args
+
 if __name__ == '__main__':
-    # print(tf.config.list_physical_devices('GPU'))
-    # comment for commit
-
-
-
-
-
+    args = process_args()
 
     # Get the path to the new .skv file
     # skvs_dir = record_skv()
@@ -190,10 +200,15 @@ if __name__ == '__main__':
 
     check_for_skvs(skvs_dir)
 
-    skv_to_mat(skvs_dir)
+    if args.skv_to_mat:
+        skv_to_mat(skvs_dir)
+    
+    if args.mat_to_bfsig:
+        mat_to_bfsig(skvs_dir)
+    
+    if args.bfsig_to_plot:
+        bfsig_to_plot()
 
-    mat_to_bfsig(skvs_dir)
-
-    bfsig_to_plot()
+    # print(tf.config.list_physical_devices('GPU'))
 
     print('Done!')
