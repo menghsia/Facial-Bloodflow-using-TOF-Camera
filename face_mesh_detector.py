@@ -15,9 +15,12 @@ from scipy.spatial import distance as dist
 # import hdf5storage
 
 class FaceMeshDetector():
-    def __init__(self, input_mats_dir, output_bfsig_name):
-        self.input_mats_dir = input_mats_dir
-        self.output_bfsig_name = output_bfsig_name
+    def __init__(self, input_dir, output_filename):
+        # Directory where input files are located (likely ./skvs/mat/)
+        self.input_dir = input_dir
+        
+        # Filename of output .mat file (likely auto_bfsig.mat)
+        self.output_filename = output_filename
     
     def run(self):
         # The IMX520 sensor has a resolution of 640x480=307200 pixels per frame (width x height)
@@ -32,7 +35,7 @@ class FaceMeshDetector():
 
         # Get list of all input files in input_mats_dir (./skvs/mat/)
         filelist = []
-        for filename in os.listdir(self.input_mats_dir):
+        for filename in os.listdir(self.input_dir):
             if filename.endswith('.skv.bin'):
                 # Remove the ".bin" suffix
                 filename = filename[:-4]
@@ -64,7 +67,7 @@ class FaceMeshDetector():
                 # Loop through each file
                 for filename in filelist:
                     filename_bin = filename + '.bin'
-                    filepath_bin = os.path.join(self.input_mats_dir, filename_bin)
+                    filepath_bin = os.path.join(self.input_dir, filename_bin)
                     
                     print(filename)
 
@@ -208,7 +211,7 @@ class FaceMeshDetector():
         depth_signal = np.delete(depth_signal, 0, 1)
         ear_signal = np.delete(ear_signal,0,0)
         mdic = {"Depth": depth_signal, 'I_raw': intensity_signal, 'EAR': ear_signal} # EAR: eye aspect ratio
-        savemat(os.path.join(self.input_mats_dir, self.output_bfsig_name + '.mat'), mdic)
+        savemat(os.path.join(self.input_dir, self.output_filename + '.mat'), mdic)
         
         print('finished')
 
@@ -454,5 +457,5 @@ class FaceMeshDetector():
 if __name__ == "__main__":
     skvs_dir = os.path.join(os.getcwd(), 'skvs')
 
-    myFaceMeshDetector = FaceMeshDetector(input_mats_dir=os.path.join(skvs_dir, "mat"), output_bfsig_name="auto_bfsig")
+    myFaceMeshDetector = FaceMeshDetector(input_dir=os.path.join(skvs_dir, "mat"), output_filename="auto_bfsig")
     myFaceMeshDetector.run()
