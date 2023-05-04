@@ -188,6 +188,8 @@ def process_args():
     return args
 
 if __name__ == '__main__':
+    main_start_time = time.time()
+    
     args = process_args()
 
     # Get the path to the new .skv file
@@ -201,10 +203,10 @@ if __name__ == '__main__':
         skv_to_mat(skvs_dir)
     
     if args.mat_to_bfsig:
-        start_time = time.time()
+        # start_time = time.time()
         mat_to_bfsig(skvs_dir)
-        end_time = time.time()
-        print("mat_to_bfsig() took " + str(end_time - start_time) + " seconds to run")
+        # end_time = time.time()
+        # print("mat_to_bfsig() took " + str(end_time - start_time) + " seconds to run")
     
     if args.bfsig_to_plot:
         bfsig_to_plot()
@@ -212,3 +214,6 @@ if __name__ == '__main__':
     # print(tf.config.list_physical_devices('GPU'))
 
     print('Done!')
+
+    main_end_time = time.time()
+    print(f"run.py took {main_end_time - main_start_time} seconds to run")
