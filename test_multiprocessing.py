@@ -3,11 +3,13 @@ import time
 from multiprocessing import shared_memory
 import numpy as np
 import multiprocessing
+import concurrent.futures
 from concurrent.futures.process import ProcessPoolExecutor
 
 NUM_WORKERS = multiprocessing.cpu_count()
 np.random.seed(42)
-ARRAY_SIZE = int(2e8)
+# ARRAY_SIZE = int(2e8)
+ARRAY_SIZE = 100_000
 ARRAY_SHAPE = (ARRAY_SIZE,)
 NP_SHARED_NAME = 'npshared'
 NP_DATA_TYPE = np.float64
@@ -15,7 +17,7 @@ data = np.random.random(ARRAY_SIZE)
 
 
 def create_shared_memory_nparray(data):
-    d_size = np.dtype(NP_DATA_TYPE).itemsize * np.prod(ARRAY_SHAPE)
+    d_size = int(np.dtype(NP_DATA_TYPE).itemsize * np.prod(ARRAY_SHAPE))
 
     shm = shared_memory.SharedMemory(create=True, size=d_size, name=NP_SHARED_NAME)
     # numpy array on shared memory buffer
@@ -41,7 +43,7 @@ def np_sum(name, start, stop):
 def benchmark():
     chunk_size = int(ARRAY_SIZE / NUM_WORKERS)
     futures = []
-    ts = time.time_ns()
+    start_time = time.time_ns()
     with ProcessPoolExecutor(max_workers=NUM_WORKERS) as executor:
         for i in range(0, NUM_WORKERS):
             start = i + chunk_size if i == 0 else 0
@@ -52,5 +54,5 @@ def benchmark():
   
 if __name__ == '__main__':
     shm = create_shared_memory_nparray(data)
-    benchmark2()
+    benchmark()
     release_shared(NP_SHARED_NAME)
