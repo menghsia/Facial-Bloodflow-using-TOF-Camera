@@ -19,17 +19,17 @@ import numpy as np
 class FaceMeshDetector():
     def __init__(self, input_mats_dir, output_bfsig_name):
         self.input_mats_dir = input_mats_dir
-        self.ouput_bfsig_name = output_bfsig_name
+        self.output_bfsig_name = output_bfsig_name
     
     def run(self):
-        # matpath = 'C:/Users/MNI Lab/Documents/GitHub/prgrm/facial-blood-ToF/skv_mat/'
-        # matname = '20221003-Sparsh_Fex_bfsig'
+        # self.input_mats_dir = 'C:/Users/MNI Lab/Documents/GitHub/prgrm/facial-blood-ToF/skv_mat/'
+        # self.output_bfsig_name = '20221003-Sparsh_Fex_bfsig'
 
-        # matpath = './skvs/mat/'
-        # matname = '20221003-Sparsh_Fex_bfsig'
+        # self.input_mats_dir = './skvs/mat/'
+        # self.output_bfsig_name = '20221003-Sparsh_Fex_bfsig'
 
-        matpath = self.input_mats_dir
-        matname = self.ouput_bfsig_name
+        # matpath = self.input_mats_dir
+        # matname = self.output_bfsig_name
 
         # parameters initialization
         
@@ -40,10 +40,10 @@ class FaceMeshDetector():
         D_signal = np.zeros((7, 1))
         EAR = np.zeros((1))
         filelist = []
-        # for filename in os.listdir(matpath):
+        # for filename in os.listdir(self.input_mats_dir):
         #     if filename.endswith('.skv.mat'):
         #         filelist.append(filename)
-        for filename in os.listdir(matpath):
+        for filename in os.listdir(self.input_mats_dir):
             if filename.endswith('.skv.bin'):
                 # Remove the ".bin" suffix
                 filename = filename[:-4]
@@ -75,15 +75,15 @@ class FaceMeshDetector():
                 for filename in filelist:
                     # filename_mat = filename + '.mat'
                     filename_bin = filename + '.bin'
-                    filepath_bin = os.path.join(matpath, filename_bin)
+                    filepath_bin = os.path.join(self.input_mats_dir, filename_bin)
 
-                    # with open(os.path.join(matpath, filename_bin), 'rb') as binary_file:
+                    # with open(os.path.join(self.input_mats_dir, filename_bin), 'rb') as binary_file:
                     # try:
-                    #     # mat_data = mat73.loadmat(matpath + filename)
-                    #     mat_data = mat73.loadmat(os.path.join(matpath, filename))
+                    #     # mat_data = mat73.loadmat(self.input_mats_dir + filename)
+                    #     mat_data = mat73.loadmat(os.path.join(self.input_mats_dir, filename))
                     # except:
-                    #     # mat_data = loadmat(matpath + filename)
-                    #     mat_data = loadmat(os.path.join(matpath, filename))
+                    #     # mat_data = loadmat(self.input_mats_dir + filename)
+                    #     mat_data = loadmat(os.path.join(self.input_mats_dir, filename))
                     # print(filename)
                     # gray_all = mat_data['grayscale']
                     # x_all = mat_data['x_value']
@@ -103,11 +103,11 @@ class FaceMeshDetector():
                     print(filename)
 
                     # try:
-                    #     # mat_data = mat73.loadmat(matpath + filename)
-                    #     mat_data = mat73.loadmat(os.path.join(matpath, filename_mat))
+                    #     # mat_data = mat73.loadmat(self.input_mats_dir + filename)
+                    #     mat_data = mat73.loadmat(os.path.join(self.input_mats_dir, filename_mat))
                     # except:
-                    #     # mat_data = loadmat(matpath + filename)
-                    #     mat_data = loadmat(os.path.join(matpath, filename_mat))
+                    #     # mat_data = loadmat(self.input_mats_dir + filename)
+                    #     mat_data = loadmat(os.path.join(self.input_mats_dir, filename_mat))
                     # mat_gray_all = mat_data['grayscale']
                     # mat_x_all = mat_data['x_value']
                     # mat_y_all = mat_data['y_value']
@@ -123,7 +123,7 @@ class FaceMeshDetector():
                     
                     # Save the loaded data to a mat file (takes about 2.5 seconds)
                     # start_time = time.time()
-                    # self._save_to_mat_file(x_all, y_all, z_all, gray_all, output_dir_path=matpath, filename=filename)
+                    # self._save_to_mat_file(x_all, y_all, z_all, gray_all, output_dir_path=self.input_mats_dir, filename=filename)
                     # end_time = time.time()
                     # print(f"Finished converting {filename} to mat file in {end_time - start_time} seconds")
 
@@ -311,7 +311,7 @@ class FaceMeshDetector():
         D_signal = np.delete(D_signal, 0, 1)
         EAR = np.delete(EAR,0,0)
         mdic = {"Depth": D_signal, 'I_raw': I_signal, 'EAR': EAR} # EAR: eye aspect ratio
-        savemat(os.path.join(matpath, matname + '.mat'), mdic)
+        savemat(os.path.join(self.input_mats_dir, self.output_bfsig_name + '.mat'), mdic)
         
         print('finished')
 
