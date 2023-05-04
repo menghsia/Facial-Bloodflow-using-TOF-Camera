@@ -12,6 +12,10 @@ import matplotlib.pyplot as plt
 import time
 import os
 
+# import h5py
+# import hdf5storage
+import numpy as np
+
 class FaceMeshDetector():
     def __init__(self, input_mats_dir, output_bfsig_name):
         self.input_mats_dir = input_mats_dir
@@ -116,6 +120,12 @@ class FaceMeshDetector():
                     # gray_all = np.frombuffer(binary_file.read(600 * 307200 * 2), dtype=np.int16).reshape((600, 307200)).transpose()
 
                     x_all, y_all, z_all, gray_all = self._read_binary_file(filepath_bin)
+                    
+                    # Save the loaded data to a mat file (takes about 2.5 seconds)
+                    # start_time = time.time()
+                    # self._save_to_mat_file(x_all, y_all, z_all, gray_all, output_dir_path=matpath, filename=filename)
+                    # end_time = time.time()
+                    # print(f"Finished converting {filename} to mat file in {end_time - start_time} seconds")
 
                     # print(f"Finished loading {filename}")
 
@@ -315,6 +325,26 @@ class FaceMeshDetector():
             gray_all = np.frombuffer(binary_file.read(600 * 307200 * 2), dtype=np.int16).reshape((600, 307200)).transpose()
 
         return x_all, y_all, z_all, gray_all
+    
+    def _save_to_mat_file(self, x_all, y_all, z_all, gray_all, output_dir_path, filename):
+        # mdic = {"Depth": D_signal, 'I_raw': I_signal, 'EAR': EAR} # EAR: eye aspect ratio
+        # savemat(os.path.join(matpath, matname + '.mat'), mdic)
+
+        mat_dict = {'x_all': x_all, 'y_all': y_all, 'z_all': z_all, 'gray_all': gray_all}
+        savemat(os.path.join(output_dir_path, filename + '.mat'), mat_dict)
+        # hdf5storage.write(mat_dict, output_dir_path, filename + '.mat', matlab_compatible=True)
+
+        # Save using Matlab 7.3 to use HDF5 format (code does not currently work)
+        # # make a dictionary to store the MAT data in
+        # matfiledata = {}
+        # # *** u prefix for variable name = unicode format, no issues thru Python 3.5
+        # # advise keeping u prefix indicator format based on feedback despite docs ***
+        # matfiledata[u'x_all'] = x_all
+        # matfiledata[u'y_all'] = y_all
+        # matfiledata[u'z_all'] = z_all
+        # matfiledata[u'gray_all'] = gray_all
+        # hdf5storage.write(matfiledata, output_dir_path, filename + '.mat', matlab_compatible=True)
+        return
 
     def _line_select_callback(self, eclick, erelease):
         'eclick and erelease are the press and release events'
