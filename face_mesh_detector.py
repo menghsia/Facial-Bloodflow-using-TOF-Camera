@@ -183,24 +183,33 @@ class FaceMeshDetector():
 
                         frame_data = (frame_x, frame_y, frame_z, frame_gray)
 
-                        # Queue each task using apply_async() so that the tasks are executed in parallel
-                        # results = [pool.apply_async(worker_function, args=(i, managed_shared_buffer)) for i in range(num_frames)]
-
-                        result = pool.apply_async(self._process_single_frame, args=(frame_data, frame,
-                                                                                            img_rows, img_cols,
-                                                                                            face_mesh,
-                                                                                            intensity_signal_current_buffer,
-                                                                                            depth_signal_current_buffer,
-                                                                                            ear_signal_current_buffer,
-                                                                                            visualize_ROI, visualize_FaceMesh,
-                                                                                            mp_drawing, mp_drawing_styles, mp_face_mesh))
+                        # Track face and extract intensity and depth for all ROIs in this frame
+                        frameTrk = self._mp_preprocess(frame_gray)
                         
-                        try:
-                            value = result.get()
-                            print(value)
-                        except Exception as e:
-                            print(f"Error: {e}")
-                            exit(1)
+                        # To improve performance, optionally mark the image as not writeable to
+                        # pass by reference.
+                        frameTrk.flags.writeable = False
+                        frameTrk = cv2.cvtColor(frameTrk, cv2.COLOR_BGR2RGB)
+                        results_face = face_mesh.process(frameTrk)
+                        # results_hand = hands.process(frameTrk)
+
+                        if results_face.multi_face_landmarks:
+                            face_landmarks = results_face.multi_face_landmarks[0]
+
+                            # Queue each task using apply_async() so that the tasks are executed in parallel
+                            result = pool.apply_async(self._process_single_frame, args=(frame_data, frame,
+                                                                                                img_rows, img_cols,
+                                                                                                intensity_signal_current_buffer,
+                                                                                                depth_signal_current_buffer,
+                                                                                                ear_signal_current_buffer,
+                                                                                                face_landmarks))
+                        
+                            try:
+                                value = result.get()
+                                # print(value)
+                            except Exception as e:
+                                print(f"Error: {e}")
+                                exit(1)
 
                         results.append(result)
 
@@ -251,13 +260,11 @@ class FaceMeshDetector():
 
     def _process_single_frame(self, frame_data, frame,
                               img_rows, img_cols,
-                              face_mesh,
                               intensity_signal_current_buffer, depth_signal_current_buffer, ear_signal_current_buffer,
-                              visualize_ROI, visualize_FaceMesh,
-                              mp_drawing, mp_drawing_styles, mp_face_mesh):
+                              face_landmarks):
         frame_num = -1
 
-        print(f"{frame_num}: Worker starting...")
+        # print(f"{frame_num}: Worker starting...")
         
         # Unpack frame_data
         frame_x, frame_y, frame_z, frame_gray = frame_data
@@ -267,62 +274,61 @@ class FaceMeshDetector():
         depth_signal_current = depth_signal_current_buffer.get_numpy_array_from_shared_buffer()
         ear_signal_current = ear_signal_current_buffer.get_numpy_array_from_shared_buffer()
 
-        # Track face and extract intensity and depth for all ROIs in this frame
-        frameTrk = self._mp_preprocess(frame_gray)
+        # # Track face and extract intensity and depth for all ROIs in this frame
+        # frameTrk = self._mp_preprocess(frame_gray)
         
-        # To improve performance, optionally mark the image as not writeable to
-        # pass by reference.
-        frameTrk.flags.writeable = False
-        frameTrk = cv2.cvtColor(frameTrk, cv2.COLOR_BGR2RGB)
-        results_face = face_mesh.process(frameTrk)
-        # results_hand = hands.process(frameTrk)
+        # # To improve performance, optionally mark the image as not writeable to
+        # # pass by reference.
+        # frameTrk.flags.writeable = False
+        # frameTrk = cv2.cvtColor(frameTrk, cv2.COLOR_BGR2RGB)
+        # results_face = face_mesh.process(frameTrk)
+        # # results_hand = hands.process(frameTrk)
 
-        if results_face.multi_face_landmarks:
-            face_landmarks = results_face.multi_face_landmarks[0]
+        # face_landmarks = results_face.multi_face_landmarks[0]
 
-            # find the ROI vertices
-            landmark_forehead = self._ROI_coord_extract(face_landmarks, 'forehead', img_rows, img_cols)
-            mask_forehead = self._vtx2mask(landmark_forehead, img_cols, img_rows)
-            landmark_nose = self._ROI_coord_extract(face_landmarks, 'nose', img_rows, img_cols)
-            mask_nose = self._vtx2mask(landmark_nose, img_cols, img_rows)
-            landmark_cheek_and_nose = self._ROI_coord_extract(face_landmarks, 'cheek_n_nose', img_rows, img_cols)
-            mask_cheek_and_nose = self._vtx2mask(landmark_cheek_and_nose, img_cols, img_rows)
-            landmark_left_cheek = self._ROI_coord_extract(face_landmarks, 'left_cheek', img_rows, img_cols)
-            mask_left_cheek = self._vtx2mask(landmark_left_cheek, img_cols, img_rows)
-            landmark_right_cheek = self._ROI_coord_extract(face_landmarks, 'right_cheek', img_rows, img_cols)
-            mask_right_cheek = self._vtx2mask(landmark_right_cheek, img_cols, img_rows)
-            landmark_low_forehead = self._ROI_coord_extract(face_landmarks, 'low_forehead', img_rows, img_cols)
-            mask_low_forehead = self._vtx2mask(landmark_low_forehead, img_cols, img_rows)
+        # find the ROI vertices
+        landmark_forehead = self._ROI_coord_extract(face_landmarks, 'forehead', img_rows, img_cols)
+        mask_forehead = self._vtx2mask(landmark_forehead, img_cols, img_rows)
+        landmark_nose = self._ROI_coord_extract(face_landmarks, 'nose', img_rows, img_cols)
+        mask_nose = self._vtx2mask(landmark_nose, img_cols, img_rows)
+        landmark_cheek_and_nose = self._ROI_coord_extract(face_landmarks, 'cheek_n_nose', img_rows, img_cols)
+        mask_cheek_and_nose = self._vtx2mask(landmark_cheek_and_nose, img_cols, img_rows)
+        landmark_left_cheek = self._ROI_coord_extract(face_landmarks, 'left_cheek', img_rows, img_cols)
+        mask_left_cheek = self._vtx2mask(landmark_left_cheek, img_cols, img_rows)
+        landmark_right_cheek = self._ROI_coord_extract(face_landmarks, 'right_cheek', img_rows, img_cols)
+        mask_right_cheek = self._vtx2mask(landmark_right_cheek, img_cols, img_rows)
+        landmark_low_forehead = self._ROI_coord_extract(face_landmarks, 'low_forehead', img_rows, img_cols)
+        mask_low_forehead = self._vtx2mask(landmark_low_forehead, img_cols, img_rows)
 
-            # calculate averaged intensity and depth for each ROI
-            intensity_signal_current[0, frame] = np.average(frame_gray[np.where(mask_nose > 0)])
-            depth_signal_current[0, frame] = np.sqrt(np.average(frame_x[np.where(mask_nose > 0)]) ** 2 + np.average(frame_y[np.where(mask_nose > 0)]) ** 2 + np.average(frame_z[np.where(mask_nose > 0)]) ** 2)
-            intensity_signal_current[1, frame] = np.average(frame_gray[np.where(mask_forehead > 0)])
-            depth_signal_current[1, frame] = np.sqrt(np.average(frame_x[np.where(mask_forehead > 0)]) ** 2 + np.average(frame_y[np.where(mask_forehead > 0)]) ** 2 + np.average(frame_z[np.where(mask_forehead > 0)]) ** 2)
-            intensity_signal_current[2, frame] = np.average(frame_gray[np.where(mask_cheek_and_nose > 0)])
-            depth_signal_current[2, frame] = np.sqrt(np.average(frame_x[np.where(mask_cheek_and_nose > 0)]) ** 2 + np.average(frame_y[np.where(mask_cheek_and_nose > 0)]) ** 2 + np.average(frame_z[np.where(mask_cheek_and_nose > 0)]) ** 2)
-            intensity_signal_current[3, frame] = np.average(frame_gray[np.where(mask_left_cheek > 0)])
-            depth_signal_current[3, frame] = np.sqrt(np.average(frame_x[np.where(mask_left_cheek > 0)]) ** 2 + np.average(frame_y[np.where(mask_left_cheek > 0)]) ** 2 + np.average(frame_z[np.where(mask_left_cheek > 0)]) ** 2)
-            intensity_signal_current[4, frame] = np.average(frame_gray[np.where(mask_right_cheek > 0)])
-            depth_signal_current[4, frame] = np.sqrt(np.average(frame_x[np.where(mask_right_cheek > 0)]) ** 2 + np.average(frame_y[np.where(mask_right_cheek > 0)]) ** 2 + np.average(frame_z[np.where(mask_right_cheek > 0)]) ** 2)
-            intensity_signal_current[5, frame] = np.average(frame_gray[np.where(mask_low_forehead > 0)])
-            depth_signal_current[5, frame] = np.sqrt(np.average(frame_x[np.where(mask_low_forehead > 0)]) ** 2 + np.average(frame_y[np.where(mask_low_forehead > 0)]) ** 2 + np.average(frame_z[np.where(mask_low_forehead > 0)]) ** 2)
+        # calculate averaged intensity and depth for each ROI
+        intensity_signal_current[0, frame] = np.average(frame_gray[np.where(mask_nose > 0)])
+        depth_signal_current[0, frame] = np.sqrt(np.average(frame_x[np.where(mask_nose > 0)]) ** 2 + np.average(frame_y[np.where(mask_nose > 0)]) ** 2 + np.average(frame_z[np.where(mask_nose > 0)]) ** 2)
+        intensity_signal_current[1, frame] = np.average(frame_gray[np.where(mask_forehead > 0)])
+        depth_signal_current[1, frame] = np.sqrt(np.average(frame_x[np.where(mask_forehead > 0)]) ** 2 + np.average(frame_y[np.where(mask_forehead > 0)]) ** 2 + np.average(frame_z[np.where(mask_forehead > 0)]) ** 2)
+        intensity_signal_current[2, frame] = np.average(frame_gray[np.where(mask_cheek_and_nose > 0)])
+        depth_signal_current[2, frame] = np.sqrt(np.average(frame_x[np.where(mask_cheek_and_nose > 0)]) ** 2 + np.average(frame_y[np.where(mask_cheek_and_nose > 0)]) ** 2 + np.average(frame_z[np.where(mask_cheek_and_nose > 0)]) ** 2)
+        intensity_signal_current[3, frame] = np.average(frame_gray[np.where(mask_left_cheek > 0)])
+        depth_signal_current[3, frame] = np.sqrt(np.average(frame_x[np.where(mask_left_cheek > 0)]) ** 2 + np.average(frame_y[np.where(mask_left_cheek > 0)]) ** 2 + np.average(frame_z[np.where(mask_left_cheek > 0)]) ** 2)
+        intensity_signal_current[4, frame] = np.average(frame_gray[np.where(mask_right_cheek > 0)])
+        depth_signal_current[4, frame] = np.sqrt(np.average(frame_x[np.where(mask_right_cheek > 0)]) ** 2 + np.average(frame_y[np.where(mask_right_cheek > 0)]) ** 2 + np.average(frame_z[np.where(mask_right_cheek > 0)]) ** 2)
+        intensity_signal_current[5, frame] = np.average(frame_gray[np.where(mask_low_forehead > 0)])
+        depth_signal_current[5, frame] = np.sqrt(np.average(frame_x[np.where(mask_low_forehead > 0)]) ** 2 + np.average(frame_y[np.where(mask_low_forehead > 0)]) ** 2 + np.average(frame_z[np.where(mask_low_forehead > 0)]) ** 2)
 
-            # PERCLOS
-            landmark_leye = self._ROI_coord_extract(face_landmarks, 'left_eye', img_rows, img_cols)
-            L_ear = self._eye_aspect_ratio(landmark_leye)
-            landmark_reye = self._ROI_coord_extract(face_landmarks, 'right_eye', img_rows, img_cols)
-            R_ear = self._eye_aspect_ratio(landmark_reye)
-            ear_signal_current[frame] = (L_ear + R_ear) /2
+        # PERCLOS
+        landmark_leye = self._ROI_coord_extract(face_landmarks, 'left_eye', img_rows, img_cols)
+        L_ear = self._eye_aspect_ratio(landmark_leye)
+        landmark_reye = self._ROI_coord_extract(face_landmarks, 'right_eye', img_rows, img_cols)
+        R_ear = self._eye_aspect_ratio(landmark_reye)
+        ear_signal_current[frame] = (L_ear + R_ear) /2
 
-            # Show visualizations
-            if visualize_ROI:
-                self._visualize_ROI(frameTrk, landmark_leye, landmark_reye)
-            
-            if visualize_FaceMesh:
-                self._visualize_FaceMesh(frameTrk, face_landmarks, results_face, mp_drawing_styles, mp_drawing, mp_face_mesh)
+        # # Show visualizations
+        # if visualize_ROI:
+        #     self._visualize_ROI(frameTrk, landmark_leye, landmark_reye)
         
-        print(f"{frame_num}: Worker exiting...")
+        # if visualize_FaceMesh:
+        #     self._visualize_FaceMesh(frameTrk, face_landmarks, results_face, mp_drawing_styles, mp_drawing, mp_face_mesh)
+        
+        # print(f"{frame_num}: Worker exiting...")
 
     def _visualize_ROI(self, frameTrk, landmark_leye, landmark_reye):
         # Draw the face mesh annotations on the image and display
