@@ -19,7 +19,12 @@ if __name__ == '__main__':
     # Create a pool of 16 worker processes
     with mp.Pool(processes=16) as pool:
         # Call worker_function() for each index in the shared array
-        pool.starmap(worker_function, [(i, shared_arr) for i in range(arr_size)])
+        # pool.starmap(worker_function, [(i, shared_arr) for i in range(arr_size)])
+
+        results = [pool.apply_async(worker_function, args=(i, shared_arr)) for i in range(arr_size)]
+        for r in results:
+            r.wait()
+
 
     # Print the contents of the shared array
     print(shared_arr)
