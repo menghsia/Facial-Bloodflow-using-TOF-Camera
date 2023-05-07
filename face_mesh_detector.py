@@ -108,11 +108,30 @@ class FaceMeshDetector():
                     
                     # Loop through all frames
                     for frame in range(num_frames):
-                        self._process_single_frame(x_all=x_all, y_all=y_all, z_all=z_all, gray_all=gray_all,
-                                                   img_rows=img_rows, img_cols=img_cols, frame=frame, face_mesh=face_mesh,
-                                                   intensity_signal_current=intensity_signal_current, depth_signal_current=depth_signal_current, ear_signal_current=ear_signal_current,
-                                                   mp_drawing=mp_drawing, mp_drawing_styles=mp_drawing_styles, mp_face_mesh=mp_face_mesh,
-                                                   visualize_ROI=visualize_ROI, visualize_FaceMesh=visualize_FaceMesh)
+                        # Why are we using int32? The data we load in is int16.
+                        # Output with int16 was equivalent to output with int32.
+                        # int16 runtime was a little faster (1 second faster on 600 frame file).
+                        # xSig = x_all[:, :, frame].astype('int32')
+                        # ySig = y_all[:, :, frame].astype('int32')
+                        # zSig = z_all[:, :, frame].astype('int32')
+                        # x_frame = x_all[:, :, frame].astype('int16')
+                        # y_frame = y_all[:, :, frame].astype('int16')
+                        # z_frame = z_all[:, :, frame].astype('int16')
+                        frame_x = x_all[:, :, frame]
+                        frame_y = y_all[:, :, frame]
+                        frame_z = z_all[:, :, frame]
+                        frame_gray = gray_all[:, :, frame]
+
+                        frame_data = (frame_x, frame_y, frame_z, frame_gray)
+                        
+                        self._process_single_frame(frame_data=frame_data, frame=frame,
+                                                   img_rows=img_rows, img_cols=img_cols,
+                                                   face_mesh=face_mesh,
+                                                   intensity_signal_current=intensity_signal_current,
+                                                   depth_signal_current=depth_signal_current,
+                                                   ear_signal_current=ear_signal_current,
+                                                   visualize_ROI=visualize_ROI, visualize_FaceMesh=visualize_FaceMesh,
+                                                   mp_drawing=mp_drawing, mp_drawing_styles=mp_drawing_styles, mp_face_mesh=mp_face_mesh)
                         
 
 
@@ -151,27 +170,17 @@ class FaceMeshDetector():
         
         print('finished')
 
-    def _process_single_frame(self, x_all, y_all, z_all, gray_all,
-                              img_rows, img_cols, frame, face_mesh,
+    def _process_single_frame(self, frame_data, frame,
+                              img_rows, img_cols,
+                              face_mesh,
                               intensity_signal_current, depth_signal_current, ear_signal_current,
-                              mp_drawing, mp_drawing_styles, mp_face_mesh,
-                              visualize_ROI, visualize_FaceMesh):
-        # Track face and extract intensity and depth for all ROIs in this frame
-        frameTrk = self._mp_preprocess(gray_all[:, :, frame])
+                              visualize_ROI, visualize_FaceMesh,
+                              mp_drawing, mp_drawing_styles, mp_face_mesh):
+        # Unpack frame_data
+        frame_x, frame_y, frame_z, frame_gray = frame_data
 
-        # Why are we using int32? The data we load in is int16.
-        # Output with int16 was equivalent to output with int32.
-        # int16 runtime was a little faster (1 second faster on 600 frame file).
-        # xSig = x_all[:, :, frame].astype('int32')
-        # ySig = y_all[:, :, frame].astype('int32')
-        # zSig = z_all[:, :, frame].astype('int32')
-        # x_frame = x_all[:, :, frame].astype('int16')
-        # y_frame = y_all[:, :, frame].astype('int16')
-        # z_frame = z_all[:, :, frame].astype('int16')
-        x_frame = x_all[:, :, frame]
-        y_frame = y_all[:, :, frame]
-        z_frame = z_all[:, :, frame]
-        gray_frame = gray_all[:, :, frame]
+        # Track face and extract intensity and depth for all ROIs in this frame
+        frameTrk = self._mp_preprocess(frame_gray)
         
         # To improve performance, optionally mark the image as not writeable to
         # pass by reference.
@@ -198,18 +207,18 @@ class FaceMeshDetector():
             mask_low_forehead = self._vtx2mask(landmark_low_forehead, img_cols, img_rows)
 
             # calculate averaged intensity and depth for each ROI
-            intensity_signal_current[0, frame] = np.average(gray_frame[np.where(mask_nose > 0)])
-            depth_signal_current[0, frame] = np.sqrt(np.average(x_frame[np.where(mask_nose > 0)]) ** 2 + np.average(y_frame[np.where(mask_nose > 0)]) ** 2 + np.average(z_frame[np.where(mask_nose > 0)]) ** 2)
-            intensity_signal_current[1, frame] = np.average(gray_frame[np.where(mask_forehead > 0)])
-            depth_signal_current[1, frame] = np.sqrt(np.average(x_frame[np.where(mask_forehead > 0)]) ** 2 + np.average(y_frame[np.where(mask_forehead > 0)]) ** 2 + np.average(z_frame[np.where(mask_forehead > 0)]) ** 2)
-            intensity_signal_current[2, frame] = np.average(gray_frame[np.where(mask_cheek_and_nose > 0)])
-            depth_signal_current[2, frame] = np.sqrt(np.average(x_frame[np.where(mask_cheek_and_nose > 0)]) ** 2 + np.average(y_frame[np.where(mask_cheek_and_nose > 0)]) ** 2 + np.average(z_frame[np.where(mask_cheek_and_nose > 0)]) ** 2)
-            intensity_signal_current[3, frame] = np.average(gray_frame[np.where(mask_left_cheek > 0)])
-            depth_signal_current[3, frame] = np.sqrt(np.average(x_frame[np.where(mask_left_cheek > 0)]) ** 2 + np.average(y_frame[np.where(mask_left_cheek > 0)]) ** 2 + np.average(z_frame[np.where(mask_left_cheek > 0)]) ** 2)
-            intensity_signal_current[4, frame] = np.average(gray_frame[np.where(mask_right_cheek > 0)])
-            depth_signal_current[4, frame] = np.sqrt(np.average(x_frame[np.where(mask_right_cheek > 0)]) ** 2 + np.average(y_frame[np.where(mask_right_cheek > 0)]) ** 2 + np.average(z_frame[np.where(mask_right_cheek > 0)]) ** 2)
-            intensity_signal_current[5, frame] = np.average(gray_frame[np.where(mask_low_forehead > 0)])
-            depth_signal_current[5, frame] = np.sqrt(np.average(x_frame[np.where(mask_low_forehead > 0)]) ** 2 + np.average(y_frame[np.where(mask_low_forehead > 0)]) ** 2 + np.average(z_frame[np.where(mask_low_forehead > 0)]) ** 2)
+            intensity_signal_current[0, frame] = np.average(frame_gray[np.where(mask_nose > 0)])
+            depth_signal_current[0, frame] = np.sqrt(np.average(frame_x[np.where(mask_nose > 0)]) ** 2 + np.average(frame_y[np.where(mask_nose > 0)]) ** 2 + np.average(frame_z[np.where(mask_nose > 0)]) ** 2)
+            intensity_signal_current[1, frame] = np.average(frame_gray[np.where(mask_forehead > 0)])
+            depth_signal_current[1, frame] = np.sqrt(np.average(frame_x[np.where(mask_forehead > 0)]) ** 2 + np.average(frame_y[np.where(mask_forehead > 0)]) ** 2 + np.average(frame_z[np.where(mask_forehead > 0)]) ** 2)
+            intensity_signal_current[2, frame] = np.average(frame_gray[np.where(mask_cheek_and_nose > 0)])
+            depth_signal_current[2, frame] = np.sqrt(np.average(frame_x[np.where(mask_cheek_and_nose > 0)]) ** 2 + np.average(frame_y[np.where(mask_cheek_and_nose > 0)]) ** 2 + np.average(frame_z[np.where(mask_cheek_and_nose > 0)]) ** 2)
+            intensity_signal_current[3, frame] = np.average(frame_gray[np.where(mask_left_cheek > 0)])
+            depth_signal_current[3, frame] = np.sqrt(np.average(frame_x[np.where(mask_left_cheek > 0)]) ** 2 + np.average(frame_y[np.where(mask_left_cheek > 0)]) ** 2 + np.average(frame_z[np.where(mask_left_cheek > 0)]) ** 2)
+            intensity_signal_current[4, frame] = np.average(frame_gray[np.where(mask_right_cheek > 0)])
+            depth_signal_current[4, frame] = np.sqrt(np.average(frame_x[np.where(mask_right_cheek > 0)]) ** 2 + np.average(frame_y[np.where(mask_right_cheek > 0)]) ** 2 + np.average(frame_z[np.where(mask_right_cheek > 0)]) ** 2)
+            intensity_signal_current[5, frame] = np.average(frame_gray[np.where(mask_low_forehead > 0)])
+            depth_signal_current[5, frame] = np.sqrt(np.average(frame_x[np.where(mask_low_forehead > 0)]) ** 2 + np.average(frame_y[np.where(mask_low_forehead > 0)]) ** 2 + np.average(frame_z[np.where(mask_low_forehead > 0)]) ** 2)
 
             # PERCLOS
             landmark_leye = self._ROI_coord_extract(face_landmarks, 'left_eye', img_rows, img_cols)
