@@ -6,6 +6,11 @@ def worker_function(i, shared_arr):
     shared_arr[i] = i * 2
 
 if __name__ == '__main__':
+    # # Create a shared array with 10 elements of type double
+    # arr_size = 10
+    # arr_type = ctypes.c_double * arr_size
+    # shared_arr = mp.Array(arr_type, arr_size, lock=False)
+
     # Create a Manager object and a shared array with 10 elements of type double
     manager = mp.Manager()
     arr_size = 10
@@ -17,4 +22,4 @@ if __name__ == '__main__':
         pool.starmap(worker_function, [(i, shared_arr) for i in range(arr_size)])
 
     # Print the contents of the shared array
-    print(list(shared_arr))
+    print(shared_arr)
