@@ -9,8 +9,11 @@ def worker_function(i, shared_arr):
     # Modify the shared array in-place
     shared_arr[i] = i * 2
 
-    # Wait randomly between 2 and 5 seconds
-    time.sleep(np.random.randint(2, 5))
+    # # Wait randomly between 2 and 5 seconds
+    # time.sleep(np.random.randint(2, 5))
+
+    # Wait 3 seconds
+    time.sleep(3)
 
     print(f"{i}: Worker exiting...")
 
@@ -28,20 +31,59 @@ if __name__ == '__main__':
     print("Before:")
     print(shared_arr)
 
+    start_time = time.time()
+
+    # # Create a pool of 16 worker processes
+    # with mp.Pool(processes=16) as pool:
+    #     # Call worker_function() for each index in the shared array
+    #     # pool.starmap(worker_function, [(i, shared_arr) for i in range(arr_size)])
+
+    #     results = []
+
+    #     # results = [pool.apply_async(worker_function, args=(i, shared_arr)) for i in range(arr_size)]
+
+    #     # for i in range(arr_size):
+    #     #     results.append(pool.apply_async(worker_function, args=(i, shared_arr)))
+
+    #     # for r in results:
+    #     #     r.wait()
+
+    #     # Queue each task using apply_async()
+    #     results = [pool.apply_async(worker_function, args=(i, shared_arr)) for i in range(arr_size)]
+
+    #     # # Start executing tasks as soon as they become available using imap_unordered()
+    #     # for r in pool.imap_unordered(lambda x: x.get(), results):
+    #     #     pass
+
+    #     # Wait for all processes to finish
+    #     pool.close()
+    #     pool.join()
+
+
+
+
+
+
     # Create a pool of 16 worker processes
-    with mp.Pool(processes=16) as pool:
-        # Call worker_function() for each index in the shared array
-        # pool.starmap(worker_function, [(i, shared_arr) for i in range(arr_size)])
+    num_threads = 16
+    pool = mp.Pool(processes=num_threads)
 
-        results = []
+    results = []
 
-        for i in range(arr_size):
-            results.append(pool.apply_async(worker_function, args=(i, shared_arr)))
+    # Queue each task using apply_async()
+    results = [pool.apply_async(worker_function, args=(i, shared_arr)) for i in range(arr_size)]
 
-        # results = [pool.apply_async(worker_function, args=(i, shared_arr)) for i in range(arr_size)]
+    # # Start executing tasks as soon as they become available using imap_unordered()
+    # for r in pool.imap_unordered(lambda x: x.get(), results):
+    #     pass
 
-        for r in results:
-            r.wait()
+    # Wait for all processes to finish
+    pool.close()
+    pool.join()
+
+    end_time = time.time()
+
+    print(f"Elapsed time: {end_time - start_time}")
 
 
     # Print the contents of the shared array
