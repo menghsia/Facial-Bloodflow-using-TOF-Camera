@@ -10,6 +10,7 @@ from scipy.io import savemat
 # from scipy.io import loadmat
 from typing import Tuple, Union
 from scipy.spatial import distance as dist
+from managed_shared_memory import ManagedSharedMemory
 
 # import h5py
 # import hdf5storage
@@ -29,12 +30,14 @@ class FaceMeshDetector():
         # height = 480
         img_rows = 480
 
+        num_ROIs = 7
+
         # Array of intensity signal arrays
         # Each element is (7, num_frames) = (7, 600) for 7 ROIs (regions of interest) and (likely) 600 frames per input video file
-        intensity_signals = np.zeros((7, 1))
+        intensity_signals = np.zeros((num_ROIs, 1))
 
         # Array of depth signal arrays
-        depth_signals = np.zeros((7, 1))
+        depth_signals = np.zeros((num_ROIs, 1))
 
         # Not sure what this is for
         ear_signal = np.zeros((1))
@@ -93,8 +96,8 @@ class FaceMeshDetector():
                     # 6: palm
 
                     # Arrays storing intensity and depth signals for all ROIs in this video clip (num_ROIs, num_frames) = (7, 600)
-                    intensity_signal_current = np.zeros((7, num_frames))
-                    depth_signal_current = np.zeros((7, num_frames))
+                    intensity_signal_current = np.zeros((num_ROIs, num_frames))
+                    depth_signal_current = np.zeros((num_ROIs, num_frames))
                     ear_signal_current = np.zeros(num_frames)
 
                     # Each array is currently (height*width, num_frames) = (480*640, num_frames) = (307200, num_frames)
