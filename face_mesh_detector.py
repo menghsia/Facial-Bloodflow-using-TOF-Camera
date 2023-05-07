@@ -184,14 +184,14 @@ class FaceMeshDetector():
                         # Queue each task using apply_async() so that the tasks are executed in parallel
                         # results = [pool.apply_async(worker_function, args=(i, managed_shared_buffer)) for i in range(num_frames)]
 
-                        results.append(pool.apply_async(self._process_single_frame, args=(frame_data=frame_data, frame=frame,
-                                                                                            img_rows=img_rows, img_cols=img_cols,
-                                                                                            face_mesh=face_mesh,
-                                                                                            intensity_signal_current_buffer=intensity_signal_current_buffer,
-                                                                                            depth_signal_current_buffer=depth_signal_current_buffer,
-                                                                                            ear_signal_current_buffer=ear_signal_current_buffer,
-                                                                                            visualize_ROI=visualize_ROI, visualize_FaceMesh=visualize_FaceMesh,
-                                                                                            mp_drawing=mp_drawing, mp_drawing_styles=mp_drawing_styles, mp_face_mesh=mp_face_mesh)))
+                        results.append(pool.apply_async(self._process_single_frame, args=(frame_data, frame,
+                                                                                            img_rows, img_cols,
+                                                                                            face_mesh,
+                                                                                            intensity_signal_current_buffer,
+                                                                                            depth_signal_current_buffer,
+                                                                                            ear_signal_current_buffer,
+                                                                                            visualize_ROI, visualize_FaceMesh,
+                                                                                            mp_drawing, mp_drawing_styles, mp_face_mesh)))
 
                     # Wait for all processes to finish
                     pool.close()
