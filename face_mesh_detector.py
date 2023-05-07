@@ -12,6 +12,7 @@ from typing import Tuple, Union
 from scipy.spatial import distance as dist
 import multiprocessing
 from managed_shared_memory import ManagedSharedMemory
+import dill
 
 # import h5py
 # import hdf5storage
@@ -171,6 +172,7 @@ class FaceMeshDetector():
                     pool = multiprocessing.Pool(processes=num_threads)
 
                     results = []
+                    result = None
                     
                     # Loop through all frames
                     for frame in range(num_frames):
@@ -184,14 +186,23 @@ class FaceMeshDetector():
                         # Queue each task using apply_async() so that the tasks are executed in parallel
                         # results = [pool.apply_async(worker_function, args=(i, managed_shared_buffer)) for i in range(num_frames)]
 
-                        results.append(pool.apply_async(self._process_single_frame, args=(frame_data, frame,
+                        result = pool.apply_async(self._process_single_frame, args=(frame_data, frame,
                                                                                             img_rows, img_cols,
                                                                                             face_mesh,
                                                                                             intensity_signal_current_buffer,
                                                                                             depth_signal_current_buffer,
                                                                                             ear_signal_current_buffer,
                                                                                             visualize_ROI, visualize_FaceMesh,
-                                                                                            mp_drawing, mp_drawing_styles, mp_face_mesh)))
+                                                                                            mp_drawing, mp_drawing_styles, mp_face_mesh))
+                        
+                        try:
+                            value = result.get()
+                            print(value)
+                        except Exception as e:
+                            print(f"Error: {e}")
+                            exit(1)
+
+                        results.append(result)
 
                     # Wait for all processes to finish
                     pool.close()
@@ -244,6 +255,10 @@ class FaceMeshDetector():
                               intensity_signal_current_buffer, depth_signal_current_buffer, ear_signal_current_buffer,
                               visualize_ROI, visualize_FaceMesh,
                               mp_drawing, mp_drawing_styles, mp_face_mesh):
+        frame_num = -1
+
+        print(f"{frame_num}: Worker starting...")
+        
         # Unpack frame_data
         frame_x, frame_y, frame_z, frame_gray = frame_data
 
@@ -306,7 +321,8 @@ class FaceMeshDetector():
             
             if visualize_FaceMesh:
                 self._visualize_FaceMesh(frameTrk, face_landmarks, results_face, mp_drawing_styles, mp_drawing, mp_face_mesh)
-        return
+        
+        print(f"{frame_num}: Worker exiting...")
 
     def _visualize_ROI(self, frameTrk, landmark_leye, landmark_reye):
         # Draw the face mesh annotations on the image and display
