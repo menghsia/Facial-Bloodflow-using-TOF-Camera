@@ -10,7 +10,9 @@ from scipy.io import savemat
 # from scipy.io import loadmat
 from typing import Tuple, Union
 from scipy.spatial import distance as dist
+import multiprocessing
 from managed_shared_memory import ManagedSharedMemory
+import dill
 
 # import h5py
 # import hdf5storage
@@ -63,6 +65,9 @@ class FaceMeshDetector():
         
         # drawing_spec = mp_drawing.DrawingSpec(thickness=1, circle_radius=1)
 
+        # Datatype to be used for shared memory buffer
+        shared_memory_dtype = np.float16
+
         # This might be worth trying to increase accuracy:
         # Increasing min_tracking_confidence [0.0, 1.0] will generally improve the quality of the landmarks at the expense of a higher latency.
         # To improve performance, optionally mark the image as not writeable to pass by reference.
@@ -94,11 +99,27 @@ class FaceMeshDetector():
                     # 4: right_cheek
                     # 5: low_forehead
                     # 6: palm
+                    
+                    # Shape that the shared memory buffer should be reshaped to after loading and before using
+                    shared_array_shape = (num_ROIs, num_frames)
+                    ear_shared_array_shape = (num_frames,)
 
                     # Arrays storing intensity and depth signals for all ROIs in this video clip (num_ROIs, num_frames) = (7, 600)
-                    intensity_signal_current = np.zeros((num_ROIs, num_frames))
-                    depth_signal_current = np.zeros((num_ROIs, num_frames))
-                    ear_signal_current = np.zeros(num_frames)
+                    # intensity_signal_current = np.zeros((num_ROIs, num_frames))
+                    # depth_signal_current = np.zeros((num_ROIs, num_frames))
+                    # ear_signal_current = np.zeros(num_frames)
+
+                    # Create managed shared memory buffers with num_ROIs*num_frames elements of type int16
+                    intensity_signal_current_buffer = ManagedSharedMemory(shared_memory_dtype, "intensity_signal_current_buffer_" + filename, shared_array_shape, zero_out_buffer=True)
+                    depth_signal_current_buffer = ManagedSharedMemory(shared_memory_dtype, "depth_signal_current_buffer_" + filename, shared_array_shape, zero_out_buffer=True)
+                    
+                    # Create managed shared memory buffers with num_frames elements of type int16
+                    ear_signal_current_buffer = ManagedSharedMemory(shared_memory_dtype, "ear_signal_current_buffer_" + filename, ear_shared_array_shape, zero_out_buffer=True)
+
+                    # Get numpy arrays from shared memory buffers
+                    intensity_signal_current_np_array = intensity_signal_current_buffer.get_numpy_array_from_shared_buffer()
+                    depth_signal_current_np_array = depth_signal_current_buffer.get_numpy_array_from_shared_buffer()
+                    ear_signal_current_np_array = ear_signal_current_buffer.get_numpy_array_from_shared_buffer()
 
                     # Each array is currently (height*width, num_frames) = (480*640, num_frames) = (307200, num_frames)
                     # Reshape to (height, width, num_frames) = (480, 640, num_frames)
@@ -109,32 +130,83 @@ class FaceMeshDetector():
 
                     # num_frames = np.size(gray_all, 2)
                     
+                    # # Loop through all frames
+                    # for frame in range(num_frames):
+                    #     # Why are we using int32? The data we load in is int16.
+                    #     # Output with int16 was equivalent to output with int32.
+                    #     # int16 runtime was a little faster (1 second faster on 600 frame file).
+                    #     # xSig = x_all[:, :, frame].astype('int32')
+                    #     # ySig = y_all[:, :, frame].astype('int32')
+                    #     # zSig = z_all[:, :, frame].astype('int32')
+                    #     # x_frame = x_all[:, :, frame].astype('int16')
+                    #     # y_frame = y_all[:, :, frame].astype('int16')
+                    #     # z_frame = z_all[:, :, frame].astype('int16')
+                    #     frame_x = x_all[:, :, frame]
+                    #     frame_y = y_all[:, :, frame]
+                    #     frame_z = z_all[:, :, frame]
+                    #     frame_gray = gray_all[:, :, frame]
+
+                    #     frame_data = (frame_x, frame_y, frame_z, frame_gray)
+                        
+                    #     self._process_single_frame(frame_data=frame_data, frame=frame,
+                    #                                img_rows=img_rows, img_cols=img_cols,
+                    #                                face_mesh=face_mesh,
+                    #                                intensity_signal_current=intensity_signal_current,
+                    #                                depth_signal_current=depth_signal_current,
+                    #                                ear_signal_current=ear_signal_current,
+                    #                                visualize_ROI=visualize_ROI, visualize_FaceMesh=visualize_FaceMesh,
+                    #                                mp_drawing=mp_drawing, mp_drawing_styles=mp_drawing_styles, mp_face_mesh=mp_face_mesh)
+                    
+
+
+
+
+                    # Get number of threads supported by the CPU
+                    num_threads = multiprocessing.cpu_count()
+
+                    # If the CPU does not support multithreading, set num_threads to 1 (single-threaded)
+                    if num_threads < 1:
+                        num_threads = 1
+
+                    # Create a pool with num_threads processes
+                    pool = multiprocessing.Pool(processes=num_threads)
+
+                    results = []
+                    result = None
+                    
                     # Loop through all frames
                     for frame in range(num_frames):
-                        # Why are we using int32? The data we load in is int16.
-                        # Output with int16 was equivalent to output with int32.
-                        # int16 runtime was a little faster (1 second faster on 600 frame file).
-                        # xSig = x_all[:, :, frame].astype('int32')
-                        # ySig = y_all[:, :, frame].astype('int32')
-                        # zSig = z_all[:, :, frame].astype('int32')
-                        # x_frame = x_all[:, :, frame].astype('int16')
-                        # y_frame = y_all[:, :, frame].astype('int16')
-                        # z_frame = z_all[:, :, frame].astype('int16')
                         frame_x = x_all[:, :, frame]
                         frame_y = y_all[:, :, frame]
                         frame_z = z_all[:, :, frame]
                         frame_gray = gray_all[:, :, frame]
 
                         frame_data = (frame_x, frame_y, frame_z, frame_gray)
+
+                        # Queue each task using apply_async() so that the tasks are executed in parallel
+                        # results = [pool.apply_async(worker_function, args=(i, managed_shared_buffer)) for i in range(num_frames)]
+
+                        result = pool.apply_async(self._process_single_frame, args=(frame_data, frame,
+                                                                                            img_rows, img_cols,
+                                                                                            face_mesh,
+                                                                                            intensity_signal_current_buffer,
+                                                                                            depth_signal_current_buffer,
+                                                                                            ear_signal_current_buffer,
+                                                                                            visualize_ROI, visualize_FaceMesh,
+                                                                                            mp_drawing, mp_drawing_styles, mp_face_mesh))
                         
-                        self._process_single_frame(frame_data=frame_data, frame=frame,
-                                                   img_rows=img_rows, img_cols=img_cols,
-                                                   face_mesh=face_mesh,
-                                                   intensity_signal_current=intensity_signal_current,
-                                                   depth_signal_current=depth_signal_current,
-                                                   ear_signal_current=ear_signal_current,
-                                                   visualize_ROI=visualize_ROI, visualize_FaceMesh=visualize_FaceMesh,
-                                                   mp_drawing=mp_drawing, mp_drawing_styles=mp_drawing_styles, mp_face_mesh=mp_face_mesh)
+                        try:
+                            value = result.get()
+                            print(value)
+                        except Exception as e:
+                            print(f"Error: {e}")
+                            exit(1)
+
+                        results.append(result)
+
+                    # Wait for all processes to finish
+                    pool.close()
+                    pool.join()
                         
 
 
@@ -159,9 +231,13 @@ class FaceMeshDetector():
 
 
 
-                    intensity_signals = np.concatenate((intensity_signals, intensity_signal_current), axis=1)
-                    depth_signals = np.concatenate((depth_signals, depth_signal_current), axis=1)
-                    ear_signal = np.concatenate((ear_signal, ear_signal_current),axis=0)
+                    intensity_signals = np.concatenate((intensity_signals, intensity_signal_current_np_array), axis=1)
+                    depth_signals = np.concatenate((depth_signals, depth_signal_current_np_array), axis=1)
+                    ear_signal = np.concatenate((ear_signal, ear_signal_current_np_array),axis=0)
+
+                    intensity_signal_current_buffer.clean_up()
+                    depth_signal_current_buffer.clean_up()
+                    ear_signal_current_buffer.clean_up()
 
 
                     
@@ -176,11 +252,20 @@ class FaceMeshDetector():
     def _process_single_frame(self, frame_data, frame,
                               img_rows, img_cols,
                               face_mesh,
-                              intensity_signal_current, depth_signal_current, ear_signal_current,
+                              intensity_signal_current_buffer, depth_signal_current_buffer, ear_signal_current_buffer,
                               visualize_ROI, visualize_FaceMesh,
                               mp_drawing, mp_drawing_styles, mp_face_mesh):
+        frame_num = -1
+
+        print(f"{frame_num}: Worker starting...")
+        
         # Unpack frame_data
         frame_x, frame_y, frame_z, frame_gray = frame_data
+
+        # Load the shared memory buffer into a numpy array so we can use numpy functions on it
+        intensity_signal_current = intensity_signal_current_buffer.get_numpy_array_from_shared_buffer()
+        depth_signal_current = depth_signal_current_buffer.get_numpy_array_from_shared_buffer()
+        ear_signal_current = ear_signal_current_buffer.get_numpy_array_from_shared_buffer()
 
         # Track face and extract intensity and depth for all ROIs in this frame
         frameTrk = self._mp_preprocess(frame_gray)
@@ -236,7 +321,8 @@ class FaceMeshDetector():
             
             if visualize_FaceMesh:
                 self._visualize_FaceMesh(frameTrk, face_landmarks, results_face, mp_drawing_styles, mp_drawing, mp_face_mesh)
-        return
+        
+        print(f"{frame_num}: Worker exiting...")
 
     def _visualize_ROI(self, frameTrk, landmark_leye, landmark_reye):
         # Draw the face mesh annotations on the image and display
@@ -543,4 +629,4 @@ if __name__ == "__main__":
     skvs_dir = os.path.join(os.getcwd(), 'skvs')
 
     myFaceMeshDetector = FaceMeshDetector(input_dir=os.path.join(skvs_dir, "mat"), output_filename="auto_bfsig")
-    myFaceMeshDetector.run()
+    myFaceMeshDetector.run(visualize_ROI=False, visualize_FaceMesh=False)
