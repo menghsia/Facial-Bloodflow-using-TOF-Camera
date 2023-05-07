@@ -66,7 +66,7 @@ class FaceMeshDetector():
         # drawing_spec = mp_drawing.DrawingSpec(thickness=1, circle_radius=1)
 
         # Datatype to be used for shared memory buffer
-        shared_memory_dtype = np.float16
+        shared_memory_dtype = np.float64
 
         # This might be worth trying to increase accuracy:
         # Increasing min_tracking_confidence [0.0, 1.0] will generally improve the quality of the landmarks at the expense of a higher latency.
@@ -170,6 +170,7 @@ class FaceMeshDetector():
 
                     # Create a pool with num_threads processes
                     pool = multiprocessing.Pool(processes=num_threads)
+                    # pool = multiprocessing.Pool(processes=1)
 
                     results = []
                     result = None
