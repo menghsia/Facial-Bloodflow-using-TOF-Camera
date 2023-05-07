@@ -7,7 +7,7 @@ def worker_process(shared_buffer, frame_num, num_ROIs, num_frames):
 
     shared_np_arr = np.frombuffer(shared_buffer.get_obj(), dtype=np.int16).reshape(num_ROIs, num_frames)
     
-    shared_np_arr[:, frame_num] = frame_num
+    shared_np_arr[:, frame_num] = frame_num + 1
 
 if __name__ == '__main__':
     # multiprocessing.freeze_support()
