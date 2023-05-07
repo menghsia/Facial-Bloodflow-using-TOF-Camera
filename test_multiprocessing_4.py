@@ -18,18 +18,26 @@ def worker_function(i, shared_arr):
     print(f"{i}: Worker exiting...")
 
 if __name__ == '__main__':
+    # num_ROIs = 7
+    # num_frames = 40
+
     # # Create a shared array with 10 elements of type double
     # arr_size = 10
     # arr_type = ctypes.c_double * arr_size
     # shared_arr = mp.Array(arr_type, arr_size, lock=False)
 
-    # Create a Manager object and a shared array with 10 elements of type double
+    # Create a Manager object
     manager = mp.Manager()
+
+    # Create a shared array with 10 elements of type double
     arr_size = 40
-    shared_arr = manager.list([0.0] * arr_size)
+    shared_buffer = manager.list([0.0] * arr_size)
+
+    # # Create a shared memory buffer using the Manager object
+    # shared_buffer = manager.Array('h', num_ROIs * num_frames)
 
     print("Before:")
-    print(shared_arr)
+    print(shared_buffer)
 
     start_time = time.time()
 
@@ -71,7 +79,7 @@ if __name__ == '__main__':
     results = []
 
     # Queue each task using apply_async()
-    results = [pool.apply_async(worker_function, args=(i, shared_arr)) for i in range(arr_size)]
+    results = [pool.apply_async(worker_function, args=(i, shared_buffer)) for i in range(arr_size)]
 
     # # Start executing tasks as soon as they become available using imap_unordered()
     # for r in pool.imap_unordered(lambda x: x.get(), results):
@@ -88,4 +96,4 @@ if __name__ == '__main__':
 
     # Print the contents of the shared array
     print("After:")
-    print(shared_arr)
+    print(shared_buffer)
