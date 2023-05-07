@@ -9,6 +9,12 @@ def worker_function(frame_num, shared_buffer, shared_memory_dtype, shared_array_
 
     # Load the shared memory buffer into a numpy array so we can use numpy functions on it
     shared_np_arr = create_numpy_array_from_shared_buffer(shared_buffer, shared_memory_dtype, shared_array_shape)
+
+    # Wait randomly between 2 and 5 seconds
+    # time.sleep(np.random.randint(2, 5))
+
+    # Wait 3 seconds
+    # time.sleep(3)
     
     shared_np_arr[:, frame_num] = frame_num + 1
 
