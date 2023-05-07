@@ -14,6 +14,7 @@ if __name__ == '__main__':
 
     num_ROIs = 7
     # num_frames = 600
+    # num_frames = 50
     num_frames = 5
 
     # Create a shared array of 7*600=4200 int16 values
