@@ -83,6 +83,8 @@ class FaceMeshDetector():
             num_threads = 1
         elif num_threads < 1:
             num_threads = 1
+        
+        print(f"Using {num_threads} threads")
 
         tasks = []
         new_task = None
