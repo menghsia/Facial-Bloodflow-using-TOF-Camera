@@ -2,11 +2,16 @@ import concurrent.futures
 import threading
 import time
 import os
+import numpy as np
 
-def process_number(number):
-    result = number ** 2
-    print(f"Thread {threading.current_thread().name}: {number} squared is {result}")
-    time.sleep(2)
+def worker_function(idx, shared_array):
+    print(f"{threading.current_thread().name}: starting...")
+
+    # Do work
+    result = idx ** 2
+    shared_array[idx] = result
+
+    print(f"{threading.current_thread().name}: finished")
 
 # Get the number of available threads
 num_threads = os.cpu_count()
@@ -23,10 +28,23 @@ print(f"Using {num_threads} threads")
 with concurrent.futures.ThreadPoolExecutor(max_workers=num_threads) as executor:
     # Submit tasks to the ThreadPool
 
-    # Create array of numbers from 1 to 35
-    numbers = range(1, 36)
-    
-    futures = [executor.submit(process_number, num) for num in numbers]
+    num_tasks = 35
+
+    # Create a shared array of num_tasks elements
+    shared_array = np.zeros(num_tasks, dtype=np.int32)
+
+    print(f"shared_array before: {shared_array}")
+
+    # Create array of numbers from 0 to num_tasks
+    shared_indices = np.arange(num_tasks)
+
+    futures = []
+
+    for idx in shared_indices:
+        new_future = executor.submit(worker_function, idx, shared_array)
+        futures.append(new_future)
 
     # Wait for the tasks to complete
     concurrent.futures.wait(futures)
+
+    print(f"shared_array after: {shared_array}")
