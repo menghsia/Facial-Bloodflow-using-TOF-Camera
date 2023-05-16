@@ -73,6 +73,8 @@ class FaceMeshDetector():
         # To improve performance, optionally mark the image as not writeable to pass by reference.
         # with mp_face_mesh.FaceMesh(static_image_mode=False, max_num_faces=1, refine_landmarks=True, min_detection_confidence=0.5, min_tracking_confidence=0.5) as face_mesh:
 
+        # Let's try multithreading rather than multiprocessing
+
         with mp_face_mesh.FaceMesh(static_image_mode=False, max_num_faces=1, refine_landmarks=True, min_detection_confidence=0.5, min_tracking_confidence=0.5) as face_mesh:
             with mp_hands.Hands(model_complexity=0, min_detection_confidence=0.5, min_tracking_confidence=0.5) as hands:
                 # Loop through each file
