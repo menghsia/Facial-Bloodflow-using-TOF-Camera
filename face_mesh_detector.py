@@ -63,9 +63,6 @@ class FaceMeshDetector():
         
         # drawing_spec = mp_drawing.DrawingSpec(thickness=1, circle_radius=1)
 
-        # Datatype to be used for shared memory buffer
-        shared_memory_dtype = np.float64
-
         # This might be worth trying to increase accuracy:
         # Increasing min_tracking_confidence [0.0, 1.0] will generally improve the quality of the landmarks at the expense of a higher latency.
         # To improve performance, optionally mark the image as not writeable to pass by reference.
@@ -114,13 +111,7 @@ class FaceMeshDetector():
                         # 5: low_forehead
                         # 6: palm
 
-                        # comment for commit
-                        
-                        # Shape that the shared memory buffer should be reshaped to after loading and before using
-                        shared_array_shape = (num_ROIs, num_frames)
-                        ear_shared_array_shape = (num_frames,)
-
-                        # Arrays storing intensity and depth signals for all ROIs in this video clip (num_ROIs, num_frames) = (7, 600)
+                        # Create arrays to store intensity and depth signals for all ROIs in this video clip (num_ROIs, num_frames) = (7, 600)
                         intensity_signal_current = np.zeros((num_ROIs, num_frames))
                         depth_signal_current = np.zeros((num_ROIs, num_frames))
                         ear_signal_current = np.zeros(num_frames)
@@ -131,41 +122,6 @@ class FaceMeshDetector():
                         y_all = y_all.reshape([img_rows, img_cols, num_frames])
                         z_all = z_all.reshape([img_rows, img_cols, num_frames])
                         gray_all = gray_all.reshape([img_rows, img_cols, num_frames])
-
-                        # num_frames = np.size(gray_all, 2)
-                        
-                        # # Loop through all frames
-                        # for frame in range(num_frames):
-                        #     # Why are we using int32? The data we load in is int16.
-                        #     # Output with int16 was equivalent to output with int32.
-                        #     # int16 runtime was a little faster (1 second faster on 600 frame file).
-                        #     # xSig = x_all[:, :, frame].astype('int32')
-                        #     # ySig = y_all[:, :, frame].astype('int32')
-                        #     # zSig = z_all[:, :, frame].astype('int32')
-                        #     # x_frame = x_all[:, :, frame].astype('int16')
-                        #     # y_frame = y_all[:, :, frame].astype('int16')
-                        #     # z_frame = z_all[:, :, frame].astype('int16')
-                        #     frame_x = x_all[:, :, frame]
-                        #     frame_y = y_all[:, :, frame]
-                        #     frame_z = z_all[:, :, frame]
-                        #     frame_gray = gray_all[:, :, frame]
-
-                        #     frame_data = (frame_x, frame_y, frame_z, frame_gray)
-                            
-                        #     self._process_single_frame(frame_data=frame_data, frame=frame,
-                        #                                img_rows=img_rows, img_cols=img_cols,
-                        #                                face_mesh=face_mesh,
-                        #                                intensity_signal_current=intensity_signal_current,
-                        #                                depth_signal_current=depth_signal_current,
-                        #                                ear_signal_current=ear_signal_current,
-                        #                                visualize_ROI=visualize_ROI, visualize_FaceMesh=visualize_FaceMesh,
-                        #                                mp_drawing=mp_drawing, mp_drawing_styles=mp_drawing_styles, mp_face_mesh=mp_face_mesh)
-                        
-
-
-
-
-                        
                         
                         # Loop through all frames
                         for frame in range(num_frames):
@@ -204,8 +160,6 @@ class FaceMeshDetector():
                         intensity_signals = np.concatenate((intensity_signals, intensity_signal_current), axis=1)
                         depth_signals = np.concatenate((depth_signals, depth_signal_current), axis=1)
                         ear_signal = np.concatenate((ear_signal, ear_signal_current),axis=0)
-
-
                     
         intensity_signals = np.delete(intensity_signals, 0, 1)
         depth_signals = np.delete(depth_signals, 0, 1)
@@ -219,24 +173,10 @@ class FaceMeshDetector():
                               img_rows, img_cols,
                               intensity_signal_current, depth_signal_current, ear_signal_current,
                               face_landmarks):
-        frame_num = -1
-
         # print(f"{frame_num}: Worker starting...")
         
         # Unpack frame_data
         frame_x, frame_y, frame_z, frame_gray = frame_data
-
-        # # Track face and extract intensity and depth for all ROIs in this frame
-        # frameTrk = self._mp_preprocess(frame_gray)
-        
-        # # To improve performance, optionally mark the image as not writeable to
-        # # pass by reference.
-        # frameTrk.flags.writeable = False
-        # frameTrk = cv2.cvtColor(frameTrk, cv2.COLOR_BGR2RGB)
-        # results_face = face_mesh.process(frameTrk)
-        # # results_hand = hands.process(frameTrk)
-
-        # face_landmarks = results_face.multi_face_landmarks[0]
 
         # find the ROI vertices
         landmark_forehead = self._ROI_coord_extract(face_landmarks, 'forehead', img_rows, img_cols)
