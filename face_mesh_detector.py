@@ -201,47 +201,9 @@ class FaceMeshDetector():
                                                                                                     ear_signal_current,
                                                                                                     face_landmarks)
                                 tasks.append(new_task)
-                                # result = pool.apply_async(self._process_single_frame, args=(frame_data, frame,
-                                #                                                                     img_rows, img_cols,
-                                #                                                                     intensity_signal_current_buffer,
-                                #                                                                     depth_signal_current_buffer,
-                                #                                                                     ear_signal_current_buffer,
-                                #                                                                     face_landmarks))
-                            
-                                # try:
-                                #     value = result.get()
-                                #     # print(value)
-                                # except Exception as e:
-                                #     print(f"Error: {e}")
-                                #     exit(1)
-
-                            # results.append(result)
 
                         # Wait for the tasks to complete
                         concurrent.futures.wait(tasks)
-                            
-
-
-
-
-
-                        # Change _process_single_frame to return intensity_signal_current, depth_signal_current, ear_signal_current instead of modifying them in-place.
-                        # This will allow us to use multiprocessing. Python multiprocessing copies variables to each process, so we can't modify them in-place.
-                        # Maybe then we can do this(?):
-                        # intensity_signals[:, file_num - 1] = intensity_signal_current
-                        # depth_signals[:, file_num - 1] = depth_signal_current
-                        # ear_signal[file_num - 1] = ear_signal_current
-
-                        # Another idea: Shared arrays
-
-
-
-
-
-
-
-
-
 
                         intensity_signals = np.concatenate((intensity_signals, intensity_signal_current), axis=1)
                         depth_signals = np.concatenate((depth_signals, depth_signal_current), axis=1)
