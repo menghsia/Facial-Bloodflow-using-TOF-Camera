@@ -213,7 +213,7 @@ class FaceMeshDetector():
         R_ear = self._eye_aspect_ratio(landmark_reye)
         ear_signal_current[frame] = (L_ear + R_ear) /2
 
-        # # Show visualizations
+        # # Show visualizations (Disabled to improve performance. Also, not currently working.)
         # if visualize_ROI:
         #     self._visualize_ROI(frameTrk, landmark_leye, landmark_reye)
         
