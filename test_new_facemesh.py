@@ -115,7 +115,7 @@ annotated_image = draw_landmarks_on_image(image.numpy_view(), detection_result)
 cv2_imshow(cv2.cvtColor(annotated_image, cv2.COLOR_RGB2BGR))
 
 # Display bar graph of face blendshapes category scores
-plot_face_blendshapes_bar_graph(detection_result.face_blendshapes[0])
+# plot_face_blendshapes_bar_graph(detection_result.face_blendshapes[0])
 
-# Print transformation matrix
-print(detection_result.facial_transformation_matrixes)
+# Print transformation matrixes
+# print(detection_result.facial_transformation_matrixes)
