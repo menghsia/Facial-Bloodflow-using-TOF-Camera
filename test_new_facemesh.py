@@ -12,9 +12,6 @@ from mediapipe.tasks.python import vision
 urllib.request.urlretrieve("https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
                            "face_landmarker_v2_with_blendshapes.task")
 
-# @markdown We implemented some functions to visualize the face landmark detection results. <br/> Run the following cell to activate the functions.
-
-
 def draw_landmarks_on_image(rgb_image, detection_result):
     face_landmarks_list = detection_result.face_landmarks
     annotated_image = np.copy(rgb_image)
