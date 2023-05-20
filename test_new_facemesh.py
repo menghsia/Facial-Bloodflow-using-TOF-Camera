@@ -8,9 +8,9 @@ import mediapipe as mp
 from mediapipe.tasks import python as mp_python
 from mediapipe.tasks.python import vision
 
-# Get the face_landmarker_v2_with_blendshapes.task model file
-urllib.request.urlretrieve("https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
-                           "face_landmarker_v2_with_blendshapes.task")
+# # Get the face_landmarker_v2_with_blendshapes.task model file
+# urllib.request.urlretrieve("https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
+#                            "face_landmarker_v2_with_blendshapes.task")
 
 
 def draw_landmarks_on_image(rgb_image, detection_result):
@@ -84,36 +84,41 @@ def cv2_imshow(img, window_name="Image Window"):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
+def run_sample():
+    # Download input image
+    urllib.request.urlretrieve(
+        "https://storage.googleapis.com/mediapipe-assets/portrait.jpg", "image.jpg")
 
-# Download input image
-urllib.request.urlretrieve(
-    "https://storage.googleapis.com/mediapipe-assets/portrait.jpg", "image.jpg")
+    img = cv2.imread("image.jpg")
+    # Display the input image
+    cv2_imshow(img)
 
-img = cv2.imread("image.jpg")
-# Display the input image
-cv2_imshow(img)
+    # STEP 2: Create an FaceLandmarker object.
+    base_options = mp_python.BaseOptions(
+        model_asset_path='face_landmarker_v2_with_blendshapes.task')
+    options = vision.FaceLandmarkerOptions(base_options=base_options,
+                                        output_face_blendshapes=True,
+                                        output_facial_transformation_matrixes=True,
+                                        num_faces=1)
+    detector = vision.FaceLandmarker.create_from_options(options)
 
-# STEP 2: Create an FaceLandmarker object.
-base_options = mp_python.BaseOptions(
-    model_asset_path='face_landmarker_v2_with_blendshapes.task')
-options = vision.FaceLandmarkerOptions(base_options=base_options,
-                                       output_face_blendshapes=True,
-                                       output_facial_transformation_matrixes=True,
-                                       num_faces=1)
-detector = vision.FaceLandmarker.create_from_options(options)
+    # STEP 3: Load the input image.
+    image = mp.Image.create_from_file("image.jpg")
 
-# STEP 3: Load the input image.
-image = mp.Image.create_from_file("image.jpg")
+    # STEP 4: Detect face landmarks from the input image.
+    detection_result = detector.detect(image)
 
-# STEP 4: Detect face landmarks from the input image.
-detection_result = detector.detect(image)
+    # STEP 5: Process the detection result. In this case, visualize it.
+    annotated_image = draw_landmarks_on_image(image.numpy_view(), detection_result)
+    cv2_imshow(cv2.cvtColor(annotated_image, cv2.COLOR_RGB2BGR))
 
-# STEP 5: Process the detection result. In this case, visualize it.
-annotated_image = draw_landmarks_on_image(image.numpy_view(), detection_result)
-cv2_imshow(cv2.cvtColor(annotated_image, cv2.COLOR_RGB2BGR))
+    # Display bar graph of face blendshapes category scores
+    # plot_face_blendshapes_bar_graph(detection_result.face_blendshapes[0])
 
-# Display bar graph of face blendshapes category scores
-# plot_face_blendshapes_bar_graph(detection_result.face_blendshapes[0])
+    # Print transformation matrixes
+    # print(detection_result.facial_transformation_matrixes)
 
-# Print transformation matrixes
-# print(detection_result.facial_transformation_matrixes)
+    return
+
+if __name__ == "__main__":
+    run_sample()
