@@ -136,32 +136,6 @@ def _read_binary_file(filepath):
         return x_all, y_all, z_all, gray_all
 
 
-def _mp_preprocess(frameTrk, divisor=4):
-        frameTrk = frameTrk.astype(float)
-        frameTrk = frameTrk / divisor
-        frameTrk[np.where(frameTrk > 255)] = 255
-        frameTrk = frameTrk.astype('uint8')
-        image_3chnl = np.stack((frameTrk,) * 3, axis=-1)
-
-        return image_3chnl
-
-
-def _convert_camera_grayscale_to_3_channel_RGB(frame_gray: np.ndarray, illumination_multiplier: float = 0.25) -> np.ndarray:
-    """
-    Takes input an (n,d) grayscale image in the format outputted by IMX520.
-    1. Converts it to a 3-channel RGB image where all three channels are equal.
-    2. Multiplies the image by a constant to alter the brightness.
-    
-    Returns an (n,d,3) "RGB" image.
-    """
-    frameTrk = frame_gray.astype(float)
-    frameTrk = frameTrk * illumination_multiplier
-    frameTrk[np.where(frameTrk > 255)] = 255
-    frameTrk = frameTrk.astype('uint8')
-    image_3chnl = np.stack((frameTrk,) * 3, axis=-1)
-    return image_3chnl
-
-
 def _convert_camera_confidence_to_grayscale(confidence_array: np.ndarray) -> np.ndarray:
     """
     Takes input an (n,d) confidence image in the format outputted by the IMX520 camera.
@@ -171,15 +145,29 @@ def _convert_camera_confidence_to_grayscale(confidence_array: np.ndarray) -> np.
     
     Returns an (n,d,3) "RGB" array.
     """
-    # Normalize the confidence values to the desired range
-    min_val = np.min(confidence_array)
-    max_val = np.max(confidence_array)
-    normalized_data = (confidence_array - min_val) / (max_val - min_val)
 
-    # Map the normalized data to the range [0, 255]
-    grayscale_image = (normalized_data * 255).astype(np.uint8)
+    divisor = 4
+    
+    frameTrk = confidence_array.astype(float)
+    frameTrk = frameTrk / divisor
+    frameTrk[np.where(frameTrk > 255)] = 255
+    frameTrk = frameTrk.astype('uint8')
+    image_3chnl = np.stack((frameTrk,) * 3, axis=-1)
 
-    return grayscale_image
+    return image_3chnl
+
+    # # This is a new implementation that I believe should be more resilient to
+    # # changes in the lighting conditions of the scene.
+
+    # # Normalize the confidence values to the range [0, 1]
+    # min_val = np.min(confidence_array)
+    # max_val = np.max(confidence_array)
+    # normalized_data = (confidence_array - min_val) / (max_val - min_val)
+
+    # # Map the normalized data to the range [0, 255]
+    # grayscale_image = (normalized_data * 255).astype(np.uint8)
+
+    # return grayscale_image
 
 def run_facemesh():
     # Get input images (frames of video(s))
