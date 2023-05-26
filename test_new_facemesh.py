@@ -278,9 +278,6 @@ def run_facemesh():
 
             # Convert confidence array to grayscale image
             frame_grayscale = _convert_camera_confidence_to_grayscale(frame_confidence)
-            
-            # Convert grayscale image to RGB
-            frame_grayscale = cv2.cvtColor(frame_grayscale, cv2.COLOR_GRAY2RGB)
 
             # Display the image
             cv2.imshow("Grayscale Image", frame_grayscale)
@@ -289,8 +286,8 @@ def run_facemesh():
             cv2.waitKey(10)
 
             # Load the input image
-            # mp_img = _convert_grayscale_image_to_MediaPipe_image(frame_grayscale)
-            mp_img = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame_grayscale)
+            mp_img = mp.Image(image_format=mp.ImageFormat.SRGB, data=cv2.cvtColor(frame_grayscale, cv2.COLOR_GRAY2RGB))
+            # mp_img = mp.Image(image_format=mp.ImageFormat.GRAY8, data=frame_grayscale)
 
             # STEP 4: Detect face landmarks from the input image.
             detection_result = detector.detect(mp_img)
