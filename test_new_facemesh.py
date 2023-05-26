@@ -125,36 +125,37 @@ def run_sample():
 
 
 def _read_binary_file(filepath):
-        x_all, y_all, z_all, gray_all = None, None, None, None
+        x_all, y_all, z_all, confidence_all = None, None, None, None
 
         with open(filepath, 'rb') as binary_file:
             x_all = np.frombuffer(binary_file.read(600 * 307200 * 2), dtype=np.int16).reshape((600, 307200)).transpose()
             y_all = np.frombuffer(binary_file.read(600 * 307200 * 2), dtype=np.int16).reshape((600, 307200)).transpose()
             z_all = np.frombuffer(binary_file.read(600 * 307200 * 2), dtype=np.int16).reshape((600, 307200)).transpose()
-            gray_all = np.frombuffer(binary_file.read(600 * 307200 * 2), dtype=np.int16).reshape((600, 307200)).transpose()
+            confidence_all = np.frombuffer(binary_file.read(600 * 307200 * 2), dtype=np.int16).reshape((600, 307200)).transpose()
 
-        return x_all, y_all, z_all, gray_all
+        return x_all, y_all, z_all, confidence_all
 
 
 def _convert_camera_confidence_to_grayscale(confidence_array: np.ndarray) -> np.ndarray:
     """
-    Takes input an (n,d) confidence image in the format outputted by the IMX520 camera.
-    1. Converts input to grayscale.
-    2. Stacks grayscale array to create (n,d,3) "RGB" array where all three channels
-    are equal arrays that are all grayscale.
-    
-    Returns an (n,d,3) "RGB" array.
+    Convert the input confidence array to grayscale and scale down the brightness to help
+    with face detection.
+
+    Args:
+        confidence_array: An (n, d) confidence image in the format outputted by the IMX520 camera.
+
+    Returns:
+        An (n, d) grayscale image containing grayscale intensity values in the range [0, 255].
     """
 
     divisor = 4
     
-    frameTrk = confidence_array.astype(float)
-    frameTrk = frameTrk / divisor
-    frameTrk[np.where(frameTrk > 255)] = 255
-    frameTrk = frameTrk.astype('uint8')
-    image_3chnl = np.stack((frameTrk,) * 3, axis=-1)
+    grayscale_img = confidence_array.astype(float)
+    grayscale_img = grayscale_img / divisor
+    grayscale_img[np.where(grayscale_img > 255)] = 255
+    grayscale_img = grayscale_img.astype('uint8')
 
-    return image_3chnl
+    return grayscale_img
 
     # # This is a new implementation that I believe should be more resilient to
     # # changes in the lighting conditions of the scene.
@@ -168,6 +169,24 @@ def _convert_camera_confidence_to_grayscale(confidence_array: np.ndarray) -> np.
     # grayscale_image = (normalized_data * 255).astype(np.uint8)
 
     # return grayscale_image
+
+def _convert_grayscale_image_to_MediaPipe_image(grayscale_img: np.ndarray) -> mp.Image:
+    """
+    Create a MediaPipe Image object from a grayscale image.
+
+    Args:
+        grayscale_img: A NumPy array representing the grayscale image with shape (height, width).
+
+    Returns:
+        An instance of `mp.Image` representing the grayscale image in MediaPipe format.
+    """    
+    # Set the image format
+    image_format = mp.ImageFormat.GRAY8
+
+    # Create the MediaPipe Image object with the provided arguments
+    image = mp.Image(image_format, grayscale_img)
+
+    return image
 
 def run_facemesh():
     # Get input images (frames of video(s))
@@ -222,10 +241,10 @@ def run_facemesh():
 
         # Load the file
         filepath = os.path.join(input_dir, filename + '.bin')
-        x_all, y_all, z_all, gray_all = _read_binary_file(filepath)
+        x_all, y_all, z_all, confidence_all = _read_binary_file(filepath)
 
         # Get number of frames (columns) in this video clip
-        num_frames = np.shape(gray_all)[1]
+        num_frames = np.shape(confidence_all)[1]
 
         # ROI indices:
         # 0: nose
@@ -246,36 +265,40 @@ def run_facemesh():
         x_all = x_all.reshape([img_rows, img_cols, num_frames])
         y_all = y_all.reshape([img_rows, img_cols, num_frames])
         z_all = z_all.reshape([img_rows, img_cols, num_frames])
-        gray_all = gray_all.reshape([img_rows, img_cols, num_frames])
+        confidence_all = confidence_all.reshape([img_rows, img_cols, num_frames])
         
         # Loop through all frames
         for frame in range(num_frames):
             frame_x = x_all[:, :, frame]
             frame_y = y_all[:, :, frame]
             frame_z = z_all[:, :, frame]
-            frame_gray = gray_all[:, :, frame]
+            frame_confidence = confidence_all[:, :, frame]
 
             # Send image through MediaPipe to get face landmarks
 
-            # frame_gray_3_channel = _mp_preprocess(frame_gray, divisor=4)
-            # frame_gray_3_channel = _convert_camera_grayscale_to_3_channel_RGB(frame_gray, illumination_multiplier=.25)
-            frame_gray_3_channel = _convert_camera_confidence_to_grayscale(frame_gray)
+            # Convert confidence array to grayscale image
+            frame_grayscale = _convert_camera_confidence_to_grayscale(frame_confidence)
+            
+            # Convert grayscale image to RGB
+            frame_grayscale = cv2.cvtColor(frame_grayscale, cv2.COLOR_GRAY2RGB)
 
-            # Print the range of values in the array
-            # print(f"frame_gray_3_channel range: [{np.min(frame_gray_3_channel)}, {np.max(frame_gray_3_channel)}]")
-
-            # Display the actual image we are about to process with MediaPipe
             # Display the image
-            cv2.imshow("Image", frame_gray_3_channel)
-
+            cv2.imshow("Grayscale Image", frame_grayscale)
             # Wait for a key press to close the window
             # cv2.waitKey(0)
             cv2.waitKey(10)
 
-            print("Image shown")
-
             # Load the input image
-            # image = mp.Image(frame_gray)
+            # mp_img = _convert_grayscale_image_to_MediaPipe_image(frame_grayscale)
+            mp_img = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame_grayscale)
+
+            # STEP 4: Detect face landmarks from the input image.
+            detection_result = detector.detect(mp_img)
+
+            # STEP 5: Process the detection result. In this case, visualize it.
+            annotated_image = draw_landmarks_on_image(mp_img.numpy_view(), detection_result)
+            cv2.imshow("Annotated Image", cv2.cvtColor(annotated_image, cv2.COLOR_RGB2BGR))
+            cv2.waitKey(10)
         
         # Close all OpenCV windows
         cv2.destroyAllWindows()
