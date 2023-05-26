@@ -281,7 +281,6 @@ def run_facemesh():
 
             # Display the image
             cv2.imshow("Grayscale Image", frame_grayscale)
-            # Wait for a key press to close the window
             # cv2.waitKey(0)
             cv2.waitKey(10)
 
