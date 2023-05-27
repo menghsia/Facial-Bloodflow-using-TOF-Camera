@@ -5,6 +5,7 @@ import cv2
 import numpy as np
 import mediapipe as mp
 import matplotlib.pyplot as plt
+from mediapipe.python.solutions import face_mesh as mp_face_mesh
 from PIL import Image, ImageDraw
 from scipy.io import savemat
 # from scipy.io import loadmat
@@ -56,7 +57,7 @@ class FaceMeshDetector():
         num_files_to_process = len(filelist)
         
         # Define MediaPipe detectors
-        mp_face_mesh = mp.solutions.face_mesh
+        my_mp_face_mesh = mp_face_mesh
         
         # drawing_spec = mp_drawing.DrawingSpec(thickness=1, circle_radius=1)
 
@@ -81,7 +82,7 @@ class FaceMeshDetector():
         
         # Let's try multithreading rather than multiprocessing
         with concurrent.futures.ThreadPoolExecutor(max_workers=num_threads) as thread_pool:
-            with mp_face_mesh.FaceMesh(static_image_mode=False, max_num_faces=1, refine_landmarks=True, min_detection_confidence=0.5, min_tracking_confidence=0.5) as face_mesh:
+            with my_mp_face_mesh.FaceMesh(static_image_mode=False, max_num_faces=1, refine_landmarks=True, min_detection_confidence=0.5, min_tracking_confidence=0.5) as my_face_mesh:
                 # Loop through each file
                 for filename in filelist:
                     file_num = file_num + 1
@@ -130,7 +131,7 @@ class FaceMeshDetector():
                         # pass by reference.
                         frame_grayscale.flags.writeable = False
                         frame_grayscale = cv2.cvtColor(frame_grayscale, cv2.COLOR_BGR2RGB)
-                        results_face = face_mesh.process(frame_grayscale)
+                        results_face = my_face_mesh.process(frame_grayscale)
                         # results_hand = hands.process(frameTrk)
 
                         if results_face.multi_face_landmarks:
