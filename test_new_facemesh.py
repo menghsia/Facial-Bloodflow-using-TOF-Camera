@@ -280,8 +280,8 @@ def run_facemesh():
             frame_grayscale = _convert_camera_confidence_to_grayscale(frame_confidence)
 
             # Display the image
-            # cv2.imshow("Grayscale Image", frame_grayscale)
-            # cv2.waitKey(10)
+            cv2.imshow("Grayscale Image", frame_grayscale)
+            cv2.waitKey(10)
 
             # Load the input image
             mp_img = mp.Image(image_format=mp.ImageFormat.SRGB, data=cv2.cvtColor(frame_grayscale, cv2.COLOR_GRAY2RGB))
@@ -291,9 +291,9 @@ def run_facemesh():
 
             # Process the detection result
             # Visualize detection result
-            # annotated_image = draw_landmarks_on_image(mp_img.numpy_view(), detection_result)
-            # cv2.imshow("Annotated Image", cv2.cvtColor(annotated_image, cv2.COLOR_RGB2BGR))
-            # cv2.waitKey(10)
+            annotated_image = draw_landmarks_on_image(mp_img.numpy_view(), detection_result)
+            cv2.imshow("Annotated Image", cv2.cvtColor(annotated_image, cv2.COLOR_RGB2BGR))
+            cv2.waitKey(10)
         
         # Close all OpenCV windows
         cv2.destroyAllWindows()
