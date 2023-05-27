@@ -390,85 +390,86 @@ class FaceMeshDetector():
         return landmark_px
 
     def _Chest_ROI_extract(self, image, chin_location, plot=False):
-        mp_pose = mp.solutions.pose
-        pose = mp_pose.Pose(static_image_mode=False, min_detection_confidence=0.6, min_tracking_confidence=0.6)
+        # mp_pose = mp.solutions.pose
+        # pose = mp_pose.Pose(static_image_mode=False, min_detection_confidence=0.6, min_tracking_confidence=0.6)
 
-        image_3chnl = np.stack((image,) * 3, axis=-1)
-        image_3chnl = cv2.convertScaleAbs(image_3chnl)
-        shoulder_landmark = [11, 12]
-        landmark_px_rr = np.zeros([2, 4, 2])
-        image_height, image_width = image.shape
-        results = pose.process(image_3chnl)
-        body_points = results.pose_landmarks.landmark
-        shoulder_point_l = self._normalized_to_pixel_coordinates(body_points[11].x, body_points[11].y, image_width, image_height)
-        shoulder_point_r = self._normalized_to_pixel_coordinates(body_points[12].x, body_points[12].y, image_width, image_height)
+        # image_3chnl = np.stack((image,) * 3, axis=-1)
+        # image_3chnl = cv2.convertScaleAbs(image_3chnl)
+        # shoulder_landmark = [11, 12]
+        # landmark_px_rr = np.zeros([2, 4, 2])
+        # image_height, image_width = image.shape
+        # results = pose.process(image_3chnl)
+        # body_points = results.pose_landmarks.landmark
+        # shoulder_point_l = self._normalized_to_pixel_coordinates(body_points[11].x, body_points[11].y, image_width, image_height)
+        # shoulder_point_r = self._normalized_to_pixel_coordinates(body_points[12].x, body_points[12].y, image_width, image_height)
 
-        shoulder_x = (shoulder_point_l[0] + shoulder_point_r[0]) / 2
-        shoulder_y = (shoulder_point_l[1] + shoulder_point_r[1]) / 2
+        # shoulder_x = (shoulder_point_l[0] + shoulder_point_r[0]) / 2
+        # shoulder_y = (shoulder_point_l[1] + shoulder_point_r[1]) / 2
 
-        neck_width = 2 * np.abs(chin_location[1][0] - chin_location[3][0])
-        neck_height = 0.5 * np.abs(shoulder_y - chin_location[2][1])
+        # neck_width = 2 * np.abs(chin_location[1][0] - chin_location[3][0])
+        # neck_height = 0.5 * np.abs(shoulder_y - chin_location[2][1])
 
-        chest_width = np.abs(shoulder_point_l[0] - shoulder_point_r[0])
-        chest_height = 0.22 * chest_width
+        # chest_width = np.abs(shoulder_point_l[0] - shoulder_point_r[0])
+        # chest_height = 0.22 * chest_width
 
-        landmark_px_rr[0, :, 0] = [
-            shoulder_x - 0.5 * neck_width,
-            shoulder_x + 0.5 * neck_width,
-            shoulder_x + 0.5 * neck_width,
-            shoulder_x - 0.5 * neck_width
-        ]
+        # landmark_px_rr[0, :, 0] = [
+        #     shoulder_x - 0.5 * neck_width,
+        #     shoulder_x + 0.5 * neck_width,
+        #     shoulder_x + 0.5 * neck_width,
+        #     shoulder_x - 0.5 * neck_width
+        # ]
 
-        landmark_px_rr[0, :, 1] = [
-            shoulder_y - 1.1 * neck_height,
-            shoulder_y - 1.1 * neck_height,
-            shoulder_y - 0.1 * neck_height,
-            shoulder_y - 0.1 * neck_height,
-        ]
+        # landmark_px_rr[0, :, 1] = [
+        #     shoulder_y - 1.1 * neck_height,
+        #     shoulder_y - 1.1 * neck_height,
+        #     shoulder_y - 0.1 * neck_height,
+        #     shoulder_y - 0.1 * neck_height,
+        # ]
 
-        # landmark_px_rr[0,:,0]=[chin_location[1][0]-0.8*neck_width,chin_location[3][0],
-        #                       chin_location[3][0],chin_location[1][0]-0.8*neck_width]
-        # landmark_px_rr[0,:,1]=[chin_location[1][1]+10,chin_location[3][1]+10,
-        #                       chin_location[3][1]+neck_height,chin_location[1][1]+neck_height]
+        # # landmark_px_rr[0,:,0]=[chin_location[1][0]-0.8*neck_width,chin_location[3][0],
+        # #                       chin_location[3][0],chin_location[1][0]-0.8*neck_width]
+        # # landmark_px_rr[0,:,1]=[chin_location[1][1]+10,chin_location[3][1]+10,
+        # #                       chin_location[3][1]+neck_height,chin_location[1][1]+neck_height]
 
-        landmark_px_rr[1, :, 0] = [
-            shoulder_x - 0.3 * chest_width,
-            shoulder_x + 0.3 * chest_width,
-            shoulder_x + 0.3 * chest_width,
-            shoulder_x - 0.3 * chest_width
-        ]
+        # landmark_px_rr[1, :, 0] = [
+        #     shoulder_x - 0.3 * chest_width,
+        #     shoulder_x + 0.3 * chest_width,
+        #     shoulder_x + 0.3 * chest_width,
+        #     shoulder_x - 0.3 * chest_width
+        # ]
 
-        landmark_px_rr[1, :, 1] = [
-            shoulder_y,
-            shoulder_y,
-            shoulder_y + chest_height,
-            shoulder_y + chest_height
-        ]
+        # landmark_px_rr[1, :, 1] = [
+        #     shoulder_y,
+        #     shoulder_y,
+        #     shoulder_y + chest_height,
+        #     shoulder_y + chest_height
+        # ]
 
-        # landmark_px_rr[1,:,0]=[shoulder_point_l[0]-25,shoulder_point_r[0]+25,
-        #                       shoulder_point_r[0]+25,shoulder_point_l[0]-25]
-        # landmark_px_rr[1,:,1]=[shoulder_point_l[1],shoulder_point_r[1],
-        #                       shoulder_point_r[1]+chest_height,shoulder_point_l[1]+chest_height]
+        # # landmark_px_rr[1,:,0]=[shoulder_point_l[0]-25,shoulder_point_r[0]+25,
+        # #                       shoulder_point_r[0]+25,shoulder_point_l[0]-25]
+        # # landmark_px_rr[1,:,1]=[shoulder_point_l[1],shoulder_point_r[1],
+        # #                       shoulder_point_r[1]+chest_height,shoulder_point_l[1]+chest_height]
 
-        np.clip(landmark_px_rr[0, :, 0], 0, image_width)
-        np.clip(landmark_px_rr[0, :, 1], 0, image_height)
-        np.clip(landmark_px_rr[1, :, 0], 0, image_width)
-        np.clip(landmark_px_rr[1, :, 1], 0, image_height)
+        # np.clip(landmark_px_rr[0, :, 0], 0, image_width)
+        # np.clip(landmark_px_rr[0, :, 1], 0, image_height)
+        # np.clip(landmark_px_rr[1, :, 0], 0, image_width)
+        # np.clip(landmark_px_rr[1, :, 1], 0, image_height)
 
-        if plot:
-            plt.figure()
-            plt.imshow(image, cmap='gray')
-            plt.scatter(chin_location[1][0], chin_location[1][1], s=12, c='green', marker='x')
-            plt.scatter(chin_location[3][0], chin_location[3][1], s=12, c='green', marker='x')
+        # if plot:
+        #     plt.figure()
+        #     plt.imshow(image, cmap='gray')
+        #     plt.scatter(chin_location[1][0], chin_location[1][1], s=12, c='green', marker='x')
+        #     plt.scatter(chin_location[3][0], chin_location[3][1], s=12, c='green', marker='x')
 
-            plt.scatter(shoulder_point_l[0], shoulder_point_l[1], s=6, c='green', marker='o')
-            plt.scatter(shoulder_point_r[0], shoulder_point_r[1], s=6, c='green', marker='o')
-            for j in range(4):
-                plt.scatter(landmark_px_rr[0][j][0], landmark_px_rr[0][j][1], s=8, c='red', marker='x')
-                plt.scatter(landmark_px_rr[1][j][0], landmark_px_rr[1][j][1], s=1, c='black', marker='o')
-                # plt.plot((landmark_px[k][j-1][0], landmark_px[k][j][0]),(landmark_px[k][j-1][1],landmark_px[k][j][1]), c='g', linewidth=1)
-        plt.show()
-        return landmark_px_rr
+        #     plt.scatter(shoulder_point_l[0], shoulder_point_l[1], s=6, c='green', marker='o')
+        #     plt.scatter(shoulder_point_r[0], shoulder_point_r[1], s=6, c='green', marker='o')
+        #     for j in range(4):
+        #         plt.scatter(landmark_px_rr[0][j][0], landmark_px_rr[0][j][1], s=8, c='red', marker='x')
+        #         plt.scatter(landmark_px_rr[1][j][0], landmark_px_rr[1][j][1], s=1, c='black', marker='o')
+        #         # plt.plot((landmark_px[k][j-1][0], landmark_px[k][j][0]),(landmark_px[k][j-1][1],landmark_px[k][j][1]), c='g', linewidth=1)
+        # plt.show()
+        # return landmark_px_rr
+        return
 
     def _vtx2mask(self, vtx, image_cols, image_rows):
         """
