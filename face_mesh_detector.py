@@ -56,8 +56,8 @@ class FaceMeshDetector():
         num_files_to_process = len(filelist)
         
         # Define MediaPipe detectors
-        mp_drawing = mp.solutions.drawing_utils
-        mp_drawing_styles = mp.solutions.drawing_styles
+        # mp_drawing = mp.solutions.drawing_utils
+        # mp_drawing_styles = mp.solutions.drawing_styles
         mp_face_mesh = mp.solutions.face_mesh
         mp_hands = mp.solutions.hands
         
@@ -93,14 +93,11 @@ class FaceMeshDetector():
 
                         # Load the file
                         filepath = os.path.join(self.input_dir, filename + '.bin')
-                        x_all, y_all, z_all, gray_all = self._read_binary_file(filepath)
-                        
-                        # Save the loaded data to a mat file
-                        # self._save_to_mat_file(x_all, y_all, z_all, gray_all, output_dir_path=self.input_mats_dir, filename=filename)
+                        x_all, y_all, z_all, confidence_all = self._read_binary_file(filepath)
 
                         # Get number of frames (columns) in this video clip
                         # num_frames = np.size(gray_all, 1)
-                        num_frames = np.shape(gray_all)[1]
+                        num_frames = np.shape(confidence_all)[1]
 
                         # ROI indices:
                         # 0: nose
@@ -121,32 +118,30 @@ class FaceMeshDetector():
                         x_all = x_all.reshape([img_rows, img_cols, num_frames])
                         y_all = y_all.reshape([img_rows, img_cols, num_frames])
                         z_all = z_all.reshape([img_rows, img_cols, num_frames])
-                        gray_all = gray_all.reshape([img_rows, img_cols, num_frames])
+                        confidence_all = confidence_all.reshape([img_rows, img_cols, num_frames])
                         
                         # Loop through all frames
                         for frame in range(num_frames):
                             frame_x = x_all[:, :, frame]
                             frame_y = y_all[:, :, frame]
                             frame_z = z_all[:, :, frame]
-                            frame_gray = gray_all[:, :, frame]
-
-                            frame_data = (frame_x, frame_y, frame_z, frame_gray)
+                            frame_confidence = confidence_all[:, :, frame]
 
                             # Track face and extract intensity and depth for all ROIs in this frame
-                            frameTrk = self._mp_preprocess(frame_gray)
+                            frame_grayscale = self._convert_camera_confidence_to_grayscale(frame_confidence)
                             
                             # To improve performance, optionally mark the image as not writeable to
                             # pass by reference.
-                            frameTrk.flags.writeable = False
-                            frameTrk = cv2.cvtColor(frameTrk, cv2.COLOR_BGR2RGB)
-                            results_face = face_mesh.process(frameTrk)
+                            frame_grayscale.flags.writeable = False
+                            frame_grayscale = cv2.cvtColor(frame_grayscale, cv2.COLOR_BGR2RGB)
+                            results_face = face_mesh.process(frame_grayscale)
                             # results_hand = hands.process(frameTrk)
 
                             if results_face.multi_face_landmarks:
                                 face_landmarks = results_face.multi_face_landmarks[0]
 
                                 # Queue each task using ThreadPoolExecutor.submit() so that the tasks are executed in parallel
-                                new_task = thread_pool.submit(self._process_single_frame, frame_data, frame,
+                                new_task = thread_pool.submit(self._process_single_frame, frame_x, frame_y, frame_z, frame_confidence, frame,
                                                                                                     img_rows, img_cols,
                                                                                                     intensity_signal_current,
                                                                                                     depth_signal_current,
@@ -169,14 +164,11 @@ class FaceMeshDetector():
         
         print('finished')
 
-    def _process_single_frame(self, frame_data, frame,
+    def _process_single_frame(self, frame_x, frame_y, frame_z, frame_confidence, frame,
                               img_rows, img_cols,
                               intensity_signal_current, depth_signal_current, ear_signal_current,
                               face_landmarks):
         # print(f"{frame_num}: Worker starting...")
-        
-        # Unpack frame_data
-        frame_x, frame_y, frame_z, frame_gray = frame_data
 
         # find the ROI vertices
         landmark_forehead = self._ROI_coord_extract(face_landmarks, 'forehead', img_rows, img_cols)
@@ -193,17 +185,17 @@ class FaceMeshDetector():
         mask_low_forehead = self._vtx2mask(landmark_low_forehead, img_cols, img_rows)
 
         # calculate averaged intensity and depth for each ROI
-        intensity_signal_current[0, frame] = np.average(frame_gray[np.where(mask_nose > 0)])
+        intensity_signal_current[0, frame] = np.average(frame_confidence[np.where(mask_nose > 0)])
         depth_signal_current[0, frame] = np.sqrt(np.average(frame_x[np.where(mask_nose > 0)]) ** 2 + np.average(frame_y[np.where(mask_nose > 0)]) ** 2 + np.average(frame_z[np.where(mask_nose > 0)]) ** 2)
-        intensity_signal_current[1, frame] = np.average(frame_gray[np.where(mask_forehead > 0)])
+        intensity_signal_current[1, frame] = np.average(frame_confidence[np.where(mask_forehead > 0)])
         depth_signal_current[1, frame] = np.sqrt(np.average(frame_x[np.where(mask_forehead > 0)]) ** 2 + np.average(frame_y[np.where(mask_forehead > 0)]) ** 2 + np.average(frame_z[np.where(mask_forehead > 0)]) ** 2)
-        intensity_signal_current[2, frame] = np.average(frame_gray[np.where(mask_cheek_and_nose > 0)])
+        intensity_signal_current[2, frame] = np.average(frame_confidence[np.where(mask_cheek_and_nose > 0)])
         depth_signal_current[2, frame] = np.sqrt(np.average(frame_x[np.where(mask_cheek_and_nose > 0)]) ** 2 + np.average(frame_y[np.where(mask_cheek_and_nose > 0)]) ** 2 + np.average(frame_z[np.where(mask_cheek_and_nose > 0)]) ** 2)
-        intensity_signal_current[3, frame] = np.average(frame_gray[np.where(mask_left_cheek > 0)])
+        intensity_signal_current[3, frame] = np.average(frame_confidence[np.where(mask_left_cheek > 0)])
         depth_signal_current[3, frame] = np.sqrt(np.average(frame_x[np.where(mask_left_cheek > 0)]) ** 2 + np.average(frame_y[np.where(mask_left_cheek > 0)]) ** 2 + np.average(frame_z[np.where(mask_left_cheek > 0)]) ** 2)
-        intensity_signal_current[4, frame] = np.average(frame_gray[np.where(mask_right_cheek > 0)])
+        intensity_signal_current[4, frame] = np.average(frame_confidence[np.where(mask_right_cheek > 0)])
         depth_signal_current[4, frame] = np.sqrt(np.average(frame_x[np.where(mask_right_cheek > 0)]) ** 2 + np.average(frame_y[np.where(mask_right_cheek > 0)]) ** 2 + np.average(frame_z[np.where(mask_right_cheek > 0)]) ** 2)
-        intensity_signal_current[5, frame] = np.average(frame_gray[np.where(mask_low_forehead > 0)])
+        intensity_signal_current[5, frame] = np.average(frame_confidence[np.where(mask_low_forehead > 0)])
         depth_signal_current[5, frame] = np.sqrt(np.average(frame_x[np.where(mask_low_forehead > 0)]) ** 2 + np.average(frame_y[np.where(mask_low_forehead > 0)]) ** 2 + np.average(frame_z[np.where(mask_low_forehead > 0)]) ** 2)
 
         # PERCLOS
@@ -285,15 +277,15 @@ class FaceMeshDetector():
         return
 
     def _read_binary_file(self, filepath):
-        x_all, y_all, z_all, gray_all = None, None, None, None
+        x_all, y_all, z_all, confidence_all = None, None, None, None
 
         with open(filepath, 'rb') as binary_file:
             x_all = np.frombuffer(binary_file.read(600 * 307200 * 2), dtype=np.int16).reshape((600, 307200)).transpose()
             y_all = np.frombuffer(binary_file.read(600 * 307200 * 2), dtype=np.int16).reshape((600, 307200)).transpose()
             z_all = np.frombuffer(binary_file.read(600 * 307200 * 2), dtype=np.int16).reshape((600, 307200)).transpose()
-            gray_all = np.frombuffer(binary_file.read(600 * 307200 * 2), dtype=np.int16).reshape((600, 307200)).transpose()
+            confidence_all = np.frombuffer(binary_file.read(600 * 307200 * 2), dtype=np.int16).reshape((600, 307200)).transpose()
 
-        return x_all, y_all, z_all, gray_all
+        return x_all, y_all, z_all, confidence_all
     
     def _save_to_mat_file(self, x_all, y_all, z_all, gray_all, output_dir_path, filename):
         # mdic = {"Depth": D_signal, 'I_raw': I_signal, 'EAR': EAR} # EAR: eye aspect ratio
@@ -502,14 +494,39 @@ class FaceMeshDetector():
 
         return sig_norm
 
-    def _mp_preprocess(self, frameTrk, divisor=4):
-        frameTrk = frameTrk.astype(float)
-        frameTrk = frameTrk / divisor
-        frameTrk[np.where(frameTrk > 255)] = 255
-        frameTrk = frameTrk.astype('uint8')
-        image_3chnl = np.stack((frameTrk,) * 3, axis=-1)
+    def _convert_camera_confidence_to_grayscale(self, confidence_array: np.ndarray) -> np.ndarray:
+        """
+        Convert the input confidence array to grayscale and scale down the brightness to help
+        with face detection.
 
-        return image_3chnl
+        Args:
+            confidence_array: An (n, d) confidence image in the format outputted by the IMX520 camera.
+
+        Returns:
+            An (n, d) grayscale image containing grayscale intensity values in the range [0, 255].
+        """
+
+        divisor = 4
+        
+        grayscale_img = confidence_array.astype(float)
+        grayscale_img = grayscale_img / divisor
+        grayscale_img[np.where(grayscale_img > 255)] = 255
+        grayscale_img = grayscale_img.astype('uint8')
+
+        return grayscale_img
+
+        # # This is a new implementation that I believe should be more resilient to
+        # # changes in the lighting conditions of the scene.
+
+        # # Normalize the confidence values to the range [0, 1]
+        # min_val = np.min(confidence_array)
+        # max_val = np.max(confidence_array)
+        # normalized_data = (confidence_array - min_val) / (max_val - min_val)
+
+        # # Map the normalized data to the range [0, 255]
+        # grayscale_image = (normalized_data * 255).astype(np.uint8)
+
+        # return grayscale_image
 
     def _eye_aspect_ratio(self, eye):
         # Vertical eye landmarks
