@@ -6,6 +6,7 @@ import numpy as np
 import mediapipe as mp
 import matplotlib.pyplot as plt
 from mediapipe.python.solutions import face_mesh as mp_face_mesh
+from mediapipe.framework.formats import landmark_pb2
 from PIL import Image, ImageDraw
 from scipy.io import savemat
 # from scipy.io import loadmat
@@ -17,14 +18,40 @@ import concurrent.futures
 # import hdf5storage
 
 class FaceMeshDetector():
-    def __init__(self, input_dir, output_filename):
+    """
+    FaceMeshDetector is a class that performs face detection and landmark tracking using MediaPipe FaceMesh.
+
+    Args:
+        input_dir (str): Directory where input files are located.
+        output_filename (str): Filename of the output .mat file.
+
+    Attributes:
+        input_dir (str): Directory where input files are located.
+        output_filename (str): Filename of the output .mat file.
+    """
+
+    def __init__(self, input_dir: str, output_filename: str):
+        """
+        Initialize class variables.
+
+        Args:
+            input_dir: Directory where input files are located.
+            output_filename: Filename of the output .mat file.
+        """
         # Directory where input files are located (likely ./skvs/mat/)
         self.input_dir = input_dir
 
         # Filename of output .mat file (likely auto_bfsig.mat)
         self.output_filename = output_filename
     
-    def run(self, visualize_ROI=False, visualize_FaceMesh=False):
+    def run(self, visualize_ROI: bool = False, visualize_FaceMesh: bool = False) -> None:
+        """
+        Run the face mesh detection and intensity signal extraction.
+
+        Args:
+            visualize_ROI: Flag indicating whether to visualize the region(s) of interest (not sure what region(s) this is referring to).
+            visualize_FaceMesh: Flag indicating whether to visualize the face mesh (the creepy mask-looking thing).
+        """
         # The IMX520 sensor has a resolution of 640x480=307200 pixels per frame (width x height)
         # width = 640
         img_cols = 640
@@ -161,10 +188,26 @@ class FaceMeshDetector():
         
         print('finished')
 
-    def _process_single_frame(self, frame_x, frame_y, frame_z, frame_confidence, frame,
-                              img_rows, img_cols,
-                              intensity_signal_current, depth_signal_current, ear_signal_current,
-                              face_landmarks):
+    def _process_single_frame(self, frame_x: np.ndarray, frame_y: np.ndarray, frame_z: np.ndarray,
+                              frame_confidence: np.ndarray, frame: int, img_rows: int, img_cols: int,
+                              intensity_signal_current: np.ndarray, depth_signal_current: np.ndarray,
+                              ear_signal_current: np.ndarray, face_landmarks: landmark_pb2.NormalizedLandmarkList) -> None:
+        """
+        Processes a single frame to extract intensity and depth signals for each region of interest (ROI).
+
+        Args:
+            frame_x: X-coordinate values of the face mesh landmarks for the frame.
+            frame_y: Y-coordinate values of the face mesh landmarks for the frame.
+            frame_z: Z-coordinate values of the face mesh landmarks for the frame.
+            frame_confidence: Confidence values of the face mesh landmarks for the frame.
+            frame: Frame number.
+            img_rows: Number of rows in the frame.
+            img_cols: Number of columns in the frame.
+            intensity_signal_current: Array to store the intensity signals for each ROI.
+            depth_signal_current: Array to store the depth signals for each ROI.
+            ear_signal_current: Array to store the eye aspect ratio (EAR) signals.
+            face_landmarks: Face landmarks for the frame.
+        """
         # print(f"{frame_num}: Worker starting...")
 
         # find the ROI vertices
@@ -211,7 +254,15 @@ class FaceMeshDetector():
         
         # print(f"{frame_num}: Worker exiting...")
 
-    def _visualize_ROI(self, frameTrk, landmark_leye, landmark_reye):
+    def _visualize_ROI(self, frameTrk: np.ndarray, landmark_leye: list, landmark_reye: list) -> None:
+        """
+        Visualize the regions of interest (ROIs) on the image.
+
+        Args:
+            frameTrk: The frame image.
+            landmark_leye: Landmark coordinates of the left eye.
+            landmark_reye: Landmark coordinates of the right eye.
+        """
         # Draw the face mesh annotations on the image and display
         frameTrk.flags.writeable = True
         image = cv2.cvtColor(frameTrk, cv2.COLOR_RGB2BGR)
@@ -238,7 +289,20 @@ class FaceMeshDetector():
 
         return
 
-    def _visualize_FaceMesh(self, frameTrk, face_landmarks, results_face, mp_drawing_styles, mp_drawing, mp_face_mesh):
+    def _visualize_FaceMesh(self, frameTrk: np.ndarray, face_landmarks: landmark_pb2.NormalizedLandmarkList,
+                            results_face: mp_face_mesh.FaceMesh, mp_drawing_styles,
+                            mp_drawing, mp_face_mesh: mp_face_mesh) -> None:
+        """
+        Visualize the FaceMesh annotations on the image.
+
+        Args:
+            frameTrk: The frame image.
+            face_landmarks: Detected face landmarks.
+            results_face: FaceMesh detection results.
+            mp_drawing_styles: Drawing styles for FaceMesh annotations.
+            mp_drawing: Drawing utilities.
+            mp_face_mesh: FaceMesh solution.
+        """
         # Draw the face mesh annotations on the image and display
         frameTrk.flags.writeable = True
         image = cv2.cvtColor(frameTrk, cv2.COLOR_RGB2BGR)
@@ -273,7 +337,28 @@ class FaceMeshDetector():
 
         return
 
-    def _read_binary_file(self, filepath):
+    def _read_binary_file(self, filepath: str) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        """
+        Read a binary file containing x, y, z coordinates, and confidence values.
+
+        Args:
+            filepath: The path to the binary file to be read.
+
+        Returns:
+            A tuple containing four NumPy arrays: x_all, y_all, z_all, and confidence_all.
+            - x_all: An (n,d) array of x-coordinates.
+            - y_all: An (n,d) array of y-coordinates.
+            - z_all: An (n,d) array of z-coordinates.
+            - confidence_all: An (n,d) array of confidence values.
+
+        This method reads a binary file and extracts x, y, z coordinates, and confidence values.
+        The binary file is assumed to have a specific structure where each array is stored sequentially.
+
+        Note: This method assumes that the binary file is properly formatted and contains valid data.
+
+        Example usage:
+            x, y, z, confidence = _read_binary_file('data.bin')
+        """
         x_all, y_all, z_all, confidence_all = None, None, None, None
 
         with open(filepath, 'rb') as binary_file:
@@ -284,11 +369,26 @@ class FaceMeshDetector():
 
         return x_all, y_all, z_all, confidence_all
     
-    def _save_to_mat_file(self, x_all, y_all, z_all, gray_all, output_dir_path, filename):
+    def _save_to_mat_file(self, x_all: np.ndarray, y_all: np.ndarray, z_all: np.ndarray, confidence_all: np.ndarray,
+                          output_dir_path: str, filename: str) -> None:
+        """
+        Save the provided arrays to a MATLAB (.mat) file.
+
+        Args:
+            x_all: (n,d) array containing X-coordinate data.
+            y_all: (n,d) array containing Y-coordinate data.
+            z_all: (n,d) array containing Z-coordinate data.
+            confidence_all: (n,d) array containing confidence values.
+            output_dir_path: Path to the output directory.
+            filename: Name of the output file (without extension).
+
+        Returns:
+            None
+        """
         # mdic = {"Depth": D_signal, 'I_raw': I_signal, 'EAR': EAR} # EAR: eye aspect ratio
         # savemat(os.path.join(matpath, matname + '.mat'), mdic)
 
-        mat_dict = {'x_all': x_all, 'y_all': y_all, 'z_all': z_all, 'gray_all': gray_all}
+        mat_dict = {'x_all': x_all, 'y_all': y_all, 'z_all': z_all, 'confidence_all': confidence_all}
         savemat(os.path.join(output_dir_path, filename + '.mat'), mat_dict)
         # hdf5storage.write(mat_dict, output_dir_path, filename + '.mat', matlab_compatible=True)
 
