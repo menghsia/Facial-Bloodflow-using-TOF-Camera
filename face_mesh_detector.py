@@ -134,8 +134,8 @@ class FaceMeshDetector():
                         results_face = my_face_mesh.process(frame_grayscale)
                         # results_hand = hands.process(frameTrk)
 
-                        if results_face.multi_face_landmarks:
-                            face_landmarks = results_face.multi_face_landmarks[0]
+                        if hasattr(results_face, "multi_face_landmarks"):
+                            face_landmarks = getattr(results_face, "multi_face_landmarks")[0]
 
                             # Queue each task using ThreadPoolExecutor.submit() so that the tasks are executed in parallel
                             new_task = thread_pool.submit(self._process_single_frame, frame_x, frame_y, frame_z, frame_confidence, frame,
