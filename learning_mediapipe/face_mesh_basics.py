@@ -29,10 +29,23 @@ while video.isOpened():
     # print(results)
 
     if results.multi_face_landmarks:
-        # A face was detected
+        # Face(s) were detected
+        # Loop through each face detected
         for face_landmarks in results.multi_face_landmarks:
-            # Loop through each face detected
+            # face_landmarks is a list of landmarks for face
             mp_draw.draw_landmarks(frame, face_landmarks, mp_face_mesh.FACEMESH_CONTOURS, drawing_spec_landmark, drawing_spec_connection)
+
+            # Loop through each landmark
+            for id, landmark in enumerate(face_landmarks.landmark):
+                # There are 468 landmarks in total, with x, y, z normalized coordinates
+                # print(id, landmark)
+
+                # Get image dimensions
+                image_height, image_width, image_channels = frame.shape
+
+                # Convert normalized coordinates to pixel coordinates (NOTE: z is currently unused)
+                x, y = int(landmark.x * image_width), int(landmark.y * image_height)
+                print(id, x, y)
 
     # Calculate and overlay FPS
 
