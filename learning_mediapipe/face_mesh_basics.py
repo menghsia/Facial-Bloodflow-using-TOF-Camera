@@ -6,8 +6,8 @@ input_video = "videos/test_video.mp4"
 video = cv2.VideoCapture(input_video)
 previous_time = 0
 
-mp_draw = mp.solutions.drawing_utils
-mp_face_mesh = mp.solutions.face_mesh
+mp_draw = mp.solutions.drawing_utils # type: ignore
+mp_face_mesh = mp.solutions.face_mesh # type: ignore
 face_mesh = mp_face_mesh.FaceMesh(static_image_mode=False,
                                   max_num_faces=1,
                                   min_detection_confidence=0.5,
