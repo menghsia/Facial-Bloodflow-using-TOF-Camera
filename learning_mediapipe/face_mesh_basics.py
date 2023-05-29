@@ -12,6 +12,8 @@ face_mesh = mp_face_mesh.FaceMesh(static_image_mode=False,
                                   max_num_faces=1,
                                   min_detection_confidence=0.5,
                                   min_tracking_confidence=0.5)
+drawing_spec_landmark = mp_draw.DrawingSpec(color=(0, 255, 0), thickness=1, circle_radius=2)
+drawing_spec_connection = mp_draw.DrawingSpec(color=(255, 0, 255), thickness=2, circle_radius=2)
 
 # Loop through video frames
 while video.isOpened():
@@ -30,7 +32,7 @@ while video.isOpened():
         # A face was detected
         for face_landmarks in results.multi_face_landmarks:
             # Loop through each face detected
-            mp_draw.draw_landmarks(frame, face_landmarks, mp_face_mesh.FACEMESH_CONTOURS)
+            mp_draw.draw_landmarks(frame, face_landmarks, mp_face_mesh.FACEMESH_CONTOURS, drawing_spec_landmark, drawing_spec_connection)
 
     # Calculate and overlay FPS
 
