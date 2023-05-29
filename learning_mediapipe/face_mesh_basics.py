@@ -22,6 +22,9 @@ while video.isOpened():
     if not ret:
         break
 
+    # Get image dimensions
+    image_height, image_width, image_channels = frame.shape
+
     # CV2 loads images/videos in BGR format, convert to RGB
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
@@ -39,9 +42,6 @@ while video.isOpened():
             for id, landmark in enumerate(face_landmarks.landmark):
                 # There are 468 landmarks in total, with x, y, z normalized coordinates
                 # print(id, landmark)
-
-                # Get image dimensions
-                image_height, image_width, image_channels = frame.shape
 
                 # Convert normalized coordinates to pixel coordinates (NOTE: z is currently unused)
                 x, y = int(landmark.x * image_width), int(landmark.y * image_height)
