@@ -6,8 +6,8 @@ input_video = "videos/test_video.mp4"
 video = cv2.VideoCapture(input_video)
 previous_time = 0
 
-mp_face_detection = mp.solutions.face_detection
-mp_draw = mp.solutions.drawing_utils
+mp_face_detection = mp.solutions.face_detection # type: ignore
+mp_draw = mp.solutions.drawing_utils # type: ignore
 face_detection = mp_face_detection.FaceDetection(min_detection_confidence=0.75)
 
 # Loop through video frames
