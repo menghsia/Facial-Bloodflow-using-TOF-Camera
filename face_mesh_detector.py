@@ -165,7 +165,7 @@ class FaceMeshDetector():
                             face_landmarks = getattr(results_face, "multi_face_landmarks")[0]
 
                             # Queue each task using ThreadPoolExecutor.submit() so that the tasks are executed in parallel
-                            new_task = thread_pool.submit(self._process_single_frame, frame_x, frame_y, frame_z, frame_confidence, frame,
+                            new_task = thread_pool.submit(self._process_frame, frame_x, frame_y, frame_z, frame_confidence, frame,
                                                                                                 img_rows, img_cols,
                                                                                                 intensity_signal_current,
                                                                                                 depth_signal_current,
@@ -188,7 +188,7 @@ class FaceMeshDetector():
         
         print('finished')
 
-    def _process_single_frame(self, frame_x: np.ndarray, frame_y: np.ndarray, frame_z: np.ndarray,
+    def _process_frame(self, frame_x: np.ndarray, frame_y: np.ndarray, frame_z: np.ndarray,
                               frame_confidence: np.ndarray, frame: int, img_rows: int, img_cols: int,
                               intensity_signal_current: np.ndarray, depth_signal_current: np.ndarray,
                               ear_signal_current: np.ndarray, face_landmarks: landmark_pb2.NormalizedLandmarkList) -> None:
