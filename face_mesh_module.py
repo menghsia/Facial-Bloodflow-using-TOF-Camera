@@ -55,6 +55,9 @@ class FaceMeshDetector():
         Note:
             The input image should be in BGR format, as OpenCV loads images/videos in BGR format by default.
             The returned landmarks_pixels array contains the pixel coordinates (x, y) for each face landmark.
+
+        References:
+            - Face Landmarks Key: https://github.com/tensorflow/tfjs-models/blob/master/face-landmarks-detection/mesh_map.jpg
         """
         # Get image dimensions
         image_height, image_width, image_channels = image.shape
