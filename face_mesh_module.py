@@ -99,8 +99,12 @@ class FaceMeshDetector():
 
 
 def main():
-    input_video = "videos/test_video.mp4"
+    input_video = "learning_mediapipe/videos/test_video.mp4"
     video = cv2.VideoCapture(input_video)
+    if not video.isOpened():
+        print("Error opening video file:", input_video)
+        exit(1)
+
     previous_time = 0
 
     detector = FaceMeshDetector()
