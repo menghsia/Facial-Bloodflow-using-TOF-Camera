@@ -116,7 +116,7 @@ def main():
         if not ret:
             break
 
-        # Find face mesh
+        # Get pixel locations of all face landmarks
         face_detected, landmarks_pixels = detector.find_face_mesh(image=frame, draw=True)
         
         # if face_detected:
