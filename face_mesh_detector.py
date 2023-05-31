@@ -107,78 +107,80 @@ class FaceMeshDetector():
         tasks = []
         new_task = None
         
-        # Let's try multithreading rather than multiprocessing
-        with concurrent.futures.ThreadPoolExecutor(max_workers=num_threads) as thread_pool:
-            with my_mp_face_mesh.FaceMesh(static_image_mode=False, max_num_faces=1, refine_landmarks=True, min_detection_confidence=0.5, min_tracking_confidence=0.5) as my_face_mesh:
-                # Loop through each file
-                for filename in filelist:
-                    file_num = file_num + 1
-                    print(f"Processing file {file_num}/{num_files_to_process}: {filename}...")
+        thread_pool = concurrent.futures.ThreadPoolExecutor(max_workers=num_threads)
+        
+        with my_mp_face_mesh.FaceMesh(static_image_mode=False, max_num_faces=1, refine_landmarks=True, min_detection_confidence=0.5, min_tracking_confidence=0.5) as my_face_mesh:
+            # Loop through each file
+            for filename in filelist:
+                file_num = file_num + 1
+                print(f"Processing file {file_num}/{num_files_to_process}: {filename}...")
 
-                    # Load the file
-                    filepath = os.path.join(self.input_dir, filename + '.bin')
-                    x_all, y_all, z_all, confidence_all = self._read_binary_file(filepath)
+                # Load the file
+                filepath = os.path.join(self.input_dir, filename + '.bin')
+                x_all, y_all, z_all, confidence_all = self._read_binary_file(filepath)
 
-                    # Get number of frames (columns) in this video clip
-                    # num_frames = np.size(gray_all, 1)
-                    num_frames = np.shape(confidence_all)[1]
+                # Get number of frames (columns) in this video clip
+                # num_frames = np.size(gray_all, 1)
+                num_frames = np.shape(confidence_all)[1]
 
-                    # ROI indices:
-                    # 0: nose
-                    # 1: forehead
-                    # 2: cheek_and_nose
-                    # 3: left_cheek
-                    # 4: right_cheek
-                    # 5: low_forehead
-                    # 6: palm
+                # ROI indices:
+                # 0: nose
+                # 1: forehead
+                # 2: cheek_and_nose
+                # 3: left_cheek
+                # 4: right_cheek
+                # 5: low_forehead
+                # 6: palm
 
-                    # Create arrays to store intensity and depth signals for all ROIs in this video clip (num_ROIs, num_frames) = (7, 600)
-                    intensity_signal_current = np.zeros((num_ROIs, num_frames))
-                    depth_signal_current = np.zeros((num_ROIs, num_frames))
-                    ear_signal_current = np.zeros(num_frames)
+                # Create arrays to store intensity and depth signals for all ROIs in this video clip (num_ROIs, num_frames) = (7, 600)
+                intensity_signal_current = np.zeros((num_ROIs, num_frames))
+                depth_signal_current = np.zeros((num_ROIs, num_frames))
+                ear_signal_current = np.zeros(num_frames)
 
-                    # Each array is currently (height*width, num_frames) = (480*640, num_frames) = (307200, num_frames)
-                    # Reshape to (height, width, num_frames) = (480, 640, num_frames)
-                    x_all = x_all.reshape([img_rows, img_cols, num_frames])
-                    y_all = y_all.reshape([img_rows, img_cols, num_frames])
-                    z_all = z_all.reshape([img_rows, img_cols, num_frames])
-                    confidence_all = confidence_all.reshape([img_rows, img_cols, num_frames])
+                # Each array is currently (height*width, num_frames) = (480*640, num_frames) = (307200, num_frames)
+                # Reshape to (height, width, num_frames) = (480, 640, num_frames)
+                x_all = x_all.reshape([img_rows, img_cols, num_frames])
+                y_all = y_all.reshape([img_rows, img_cols, num_frames])
+                z_all = z_all.reshape([img_rows, img_cols, num_frames])
+                confidence_all = confidence_all.reshape([img_rows, img_cols, num_frames])
+                
+                # Loop through all frames
+                for frame in range(num_frames):
+                    frame_x = x_all[:, :, frame]
+                    frame_y = y_all[:, :, frame]
+                    frame_z = z_all[:, :, frame]
+                    frame_confidence = confidence_all[:, :, frame]
+
+                    # Track face and extract intensity and depth for all ROIs in this frame
+                    frame_grayscale = self._convert_camera_confidence_to_grayscale(frame_confidence)
                     
-                    # Loop through all frames
-                    for frame in range(num_frames):
-                        frame_x = x_all[:, :, frame]
-                        frame_y = y_all[:, :, frame]
-                        frame_z = z_all[:, :, frame]
-                        frame_confidence = confidence_all[:, :, frame]
+                    # To improve performance, optionally mark the image as not writeable to
+                    # pass by reference.
+                    frame_grayscale.flags.writeable = False
+                    frame_grayscale = cv2.cvtColor(frame_grayscale, cv2.COLOR_BGR2RGB)
+                    results_face = my_face_mesh.process(frame_grayscale)
+                    # results_hand = hands.process(frameTrk)
 
-                        # Track face and extract intensity and depth for all ROIs in this frame
-                        frame_grayscale = self._convert_camera_confidence_to_grayscale(frame_confidence)
-                        
-                        # To improve performance, optionally mark the image as not writeable to
-                        # pass by reference.
-                        frame_grayscale.flags.writeable = False
-                        frame_grayscale = cv2.cvtColor(frame_grayscale, cv2.COLOR_BGR2RGB)
-                        results_face = my_face_mesh.process(frame_grayscale)
-                        # results_hand = hands.process(frameTrk)
+                    if hasattr(results_face, "multi_face_landmarks"):
+                        face_landmarks = getattr(results_face, "multi_face_landmarks")[0]
 
-                        if hasattr(results_face, "multi_face_landmarks"):
-                            face_landmarks = getattr(results_face, "multi_face_landmarks")[0]
+                        # Queue each task using ThreadPoolExecutor.submit() so that the tasks are executed in parallel
+                        new_task = thread_pool.submit(self._process_frame, frame_x, frame_y, frame_z, frame_confidence, frame,
+                                                                                            img_rows, img_cols,
+                                                                                            intensity_signal_current,
+                                                                                            depth_signal_current,
+                                                                                            ear_signal_current,
+                                                                                            face_landmarks)
+                        tasks.append(new_task)
 
-                            # Queue each task using ThreadPoolExecutor.submit() so that the tasks are executed in parallel
-                            new_task = thread_pool.submit(self._process_frame, frame_x, frame_y, frame_z, frame_confidence, frame,
-                                                                                                img_rows, img_cols,
-                                                                                                intensity_signal_current,
-                                                                                                depth_signal_current,
-                                                                                                ear_signal_current,
-                                                                                                face_landmarks)
-                            tasks.append(new_task)
+                # Wait for the tasks to complete
+                concurrent.futures.wait(tasks)
 
-                    # Wait for the tasks to complete
-                    concurrent.futures.wait(tasks)
-
-                    intensity_signals = np.concatenate((intensity_signals, intensity_signal_current), axis=1)
-                    depth_signals = np.concatenate((depth_signals, depth_signal_current), axis=1)
-                    ear_signal = np.concatenate((ear_signal, ear_signal_current),axis=0)
+                intensity_signals = np.concatenate((intensity_signals, intensity_signal_current), axis=1)
+                depth_signals = np.concatenate((depth_signals, depth_signal_current), axis=1)
+                ear_signal = np.concatenate((ear_signal, ear_signal_current),axis=0)
+        
+        thread_pool.shutdown(wait=True, cancel_futures=False)
                     
         intensity_signals = np.delete(intensity_signals, 0, 1)
         depth_signals = np.delete(depth_signals, 0, 1)
