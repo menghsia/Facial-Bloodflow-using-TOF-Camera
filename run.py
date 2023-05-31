@@ -6,7 +6,7 @@ import argparse
 import time
 # import tensorflow as tf
 
-from face_mesh_detector import FaceMeshDetector
+from face_mesh_detector import PhaseTwo
 
 # Steps:
 # - Use Automotive Suite to record a video clip (.skv file)
@@ -162,8 +162,8 @@ def skv_to_mat(skvs_dir):
 
 def mat_to_bfsig(skvs_dir):
     # Tag regions in face and generate bloodflow signature .mat file
-    # myFaceMeshDetector = FaceMeshDetector(input_mats_dir="./skvs/mat/", output_bfsig_name="auto_bfsig")
-    myFaceMeshDetector = FaceMeshDetector(input_dir=os.path.join(skvs_dir, "mat"), output_filename="auto_bfsig")
+    # myFaceMeshDetector = PhaseTwo(input_mats_dir="./skvs/mat/", output_bfsig_name="auto_bfsig")
+    myFaceMeshDetector = PhaseTwo(input_dir=os.path.join(skvs_dir, "mat"), output_filename="auto_bfsig")
     myFaceMeshDetector.run(visualize_ROI=False, visualize_FaceMesh=False)
 
 def bfsig_to_plot():
