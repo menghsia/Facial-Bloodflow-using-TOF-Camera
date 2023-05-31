@@ -114,9 +114,9 @@ def main():
 
         # Find face mesh
         face_detected, landmarks_pixels = detector.find_face_mesh(image=frame, draw=True)
-
-        # if not face_detected:
-        #     print("Face not detected")
+        
+        # if face_detected:
+        #     # Do something with the landmarks
 
         # Calculate and overlay FPS
 
