@@ -13,7 +13,7 @@ class FaceMeshDetector():
         Args:
             static_image_mode (bool): Whether to treat input images as static images or a continuous video stream.
                 False: Treat input images as a continuous video stream (a.k.a. video mode). This mode will try to detect
-                    faces in the first input image, and upon a successful detection, the next image(s) detections will be
+                    faces in the first input image, and upon a successful detection, subsequent detections will be
                     made by attempting to track the face from the previous frame. If tracking is successful, computation
                     for the frames after the first one should be faster than running face detection on each individual
                     input image. Use this mode when you want to track faces across images in a video stream or for
