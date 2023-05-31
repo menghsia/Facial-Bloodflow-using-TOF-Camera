@@ -37,7 +37,25 @@ class FaceMeshDetector():
         self.drawing_spec_landmark = self.mp_draw.DrawingSpec(color=(0, 255, 0), thickness=1, circle_radius=2)
         self.drawing_spec_connection = self.mp_draw.DrawingSpec(color=(255, 0, 255), thickness=2, circle_radius=2)
 
-    def find_face_mesh(self, image, draw=False):
+    def find_face_mesh(self, image: np.ndarray, draw: bool = False) -> tuple[bool, np.ndarray]:
+        """
+        Detect face mesh and return facial landmarks for the given image.
+
+        Args:
+            image (np.ndarray): The input image in BGR format.
+            draw (bool): Whether to draw the face mesh on the image.
+
+        Returns:
+            tuple[bool, np.ndarray]: A tuple containing:
+                - face_detected (bool): Indicates whether a face was detected in the image.
+                - landmarks_pixels (np.ndarray): An array of shape (468, 2) representing the pixel coordinates (x, y)
+                  for each of the 468 total face landmarks detected. The i-th row corresponds to the i-th landmark
+                  (zero-indexed, so row 0 is landmark 1).
+
+        Note:
+            The input image should be in BGR format, as OpenCV loads images/videos in BGR format by default.
+            The returned landmarks_pixels array contains the pixel coordinates (x, y) for each face landmark.
+        """
         # Get image dimensions
         image_height, image_width, image_channels = image.shape
 
