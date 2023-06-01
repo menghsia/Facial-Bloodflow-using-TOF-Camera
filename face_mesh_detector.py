@@ -231,7 +231,7 @@ class PhaseTwo():
         """
         bounding_box_pixels = []
 
-        roi_mappings = {
+        roi_definitions = {
             'full_face': [54, 284, 454, 365, 136, 234],
             'left_face': [70, 135, 200, 8],
             'cheek_n_nose': [117, 346, 411, 187],
@@ -246,7 +246,7 @@ class PhaseTwo():
             'right_eye': [263, 387, 386, 385, 362, 380, 374, 373]
         }
         
-        for landmark_idx in roi_mappings[roi_name]:
+        for landmark_idx in roi_definitions[roi_name]:
             # landmakrs_pixels is zero-indexed, but the landmark indices are 1-indexed
             bounding_box_pixels.append(landmarks_pixels[landmark_idx - 1])
 
