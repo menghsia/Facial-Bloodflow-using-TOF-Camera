@@ -365,7 +365,7 @@ class PhaseTwo():
         # Draw a polygon on the mask_canvas using the ROI bounding box pixel coordinates
         # The polygon will be filled in with pixels with value 1, and the outline will
         # be 1 pixel wide with a value of 1 as well.
-        ImageDraw.Draw(mask_canvas).polygon(bounding_box_pixels.tolist(), fill=1, outline=1, width=1)
+        ImageDraw.Draw(mask_canvas).polygon(bounding_box_pixels.reshape(-1), fill=1, outline=1, width=1)
 
         # Convert the mask_canvas image, with the filled-in polygon on it, to a numpy array
         # The array will have a shape of (self.image_height, self.image_width)
