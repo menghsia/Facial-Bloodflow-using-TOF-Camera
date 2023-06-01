@@ -272,7 +272,7 @@ class PhaseTwo():
                 # landmarks_pixels is zero-indexed, but the landmark indices are 1-indexed
                 bounding_box_pixels = landmarks_pixels[landmark_indices - 1]
         except KeyError:
-            raise KeyError("ERROR: The provided roi_name does not match any of the predefined ROIs.")
+            raise KeyError(f"ERROR: The provided roi_name \"{roi_name}\" does not match any of the predefined ROIs.")
 
         return bounding_box_pixels
 
