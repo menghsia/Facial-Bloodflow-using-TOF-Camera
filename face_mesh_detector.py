@@ -362,7 +362,7 @@ class PhaseTwo():
         intensity_signal_current[5, frame_idx] = np.average(frame_confidence[np.where(mask_low_forehead > 0)])
         depth_signal_current[5, frame_idx] = np.sqrt(np.average(frame_x[np.where(mask_low_forehead > 0)]) ** 2 + np.average(frame_y[np.where(mask_low_forehead > 0)]) ** 2 + np.average(frame_z[np.where(mask_low_forehead > 0)]) ** 2)
 
-        # PERCLOS
+        # Percentage of Eye Closure (PERCLOS)
         landmark_leye = self._ROI_coord_extract(face_landmarks, 'left_eye', self.image_height, self.image_width)
         L_ear = self._eye_aspect_ratio(landmark_leye)
         landmark_reye = self._ROI_coord_extract(face_landmarks, 'right_eye', self.image_height, self.image_width)
@@ -766,16 +766,30 @@ class PhaseTwo():
         # return grayscale_image
 
     def _eye_aspect_ratio(self, eye):
+        """
+        Takes in a list of 2D (x, y) pixel coordinates that represent the vertices of the
+        bounding box of an ROI that represents an eye.
+        Then, calculates the distances between certain landmarks of the eye.
+        Then, calculates the Eye Aspect Ratio (EAR) of the eye using "The EAR Equation".
+
+        Returns the EAR of the eye.
+        """
+        
+        # TODO: See if this reference can help us work on this feature:
+        # https://www.pyimagesearch.com/2017/04/24/eye-blink-detection-opencv-python-dlib/
+
         # Vertical eye landmarks
-        A = dist.euclidean(eye[1], eye[7])
-        B = dist.euclidean(eye[2], eye[6])
-        C = dist.euclidean(eye[3], eye[5])
+        distance_a = dist.euclidean(eye[1], eye[7])
+        distance_b = dist.euclidean(eye[2], eye[6])
+        distance_c = dist.euclidean(eye[3], eye[5])
+
         # Horizontal eye landmarks
-        D = dist.euclidean(eye[0], eye[4])
+        distance_d = dist.euclidean(eye[0], eye[4])
 
         # The EAR Equation
-        EAR = (A + B + C) / (3.0 * D)
-        return EAR
+        ear_value = (distance_a + distance_b + distance_c) / (3.0 * distance_d)
+
+        return ear_value
 
 if __name__ == "__main__":
     skvs_dir = os.path.join(os.getcwd(), 'skvs')
