@@ -198,7 +198,7 @@ class PhaseTwo():
                 face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=True)
 
                 if face_detected:
-                    self._process_face_landmarks()
+                    self._process_face_landmarks(landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file)
                 
                 # Calculate and overlay FPS
 
