@@ -44,6 +44,9 @@ class PhaseTwo():
 
         Note: The IMX520 sensor has an image resolution of 640x480=307200 pixels per frame (width x height)
         (aka 640 columns x 480 rows)
+        
+        References:
+        - Face Landmarks Key: https://github.com/tensorflow/tfjs-models/blob/master/face-landmarks-detection/mesh_map.jpg
         """
         # Directory where input files are located (likely ./skvs/mat/)
         self.input_dir = input_dir
@@ -53,6 +56,23 @@ class PhaseTwo():
         
         self.image_width = image_width
         self.image_height = image_height
+
+        # Define the landmarks that represent the vertices of the bounding box for each ROI
+        # (used in _get_ROI_bounding_box_pixels())
+        self.roi_definitions = {
+            'full_face': np.array([54, 284, 454, 365, 136, 234]),
+            'left_face': np.array([70, 135, 200, 8]),
+            'cheek_n_nose': np.array([117, 346, 411, 187]),
+            'left_cheek': np.array([131, 165, 214, 50]),
+            'right_cheek': np.array([372, 433, 358]),
+            'chin': np.array([175, 148, 152, 377]),
+            'nose': np.array([196, 419, 455, 235]),
+            'low_forehead': np.array([108, 337, 8]),
+            'forehead': np.array([109, 338, 9]),
+            'palm': np.array([0, 5, 17]),
+            'left_eye': np.array([33, 160, 159, 158, 133, 153, 145, 144]),
+            'right_eye': np.array([263, 387, 386, 385, 362, 380, 374, 373])
+        }
     
     def run(self, visualize_ROI: bool = False, visualize_FaceMesh: bool = False) -> None:
         """
@@ -233,31 +253,11 @@ class PhaseTwo():
         Note:
             The returned bounding_box_pixels is in the same format as the input landmarks_pixels,
             with each array of shape (2,) representing the (x, y) coordinates of a landmark pixel.
-        
-        References:
-        - Face Landmarks Key: https://github.com/tensorflow/tfjs-models/blob/master/face-landmarks-detection/mesh_map.jpg
         """
-
-        # Define the landmarks that represent the vertices of the bounding box for each ROI
-        roi_definitions = {
-            'full_face': [54, 284, 454, 365, 136, 234],
-            'left_face': [70, 135, 200, 8],
-            'cheek_n_nose': [117, 346, 411, 187],
-            'left_cheek': [131, 165, 214, 50],
-            'right_cheek': [372, 433, 358],
-            'chin': [175, 148, 152, 377],
-            'nose': [196, 419, 455, 235],
-            'low_forehead': [108, 337, 8],
-            'forehead': [109, 338, 9],
-            'palm': [0, 5, 17],
-            'left_eye': [33, 160, 159, 158, 133, 153, 145, 144],
-            'right_eye': [263, 387, 386, 385, 362, 380, 374, 373]
-        }
-
         bounding_box_pixels = np.array([])
         
         try:
-            landmark_indices = np.array(roi_definitions[roi_name])
+            landmark_indices = self.roi_definitions[roi_name]
             # landmarks_pixels is zero-indexed, but the landmark indices are 1-indexed
             bounding_box_pixels = landmarks_pixels[landmark_indices - 1]
         except KeyError:
