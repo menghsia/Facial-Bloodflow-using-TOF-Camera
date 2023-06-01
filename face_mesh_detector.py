@@ -248,6 +248,9 @@ class PhaseTwo():
         Note:
             The returned bounding_box_pixels is in the same format as the input landmarks_pixels,
             with each array of shape (2,) representing the (x, y) coordinates of a landmark pixel.
+        
+        References:
+        - Face Landmarks Key: https://github.com/tensorflow/tfjs-models/blob/master/face-landmarks-detection/mesh_map.jpg
         """
         roi_definitions = {
             'full_face': [54, 284, 454, 365, 136, 234],
