@@ -227,15 +227,17 @@ class PhaseTwo():
         
         print('finished')
     
-    def _process_face_landmarks(self, landmarks_pixels: np.ndarray):
+    def _process_face_landmarks(self, landmarks_pixels: np.ndarray, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file):
         for roi_idx, roi_name in enumerate(self.face_roi_definitions.keys()):
-            # Find ROI vertices
+            # Get bounding box of ROI in pixels
             roi_bounding_box_pixels = self._get_ROI_bounding_box_pixels(landmarks_pixels, roi_name)
+
+            # Get pixels contained within ROI bounding box
             pixels_in_ROI = self._get_pixels_within_ROI_bounding_box(roi_bounding_box_pixels)
 
             # Calculate and save averaged intensity and depth for the ROI
-            intensity_signal_current[roi_idx, frame_idx] = np.average(frame_confidence[np.where(pixels_in_ROI > 0)])
-            depth_signal_current[roi_idx, frame_idx] = np.sqrt(
+            intensity_signal_current_file[roi_idx, frame_idx] = np.average(frame_confidence[np.where(pixels_in_ROI > 0)])
+            depth_signal_current_file[roi_idx, frame_idx] = np.sqrt(
                 np.average(frame_x[np.where(pixels_in_ROI > 0)]) ** 2 +
                 np.average(frame_y[np.where(pixels_in_ROI > 0)]) ** 2 +
                 np.average(frame_z[np.where(pixels_in_ROI > 0)]) ** 2
