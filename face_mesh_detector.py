@@ -224,13 +224,31 @@ class PhaseTwo():
         print("Processing landmarks (TODO)...")
         return
     
-    def _get_ROI_bounding_box_pixels(self, landmarks_pixels, roi_name: str):
+    def _get_ROI_bounding_box_pixels(self, landmarks_pixels: np.ndarray, roi_name: str) -> np.ndarray:
         """
         Takes in the pixel locations of all face landmarks and returns the pixel locations
         that can build the bounding box for the requested ROI.
-        """
-        bounding_box_pixels = []
 
+        Args:
+            landmarks_pixels (np.ndarray): An array of shape (468, 2) representing the pixel coordinates (x, y)
+                for each of the 468 total face landmarks detected. The i-th row corresponds to the i-th landmark
+                (zero-indexed, so row 0 is landmark 1).
+            roi_name (str): The name of the requested ROI. Choose from the following options:
+                'full_face', 'left_face', 'cheek_n_nose', 'left_cheek', 'right_cheek',
+                'chin', 'nose', 'low_forehead', 'forehead', 'palm', 'left_eye', 'right_eye'.
+
+        Returns:
+            np.ndarray: An array of shape (n, 2), where n is the number of landmarks
+                that form the bounding box for the requested ROI. Each row represents the (x, y)
+                coordinates of a landmark pixel.
+
+        Raises:
+            KeyError: If the provided roi_name does not match any of the predefined ROIs.
+
+        Note:
+            The returned bounding_box_pixels is in the same format as the input landmarks_pixels,
+            with each array of shape (2,) representing the (x, y) coordinates of a landmark pixel.
+        """
         roi_definitions = {
             'full_face': [54, 284, 454, 365, 136, 234],
             'left_face': [70, 135, 200, 8],
@@ -245,11 +263,14 @@ class PhaseTwo():
             'left_eye': [33, 160, 159, 158, 133, 153, 145, 144],
             'right_eye': [263, 387, 386, 385, 362, 380, 374, 373]
         }
+
+        bounding_box_pixels = np.array([])
         
         try:
             for landmark_idx in roi_definitions[roi_name]:
+                landmark_indices = np.array(roi_definitions[roi_name])
                 # landmarks_pixels is zero-indexed, but the landmark indices are 1-indexed
-                bounding_box_pixels.append(landmarks_pixels[landmark_idx - 1])
+                bounding_box_pixels = landmarks_pixels[landmark_indices - 1]
         except KeyError:
             raise KeyError("ERROR: The provided roi_name does not match any of the predefined ROIs.")
 
