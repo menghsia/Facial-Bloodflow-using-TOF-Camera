@@ -172,24 +172,6 @@ class PhaseTwo():
                 # Convert grayscale image to "RGB" (n,d,3)
                 frame_grayscale_rgb = cv2.cvtColor(frame_grayscale, cv2.COLOR_GRAY2RGB)
 
-                # BEGIN OLD CODE
-
-                # results_face = my_face_mesh.process(frame_grayscale)
-
-                # if hasattr(results_face, "multi_face_landmarks"):
-                #     face_landmarks = getattr(results_face, "multi_face_landmarks")[0]
-
-                #     # Queue each task using ThreadPoolExecutor.submit() so that the tasks are executed in parallel
-                #     new_task = thread_pool.submit(self._process_frame, frame_x, frame_y, frame_z, frame_confidence, frame,
-                #                                                                         self.image_height, self.image_width,
-                #                                                                         intensity_signal_current,
-                #                                                                         depth_signal_current,
-                #                                                                         ear_signal_current,
-                #                                                                         face_landmarks)
-                #     tasks.append(new_task)
-                
-                # END OLD CODE
-
                 # Get pixel locations of all face landmarks
                 face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=True)
 
