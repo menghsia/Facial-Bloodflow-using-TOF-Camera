@@ -228,24 +228,37 @@ class PhaseTwo():
         print('finished')
     
     def _process_face_landmarks(self, landmarks_pixels: np.ndarray, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file):
+        # Variables for calculating eye aspect ratio
+        left_eye_aspect_ratio = 0.0
+        right_eye_aspect_ratio = 0.0
+
+        # Loop through each ROI
         for roi_idx, roi_name in enumerate(self.face_roi_definitions.keys()):
             # Get bounding box of ROI in pixels
             roi_bounding_box_pixels = self._get_ROI_bounding_box_pixels(landmarks_pixels, roi_name)
 
-            # Get pixels contained within ROI bounding box
-            pixels_in_ROI = self._get_pixels_within_ROI_bounding_box(roi_bounding_box_pixels)
-
-            # Calculate and save averaged intensity for the ROI
-            intensity_signal_current_file[roi_idx, frame_idx] = np.average(frame_confidence[np.where(pixels_in_ROI > 0)])
-            
-            # Calculate and save averaged depth for the ROI
-            depth_signal_current_file[roi_idx, frame_idx] = np.sqrt(
-                np.average(frame_x[np.where(pixels_in_ROI > 0)]) ** 2 +
-                np.average(frame_y[np.where(pixels_in_ROI > 0)]) ** 2 +
-                np.average(frame_z[np.where(pixels_in_ROI > 0)]) ** 2
-            )
-
-            # TODO: add cases for eyes
+            if roi_name == "left_eye":
+                # Calculate and save eye aspect ratio for the ROI
+                left_eye_aspect_ratio = self._get_eye_aspect_ratio(roi_bounding_box_pixels)
+            elif roi_name == "right_eye":
+                # Calculate and save eye aspect ratio for the ROI
+                right_eye_aspect_ratio = self._get_eye_aspect_ratio(roi_bounding_box_pixels)
+            else:
+                # Get pixels contained within ROI bounding box
+                pixels_in_ROI = self._get_pixels_within_ROI_bounding_box(roi_bounding_box_pixels)
+                
+                # Calculate and save averaged intensity for the ROI
+                intensity_signal_current_file[roi_idx, frame_idx] = np.average(frame_confidence[np.where(pixels_in_ROI > 0)])
+                
+                # Calculate and save averaged depth for the ROI
+                depth_signal_current_file[roi_idx, frame_idx] = np.sqrt(
+                    np.average(frame_x[np.where(pixels_in_ROI > 0)]) ** 2 +
+                    np.average(frame_y[np.where(pixels_in_ROI > 0)]) ** 2 +
+                    np.average(frame_z[np.where(pixels_in_ROI > 0)]) ** 2
+                )
+        
+        # Calculate and save eye aspect ratio for the ROI
+        ear_signal_current_file[frame_idx] = (left_eye_aspect_ratio + right_eye_aspect_ratio) / 2
         
         return
     
