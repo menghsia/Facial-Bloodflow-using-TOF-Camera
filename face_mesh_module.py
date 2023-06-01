@@ -88,6 +88,8 @@ class FaceMeshDetector():
 
                 # Loop through each landmark
                 for id, landmark in enumerate(face_landmarks.landmark):
+                    # TODO: Consider if using multi-threading to speed up this loop is possible/worth it
+
                     # There are 468 landmarks in total, with x, y, z normalized coordinates
                     # print(id, landmark)
 
