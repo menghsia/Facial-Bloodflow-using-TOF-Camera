@@ -139,9 +139,9 @@ class PhaseTwo():
             # 6: palm
 
             # Create arrays to store intensity and depth signals for all ROIs in this video clip (num_ROIs, num_frames) = (7, 600)
-            intensity_signal_current = np.zeros((num_ROIs, num_frames))
-            depth_signal_current = np.zeros((num_ROIs, num_frames))
-            ear_signal_current = np.zeros(num_frames)
+            intensity_signal_current_file = np.zeros((num_ROIs, num_frames))
+            depth_signal_current_file = np.zeros((num_ROIs, num_frames))
+            ear_signal_current_file = np.zeros(num_frames)
 
             # Each array is currently (height*width, num_frames) = (480*640, num_frames) = (307200, num_frames)
             # Reshape to (height, width, num_frames) = (480, 640, num_frames)
@@ -175,8 +175,8 @@ class PhaseTwo():
                 # Get pixel locations of all face landmarks
                 face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=True)
 
-                # if face_detected:
-                #     self._process_landmarks(landmarks_pixels)
+                if face_detected:
+                    self._process_face_landmarks()
                 
                 # Calculate and overlay FPS
 
@@ -191,9 +191,9 @@ class PhaseTwo():
                 cv2.imshow("Image", frame_grayscale_rgb)
                 cv2.waitKey(1)
 
-            intensity_signals = np.concatenate((intensity_signals, intensity_signal_current), axis=1)
-            depth_signals = np.concatenate((depth_signals, depth_signal_current), axis=1)
-            ear_signal = np.concatenate((ear_signal, ear_signal_current),axis=0)
+            intensity_signals = np.concatenate((intensity_signals, intensity_signal_current_file), axis=1)
+            depth_signals = np.concatenate((depth_signals, depth_signal_current_file), axis=1)
+            ear_signal = np.concatenate((ear_signal, ear_signal_current_file),axis=0)
         
         thread_pool.shutdown(wait=True, cancel_futures=False)
                     
