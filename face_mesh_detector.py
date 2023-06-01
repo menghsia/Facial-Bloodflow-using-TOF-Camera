@@ -60,18 +60,18 @@ class PhaseTwo():
         # Define the landmarks that represent the vertices of the bounding box for each ROI
         # (used in _get_ROI_bounding_box_pixels())
         self.roi_definitions = {
-            'full_face': np.array([54, 284, 454, 365, 136, 234]),
-            'left_face': np.array([70, 135, 200, 8]),
+            'nose': np.array([196, 419, 455, 235]),
+            'forehead': np.array([109, 338, 9]),
             'cheek_n_nose': np.array([117, 346, 411, 187]),
             'left_cheek': np.array([131, 165, 214, 50]),
             'right_cheek': np.array([372, 433, 358]),
-            'chin': np.array([175, 148, 152, 377]),
-            'nose': np.array([196, 419, 455, 235]),
             'low_forehead': np.array([108, 337, 8]),
-            'forehead': np.array([109, 338, 9]),
-            'palm': np.array([0, 5, 17]),
             'left_eye': np.array([33, 160, 159, 158, 133, 153, 145, 144]),
-            'right_eye': np.array([263, 387, 386, 385, 362, 380, 374, 373])
+            'right_eye': np.array([263, 387, 386, 385, 362, 380, 374, 373]),
+            'full_face': np.array([54, 284, 454, 365, 136, 234]),
+            'left_face': np.array([70, 135, 200, 8]),
+            'chin': np.array([175, 148, 152, 377]),
+            'palm': np.array([0, 5, 17])
         }
     
     def run(self, visualize_ROI: bool = False, visualize_FaceMesh: bool = False) -> None:
@@ -358,10 +358,10 @@ class PhaseTwo():
         # print(f"{frame_num}: Worker starting...")
 
         # find the ROI vertices
-        landmark_forehead = self._ROI_coord_extract(face_landmarks, 'forehead', self.image_height, self.image_width)
-        mask_forehead = self._vtx2mask(landmark_forehead, self.image_width, self.image_height)
         landmark_nose = self._ROI_coord_extract(face_landmarks, 'nose', self.image_height, self.image_width)
         mask_nose = self._vtx2mask(landmark_nose, self.image_width, self.image_height)
+        landmark_forehead = self._ROI_coord_extract(face_landmarks, 'forehead', self.image_height, self.image_width)
+        mask_forehead = self._vtx2mask(landmark_forehead, self.image_width, self.image_height)
         landmark_cheek_and_nose = self._ROI_coord_extract(face_landmarks, 'cheek_n_nose', self.image_height, self.image_width)
         mask_cheek_and_nose = self._vtx2mask(landmark_cheek_and_nose, self.image_width, self.image_height)
         landmark_left_cheek = self._ROI_coord_extract(face_landmarks, 'left_cheek', self.image_height, self.image_width)
