@@ -229,6 +229,22 @@ class PhaseTwo():
     
     def _process_face_landmarks(self, landmarks_pixels: np.ndarray):
         print("Processing landmarks (TODO)...")
+
+        # roi_names = ['nose', 'forehead', 'cheek_n_nose', 'left_cheek', 'right_cheek', 'low_forehead']
+
+        # for i, roi_name in enumerate(roi_names):
+        #     # Find ROI vertices
+        #     landmarks = self._ROI_coord_extract(face_landmarks, roi_name, self.image_height, self.image_width)
+        #     mask = self._vtx2mask(landmarks, self.image_width, self.image_height)
+
+        #     # Calculate averaged intensity and depth for the ROI
+        #     intensity_signal_current[i, frame_idx] = np.average(frame_confidence[np.where(mask > 0)])
+        #     depth_signal_current[i, frame_idx] = np.sqrt(
+        #         np.average(frame_x[np.where(mask > 0)]) ** 2 +
+        #         np.average(frame_y[np.where(mask > 0)]) ** 2 +
+        #         np.average(frame_z[np.where(mask > 0)]) ** 2
+        #     )
+        
         return
     
     def _get_ROI_bounding_box_pixels(self, landmarks_pixels: np.ndarray, roi_name: str) -> np.ndarray:
