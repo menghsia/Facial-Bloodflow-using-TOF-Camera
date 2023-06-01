@@ -246,9 +246,12 @@ class PhaseTwo():
             'right_eye': [263, 387, 386, 385, 362, 380, 374, 373]
         }
         
-        for landmark_idx in roi_definitions[roi_name]:
-            # landmakrs_pixels is zero-indexed, but the landmark indices are 1-indexed
-            bounding_box_pixels.append(landmarks_pixels[landmark_idx - 1])
+        try:
+            for landmark_idx in roi_definitions[roi_name]:
+                # landmarks_pixels is zero-indexed, but the landmark indices are 1-indexed
+                bounding_box_pixels.append(landmarks_pixels[landmark_idx - 1])
+        except KeyError:
+            raise KeyError("ERROR: The provided roi_name does not match any of the predefined ROIs.")
 
         return bounding_box_pixels
 
