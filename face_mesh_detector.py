@@ -235,8 +235,10 @@ class PhaseTwo():
             # Get pixels contained within ROI bounding box
             pixels_in_ROI = self._get_pixels_within_ROI_bounding_box(roi_bounding_box_pixels)
 
-            # Calculate and save averaged intensity and depth for the ROI
+            # Calculate and save averaged intensity for the ROI
             intensity_signal_current_file[roi_idx, frame_idx] = np.average(frame_confidence[np.where(pixels_in_ROI > 0)])
+            
+            # Calculate and save averaged depth for the ROI
             depth_signal_current_file[roi_idx, frame_idx] = np.sqrt(
                 np.average(frame_x[np.where(pixels_in_ROI > 0)]) ** 2 +
                 np.average(frame_y[np.where(pixels_in_ROI > 0)]) ** 2 +
