@@ -672,8 +672,8 @@ class PhaseTwo():
     def _vtx2mask(self, vtx, image_cols, image_rows):
         """
         :param vtx: list of 2D coordinates of the polygon vertices
-        :param image_cols: mask image columns
-        :param image_rows: mask image rows
+        :param image_cols: image columns
+        :param image_rows: image rows
         :return: mask of polygon
         """
         maskimg = Image.new('L', (image_cols, image_rows), 0)
