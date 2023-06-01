@@ -223,6 +223,34 @@ class PhaseTwo():
     def _process_landmarks(self, landmarks_pixels: np.ndarray):
         print("Processing landmarks (TODO)...")
         return
+    
+    def _get_ROI_bounding_box_pixels(self, landmarks_pixels, roi_name: str):
+        """
+        Takes in the pixel locations of all face landmarks and returns the pixel locations
+        that can build the bounding box for the requested ROI.
+        """
+        bounding_box_pixels = []
+
+        roi_mappings = {
+            'full_face': [54, 284, 454, 365, 136, 234],
+            'left_face': [70, 135, 200, 8],
+            'cheek_n_nose': [117, 346, 411, 187],
+            'left_cheek': [131, 165, 214, 50],
+            'right_cheek': [372, 433, 358],
+            'chin': [175, 148, 152, 377],
+            'nose': [196, 419, 455, 235],
+            'low_forehead': [108, 337, 8],
+            'forehead': [109, 338, 9],
+            'palm': [0, 5, 17],
+            'left_eye': [33, 160, 159, 158, 133, 153, 145, 144],
+            'right_eye': [263, 387, 386, 385, 362, 380, 374, 373]
+        }
+        
+        for landmark_idx in roi_mappings[roi_name]:
+            # landmakrs_pixels is zero-indexed, but the landmark indices are 1-indexed
+            bounding_box_pixels.append(landmarks_pixels[landmark_idx - 1])
+
+        return bounding_box_pixels
 
     def _process_frame(self, frame_x: np.ndarray, frame_y: np.ndarray, frame_z: np.ndarray,
                               frame_confidence: np.ndarray, frame_idx: int,
