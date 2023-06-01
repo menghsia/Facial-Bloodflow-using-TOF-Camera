@@ -252,6 +252,8 @@ class PhaseTwo():
         References:
         - Face Landmarks Key: https://github.com/tensorflow/tfjs-models/blob/master/face-landmarks-detection/mesh_map.jpg
         """
+
+        # Define the landmarks that represent the vertices of the bounding box for each ROI
         roi_definitions = {
             'full_face': [54, 284, 454, 365, 136, 234],
             'left_face': [70, 135, 200, 8],
