@@ -671,8 +671,10 @@ class PhaseTwo():
 
     def _vtx2mask(self, vtx, image_cols, image_rows):
         """
-        Takes in a list of 2D (x, y) coordinates of the polygon vertices and returns
-        a mask of the polygon
+        Takes in a list of 2D (x, y) coordinates that represent the vertices of a polygon.
+        Then, creates a temporary image where the polygon is drawn onto.
+        Then, returns a numpy array that contains the coordinates of every pixel that is
+        inside the polygon.
 
         :param vtx: list of 2D coordinates of the polygon vertices
         :param image_cols: image columns
