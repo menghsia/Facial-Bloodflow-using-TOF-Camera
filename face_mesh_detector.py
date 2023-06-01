@@ -108,6 +108,9 @@ class PhaseTwo():
 
         tasks = []
         new_task = None
+
+        # TODO: Make the thread_pool a class variable so we can queue up tasks and wait for
+        # them to finish from within any class function
         
         thread_pool = concurrent.futures.ThreadPoolExecutor(max_workers=num_threads)
         
