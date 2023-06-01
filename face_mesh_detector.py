@@ -267,10 +267,9 @@ class PhaseTwo():
         bounding_box_pixels = np.array([])
         
         try:
-            for landmark_idx in roi_definitions[roi_name]:
-                landmark_indices = np.array(roi_definitions[roi_name])
-                # landmarks_pixels is zero-indexed, but the landmark indices are 1-indexed
-                bounding_box_pixels = landmarks_pixels[landmark_indices - 1]
+            landmark_indices = np.array(roi_definitions[roi_name])
+            # landmarks_pixels is zero-indexed, but the landmark indices are 1-indexed
+            bounding_box_pixels = landmarks_pixels[landmark_indices - 1]
         except KeyError:
             raise KeyError(f"ERROR: The provided roi_name \"{roi_name}\" does not match any of the predefined ROIs.")
 
