@@ -220,7 +220,7 @@ class PhaseTwo():
         
         print('finished')
     
-    def _process_landmarks(self, landmarks_pixels: np.ndarray):
+    def _process_face_landmarks(self, landmarks_pixels: np.ndarray):
         print("Processing landmarks (TODO)...")
         return
     
