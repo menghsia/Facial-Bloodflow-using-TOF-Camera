@@ -393,16 +393,17 @@ class PhaseTwo():
 
         # calculate averaged intensity and depth for each ROI
         intensity_signal_current[0, frame_idx] = np.average(frame_confidence[np.where(mask_nose > 0)])
-        depth_signal_current[0, frame_idx] = np.sqrt(np.average(frame_x[np.where(mask_nose > 0)]) ** 2 + np.average(frame_y[np.where(mask_nose > 0)]) ** 2 + np.average(frame_z[np.where(mask_nose > 0)]) ** 2)
         intensity_signal_current[1, frame_idx] = np.average(frame_confidence[np.where(mask_forehead > 0)])
-        depth_signal_current[1, frame_idx] = np.sqrt(np.average(frame_x[np.where(mask_forehead > 0)]) ** 2 + np.average(frame_y[np.where(mask_forehead > 0)]) ** 2 + np.average(frame_z[np.where(mask_forehead > 0)]) ** 2)
         intensity_signal_current[2, frame_idx] = np.average(frame_confidence[np.where(mask_cheek_and_nose > 0)])
-        depth_signal_current[2, frame_idx] = np.sqrt(np.average(frame_x[np.where(mask_cheek_and_nose > 0)]) ** 2 + np.average(frame_y[np.where(mask_cheek_and_nose > 0)]) ** 2 + np.average(frame_z[np.where(mask_cheek_and_nose > 0)]) ** 2)
         intensity_signal_current[3, frame_idx] = np.average(frame_confidence[np.where(mask_left_cheek > 0)])
-        depth_signal_current[3, frame_idx] = np.sqrt(np.average(frame_x[np.where(mask_left_cheek > 0)]) ** 2 + np.average(frame_y[np.where(mask_left_cheek > 0)]) ** 2 + np.average(frame_z[np.where(mask_left_cheek > 0)]) ** 2)
         intensity_signal_current[4, frame_idx] = np.average(frame_confidence[np.where(mask_right_cheek > 0)])
-        depth_signal_current[4, frame_idx] = np.sqrt(np.average(frame_x[np.where(mask_right_cheek > 0)]) ** 2 + np.average(frame_y[np.where(mask_right_cheek > 0)]) ** 2 + np.average(frame_z[np.where(mask_right_cheek > 0)]) ** 2)
         intensity_signal_current[5, frame_idx] = np.average(frame_confidence[np.where(mask_low_forehead > 0)])
+
+        depth_signal_current[0, frame_idx] = np.sqrt(np.average(frame_x[np.where(mask_nose > 0)]) ** 2 + np.average(frame_y[np.where(mask_nose > 0)]) ** 2 + np.average(frame_z[np.where(mask_nose > 0)]) ** 2)
+        depth_signal_current[1, frame_idx] = np.sqrt(np.average(frame_x[np.where(mask_forehead > 0)]) ** 2 + np.average(frame_y[np.where(mask_forehead > 0)]) ** 2 + np.average(frame_z[np.where(mask_forehead > 0)]) ** 2)
+        depth_signal_current[2, frame_idx] = np.sqrt(np.average(frame_x[np.where(mask_cheek_and_nose > 0)]) ** 2 + np.average(frame_y[np.where(mask_cheek_and_nose > 0)]) ** 2 + np.average(frame_z[np.where(mask_cheek_and_nose > 0)]) ** 2)
+        depth_signal_current[3, frame_idx] = np.sqrt(np.average(frame_x[np.where(mask_left_cheek > 0)]) ** 2 + np.average(frame_y[np.where(mask_left_cheek > 0)]) ** 2 + np.average(frame_z[np.where(mask_left_cheek > 0)]) ** 2)
+        depth_signal_current[4, frame_idx] = np.sqrt(np.average(frame_x[np.where(mask_right_cheek > 0)]) ** 2 + np.average(frame_y[np.where(mask_right_cheek > 0)]) ** 2 + np.average(frame_z[np.where(mask_right_cheek > 0)]) ** 2)
         depth_signal_current[5, frame_idx] = np.sqrt(np.average(frame_x[np.where(mask_low_forehead > 0)]) ** 2 + np.average(frame_y[np.where(mask_low_forehead > 0)]) ** 2 + np.average(frame_z[np.where(mask_low_forehead > 0)]) ** 2)
 
         # Percentage of Eye Closure (PERCLOS)
