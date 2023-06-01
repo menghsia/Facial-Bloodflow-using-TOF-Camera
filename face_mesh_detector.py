@@ -316,11 +316,24 @@ class PhaseTwo():
 
     def _get_eye_aspect_ratio(self, eye_bounding_box_pixels: np.ndarray) -> float:
         """
-        Takes in a list of 2D (x, y) pixel coordinates that represent the vertices of the
-        bounding box of an ROI that represents an eye.
-        Then, calculates the distances between certain landmarks of the eye.
-        Returns the Eye Aspect Ratio (EAR) of the eye calculated using "eye aspect ratio
-        equation".
+        Calculates the Eye Aspect Ratio (EAR) for an eye region represented by a bounding box.
+
+        Args:
+            eye_bounding_box_pixels: An array of shape (n, 2) containing the pixel coordinates
+                (x, y) of the landmarks that form the bounding box for the eye ROI. Each row
+                represents the (x, y) coordinates of a landmark pixel.
+
+        Returns:
+            The Eye Aspect Ratio (EAR) as a floating-point value.
+
+        Description:
+            The function takes a list of 2D (x, y) pixel coordinates that represent the vertices
+            of the bounding box for a region of interest that represents an eye. It calculates
+            the distances between certain landmarks of the eye, both vertically and
+            horizontally, using the Euclidean distance formula. Finally, it computes the Eye
+            Aspect Ratio (EAR) by applying the "eye aspect ratio equation".
+
+            The function returns the calculated EAR as a floating-point value.
         """
         
         # TODO: See if this reference can help us work on this feature:
