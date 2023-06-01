@@ -227,7 +227,49 @@ class PhaseTwo():
         
         print('finished')
     
-    def _process_face_landmarks(self, landmarks_pixels: np.ndarray, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file):
+    def _process_face_landmarks(
+        self,
+        landmarks_pixels: np.ndarray,
+        frame_idx: int,
+        frame_x: np.ndarray,
+        frame_y: np.ndarray,
+        frame_z: np.ndarray,
+        frame_confidence: np.ndarray,
+        intensity_signal_current_file: np.ndarray,
+        depth_signal_current_file: np.ndarray,
+        ear_signal_current_file: np.ndarray
+    ) -> None:
+        """
+        Processes the face landmarks for a single frame.
+
+        Args:
+            landmarks_pixels: An array of shape (468, 2) representing the pixel coordinates (x, y) for each of the
+                468 total face landmarks detected. The i-th row corresponds to the i-th landmark.
+            frame_idx: The index of the current frame.
+            frame_x: An (n,d) array of x-coordinates.
+            frame_y: An (n,d) array of y-coordinates.
+            frame_z: An (n,d) array of z-coordinates.
+            frame_confidence: An (n,d) array of confidence values.
+            intensity_signal_current_file: An (n,d) array to store the intensity signals for all ROIs for all frames of this video clip.
+            depth_signal_current_file: An (n,d) array to store the depth signals for all ROIs for all frames of this video clip.
+            ear_signal_current_file: An (n,) array to store the eye aspect ratio (EAR) signals for all frames of this video clip.
+
+        Returns:
+            None. The results are stored in the output arrays `intensity_signal_current_file`, `depth_signal_current_file`,
+            and `ear_signal_current_file`.
+
+        Description:
+            This function processes the face landmarks for a single frame. It calculates the eye aspect
+            ratio (EAR) for the left and right eyes, and the averaged intensity and depth signals for each
+            region of interest (ROI) defined in the `self.face_roi_definitions` dictionary.
+            The function iterates over each ROI, retrieves the bounding box pixels for the ROI from the
+            `landmarks_pixels` array, and calculates the intensity and depth signals based on the
+            corresponding pixel values in the frame. The results are then stored in the output arrays
+            `intensity_signal_current_file` and `depth_signal_current_file`.
+            The eye aspect ratio signals are calculated for the left and right eyes separately using the
+            `self._get_eye_aspect_ratio` function, and the averaged value is stored in
+            `ear_signal_current_file`.
+        """
         # Variables for calculating eye aspect ratio
         left_eye_aspect_ratio = 0.0
         right_eye_aspect_ratio = 0.0
