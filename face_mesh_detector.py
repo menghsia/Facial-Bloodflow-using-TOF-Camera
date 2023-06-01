@@ -226,8 +226,8 @@ class PhaseTwo():
     
     def _get_ROI_bounding_box_pixels(self, landmarks_pixels: np.ndarray, roi_name: str) -> np.ndarray:
         """
-        Takes in the pixel locations of all face landmarks and returns the pixel locations
-        that can build the bounding box for the requested ROI.
+        Takes in the pixel coordinates of all face landmarks and returns the pixel coordinates
+        of the face landmarks that represent the bounding box for the requested ROI.
 
         Args:
             landmarks_pixels (np.ndarray): An array of shape (468, 2) representing the pixel coordinates (x, y)
