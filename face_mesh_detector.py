@@ -314,6 +314,31 @@ class PhaseTwo():
 
         return pixels_in_ROI
 
+    def _get_eye_aspect_ratio(self, eye_bounding_box_pixels: np.ndarray) -> float:
+        """
+        Takes in a list of 2D (x, y) pixel coordinates that represent the vertices of the
+        bounding box of an ROI that represents an eye.
+        Then, calculates the distances between certain landmarks of the eye.
+        Returns the Eye Aspect Ratio (EAR) of the eye calculated using "eye aspect ratio
+        equation".
+        """
+        
+        # TODO: See if this reference can help us work on this feature:
+        # https://www.pyimagesearch.com/2017/04/24/eye-blink-detection-opencv-python-dlib/
+
+        # Vertical eye landmarks
+        distance_a = dist.euclidean(eye_bounding_box_pixels[1], eye_bounding_box_pixels[7])
+        distance_b = dist.euclidean(eye_bounding_box_pixels[2], eye_bounding_box_pixels[6])
+        distance_c = dist.euclidean(eye_bounding_box_pixels[3], eye_bounding_box_pixels[5])
+
+        # Horizontal eye landmarks
+        distance_d = dist.euclidean(eye_bounding_box_pixels[0], eye_bounding_box_pixels[4])
+
+        # Calculate eye aspect ratio using "eye aspect ratio equation"
+        eye_aspect_ratio_value = (distance_a + distance_b + distance_c) / (3.0 * distance_d)
+
+        return eye_aspect_ratio_value
+
     def _process_frame(self, frame_x: np.ndarray, frame_y: np.ndarray, frame_z: np.ndarray,
                               frame_confidence: np.ndarray, frame_idx: int,
                               intensity_signal_current: np.ndarray, depth_signal_current: np.ndarray,
