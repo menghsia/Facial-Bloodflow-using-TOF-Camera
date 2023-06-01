@@ -476,6 +476,10 @@ class PhaseTwo():
         Takes in all face landmarks, which ROI we want, and returns an array of
         pixel coordinates that represent the bounding box polygon of the ROI on the
         image.
+        
+        Within the function, the bounding box for each ROI is defined by the
+        landmark ID numbers that represent vertices on the face mesh. These are
+        listed in clockwise order, starting from the top left vertex.
         """
         # face_landmarks are the detected landmarks in a image
         if ROIwhich == 'full_face':
