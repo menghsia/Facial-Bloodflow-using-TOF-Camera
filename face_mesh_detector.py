@@ -472,6 +472,11 @@ class PhaseTwo():
         return x_px, y_px
 
     def _ROI_coord_extract(self, face_landmarks, ROIwhich, image_rows, image_cols):
+        """
+        Takes in all face landmarks, which ROI we want, and returns an array of
+        pixel coordinates that represent the bounding box polygon of the ROI on the
+        image.
+        """
         # face_landmarks are the detected landmarks in a image
         if ROIwhich == 'full_face':
             ROI_vertex = [54, 284, 454, 365, 136, 234]
