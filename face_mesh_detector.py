@@ -85,6 +85,11 @@ class PhaseTwo():
         # (either manually or automatically if the destructor was called by the garbage
         # collector)
         self.cleaned_up = False
+
+        # Initialize output arrays
+        self.intensity_signals = np.array([])
+        self.depth_signals = np.array([])
+        self.ear_signal = np.array([])
     
     def run(self, visualize_ROI: bool = False, visualize_FaceMesh: bool = False) -> None:
         """
@@ -98,13 +103,13 @@ class PhaseTwo():
 
         # Array of intensity signal arrays
         # Each element is (7, num_frames) = (7, 600) for 7 ROIs (regions of interest) and (likely) 600 frames per input video file
-        intensity_signals = np.zeros((num_ROIs, 1))
+        self.intensity_signals = np.zeros((num_ROIs, 1))
 
         # Array of depth signal arrays
-        depth_signals = np.zeros((num_ROIs, 1))
+        self.depth_signals = np.zeros((num_ROIs, 1))
 
         # Not sure what this is for
-        ear_signal = np.zeros((1))
+        self.ear_signal = np.zeros((1))
 
         # Get list of all input files in input_mats_dir (./skvs/mat/)
         filelist = []
@@ -132,90 +137,97 @@ class PhaseTwo():
         # Loop through each file
         for filename in filelist:
             file_num = file_num + 1
-            print(f"Processing file {file_num}/{num_files_to_process}: {filename}...")
-
-            # Load the file
-            filepath = os.path.join(self.input_dir, filename + '.bin')
-            x_all, y_all, z_all, confidence_all = self._read_binary_file(filepath)
-
-            # Get number of frames (columns) in this video clip
-            # num_frames = np.size(gray_all, 1)
-            num_frames = np.shape(confidence_all)[1]
-
-            # ROI indices:
-            # 0: nose
-            # 1: forehead
-            # 2: cheek_and_nose
-            # 3: left_cheek
-            # 4: right_cheek
-            # 5: low_forehead
-            # 6: palm
-
-            # Create arrays to store intensity and depth signals for all ROIs in this video clip (num_ROIs, num_frames) = (7, 600)
-            intensity_signal_current_file = np.zeros((num_ROIs, num_frames))
-            depth_signal_current_file = np.zeros((num_ROIs, num_frames))
-            ear_signal_current_file = np.zeros(num_frames)
-
-            # Each array is currently (height*width, num_frames) = (480*640, num_frames) = (307200, num_frames)
-            # Reshape to (height, width, num_frames) = (480, 640, num_frames)
-            x_all = x_all.reshape([self.image_height, self.image_width, num_frames])
-            y_all = y_all.reshape([self.image_height, self.image_width, num_frames])
-            z_all = z_all.reshape([self.image_height, self.image_width, num_frames])
-            confidence_all = confidence_all.reshape([self.image_height, self.image_width, num_frames])
-
-            # Used to calculate FPS
-            previous_time = 0
             
-            # Loop through all frames
-            for frame_idx in range(num_frames):
-                frame_x = x_all[:, :, frame_idx]
-                frame_y = y_all[:, :, frame_idx]
-                frame_z = z_all[:, :, frame_idx]
-                frame_confidence = confidence_all[:, :, frame_idx]
-
-                # Track face and extract intensity and depth for all ROIs in this frame
-
-                # Convert the frame's confidence values to a grayscale image (n,d)
-                frame_grayscale = self._convert_camera_confidence_to_grayscale(frame_confidence)
-
-                # # To improve performance, optionally mark the image as not writeable to
-                # # pass by reference.
-                # frame_grayscale.flags.writeable = False
-
-                # Convert grayscale image to "RGB" (n,d,3)
-                frame_grayscale_rgb = cv2.cvtColor(frame_grayscale, cv2.COLOR_GRAY2RGB)
-
-                # Get pixel locations of all face landmarks
-                face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=visualize_FaceMesh)
-
-                if face_detected:
-                    self._process_face_landmarks(landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file)
-
-                if visualize_FaceMesh:
-                    # Calculate and overlay FPS
-
-                    current_time = time.time()
-                    # FPS = (# frames processed (1)) / (# seconds taken to process those frames)
-                    fps = 1 / (current_time - previous_time)
-                    previous_time = current_time
-                    cv2.putText(frame_grayscale_rgb, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 3)
-
-                    # Display frame
-
-                    cv2.imshow("Image", frame_grayscale_rgb)
-                    cv2.waitKey(1)
-
-            intensity_signals = np.concatenate((intensity_signals, intensity_signal_current_file), axis=1)
-            depth_signals = np.concatenate((depth_signals, depth_signal_current_file), axis=1)
-            ear_signal = np.concatenate((ear_signal, ear_signal_current_file),axis=0)
+            # Process the file
+            self._process_file(file_num, num_files_to_process, filename, num_ROIs, face_mesh_detector, visualize_FaceMesh)
                     
-        intensity_signals = np.delete(intensity_signals, 0, 1)
-        depth_signals = np.delete(depth_signals, 0, 1)
-        ear_signal = np.delete(ear_signal,0,0)
-        mdic = {"Depth": depth_signals, 'I_raw': intensity_signals, 'EAR': ear_signal} # EAR: eye aspect ratio
+        self.intensity_signals = np.delete(self.intensity_signals, 0, 1)
+        self.depth_signals = np.delete(self.depth_signals, 0, 1)
+        self.ear_signal = np.delete(self.ear_signal,0,0)
+        mdic = {"Depth": self.depth_signals, 'I_raw': self.intensity_signals, 'EAR': self.ear_signal} # EAR: eye aspect ratio
         savemat(os.path.join(self.input_dir, self.output_filename + '.mat'), mdic)
         
         print('finished')
+
+        return
+    
+    def _process_file(self, file_num, num_files_to_process, filename, num_ROIs, face_mesh_detector, visualize_FaceMesh):
+        print(f"Processing file {file_num}/{num_files_to_process}: {filename}...")
+
+        # Load the file
+        filepath = os.path.join(self.input_dir, filename + '.bin')
+        x_all, y_all, z_all, confidence_all = self._read_binary_file(filepath)
+
+        # Get number of frames (columns) in this video clip
+        # num_frames = np.size(gray_all, 1)
+        num_frames = np.shape(confidence_all)[1]
+
+        # ROI indices:
+        # 0: nose
+        # 1: forehead
+        # 2: cheek_and_nose
+        # 3: left_cheek
+        # 4: right_cheek
+        # 5: low_forehead
+        # 6: palm
+
+        # Create arrays to store intensity and depth signals for all ROIs in this video clip (num_ROIs, num_frames) = (7, 600)
+        intensity_signal_current_file = np.zeros((num_ROIs, num_frames))
+        depth_signal_current_file = np.zeros((num_ROIs, num_frames))
+        ear_signal_current_file = np.zeros(num_frames)
+
+        # Each array is currently (height*width, num_frames) = (480*640, num_frames) = (307200, num_frames)
+        # Reshape to (height, width, num_frames) = (480, 640, num_frames)
+        x_all = x_all.reshape([self.image_height, self.image_width, num_frames])
+        y_all = y_all.reshape([self.image_height, self.image_width, num_frames])
+        z_all = z_all.reshape([self.image_height, self.image_width, num_frames])
+        confidence_all = confidence_all.reshape([self.image_height, self.image_width, num_frames])
+
+        # Used to calculate FPS
+        previous_time = 0
+        
+        # Loop through all frames
+        for frame_idx in range(num_frames):
+            frame_x = x_all[:, :, frame_idx]
+            frame_y = y_all[:, :, frame_idx]
+            frame_z = z_all[:, :, frame_idx]
+            frame_confidence = confidence_all[:, :, frame_idx]
+
+            # Track face and extract intensity and depth for all ROIs in this frame
+
+            # Convert the frame's confidence values to a grayscale image (n,d)
+            frame_grayscale = self._convert_camera_confidence_to_grayscale(frame_confidence)
+
+            # # To improve performance, optionally mark the image as not writeable to
+            # # pass by reference.
+            # frame_grayscale.flags.writeable = False
+
+            # Convert grayscale image to "RGB" (n,d,3)
+            frame_grayscale_rgb = cv2.cvtColor(frame_grayscale, cv2.COLOR_GRAY2RGB)
+
+            # Get pixel locations of all face landmarks
+            face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=visualize_FaceMesh)
+
+            if face_detected:
+                self._process_face_landmarks(landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file)
+
+            if visualize_FaceMesh:
+                # Calculate and overlay FPS
+
+                current_time = time.time()
+                # FPS = (# frames processed (1)) / (# seconds taken to process those frames)
+                fps = 1 / (current_time - previous_time)
+                previous_time = current_time
+                cv2.putText(frame_grayscale_rgb, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 3)
+
+                # Display frame
+
+                cv2.imshow("Image", frame_grayscale_rgb)
+                cv2.waitKey(1)
+
+        self.intensity_signals = np.concatenate((self.intensity_signals, intensity_signal_current_file), axis=1)
+        self.depth_signals = np.concatenate((self.depth_signals, depth_signal_current_file), axis=1)
+        self.ear_signal = np.concatenate((self.ear_signal, ear_signal_current_file),axis=0)
 
         return
     
