@@ -76,17 +76,9 @@ class PhaseTwo():
         # 'chin': np.array([176, 149, 153, 378]),
         # 'palm': np.array([1, 6, 18])
 
-        # Get the number of available threads
-        num_threads = os.cpu_count()
-
-        # If the CPU does not support multithreading, set num_threads to 1 (single-threaded)
-        if num_threads is None:
-            num_threads = 1
-        elif num_threads < 1:
-            num_threads = 1
-        
+        # Create thread_pool
+        num_threads = self._get_num_threads()
         print(f"Using {num_threads} threads")
-        
         self.thread_pool = concurrent.futures.ThreadPoolExecutor(max_workers=num_threads)
 
         # Set flag to indicate whether or not the class has been cleaned up
@@ -683,6 +675,26 @@ class PhaseTwo():
             self.thread_pool.shutdown(wait=True, cancel_futures=False)
 
             self.cleaned_up = True
+    
+    def _get_num_threads(self) -> int:
+        """
+        Get the number of threads to use for multi-threading. If the CPU does not support
+        multi-threading, this will return 1.
+
+        Returns:
+            The number of threads to use for multi-threading.
+        """
+        
+        # Get the number of available threads
+        num_threads = os.cpu_count()
+
+        # If the CPU does not support multithreading, set num_threads to 1 (single-threaded)
+        if num_threads is None:
+            num_threads = 1
+        elif num_threads < 1:
+            num_threads = 1
+        
+        return num_threads
 
 if __name__ == "__main__":
     skvs_dir = os.path.join(os.getcwd(), 'skvs')
