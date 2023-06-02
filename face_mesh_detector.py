@@ -895,4 +895,4 @@ if __name__ == "__main__":
     skvs_dir = os.path.join(os.getcwd(), 'skvs')
 
     myFaceMeshDetector = PhaseTwo(input_dir=os.path.join(skvs_dir, "mat"), output_filename="auto_bfsig")
-    myFaceMeshDetector.run(visualize_ROI=False, visualize_FaceMesh=True)
+    myFaceMeshDetector.run(visualize_ROI=False, visualize_FaceMesh=False)
