@@ -151,7 +151,26 @@ class PhaseTwo():
 
         return
     
-    def _process_file(self, file_num, num_files_to_process, filename, num_ROIs, face_mesh_detector, visualize_FaceMesh):
+    def _process_file(self, file_num: int, num_files_to_process: int, filename: str, num_ROIs: int,
+                  face_mesh_detector: FaceMeshDetector, visualize_FaceMesh: bool) -> None:
+        """
+        Processes a single file.
+        
+        Extracts intensity, depth, and eye aspect ratio signals for each region of interest (ROI)
+        and updates the corresponding arrays.
+
+        Args:
+            file_num: The number of the current file being processed.
+            num_files_to_process: The total number of files to be processed.
+            filename: The name of the file to be processed.
+            num_ROIs: The number of regions of interest (ROIs) for which to extract signals.
+            face_mesh_detector: An instance of the FaceMeshDetector class for performing face mesh detection.
+            visualize_FaceMesh: A boolean indicating whether to visualize the face mesh on each frame.
+
+        Returns:
+            None. Updates the self.intensity_signals, self.depth_signals, and self.ear_signal arrays
+            of the class.
+        """
         print(f"Processing file {file_num}/{num_files_to_process}: {filename}...")
 
         # Load the file
