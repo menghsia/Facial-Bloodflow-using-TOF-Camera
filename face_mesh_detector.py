@@ -179,10 +179,10 @@ class FaceMeshDetector():
         frame_x, frame_y, frame_z, frame_gray = frame_data
 
         # find the ROI vertices
-        landmark_forehead = self._ROI_coord_extract(face_landmarks, 'forehead', img_rows, img_cols)
-        mask_forehead = self._vtx2mask(landmark_forehead, img_cols, img_rows)
         landmark_nose = self._ROI_coord_extract(face_landmarks, 'nose', img_rows, img_cols)
         mask_nose = self._vtx2mask(landmark_nose, img_cols, img_rows)
+        landmark_forehead = self._ROI_coord_extract(face_landmarks, 'forehead', img_rows, img_cols)
+        mask_forehead = self._vtx2mask(landmark_forehead, img_cols, img_rows)
         landmark_cheek_and_nose = self._ROI_coord_extract(face_landmarks, 'cheek_n_nose', img_rows, img_cols)
         mask_cheek_and_nose = self._vtx2mask(landmark_cheek_and_nose, img_cols, img_rows)
         landmark_left_cheek = self._ROI_coord_extract(face_landmarks, 'left_cheek', img_rows, img_cols)
