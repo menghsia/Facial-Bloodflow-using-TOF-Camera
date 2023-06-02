@@ -189,6 +189,9 @@ def process_args():
     return args
 
 if __name__ == '__main__':
+
+    # TODO: Add checks to ensure that /skvs/ and /skvs/mat/ exist. If not, create them.
+    
     main_start_time = time.time()
     
     args = process_args()

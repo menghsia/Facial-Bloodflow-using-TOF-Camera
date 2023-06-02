@@ -99,6 +99,9 @@ class PhaseTwo():
             visualize_ROI: Flag indicating whether to visualize the region(s) of interest (not sure what region(s) this is referring to).
             visualize_FaceMesh: Flag indicating whether to visualize the face mesh (the creepy mask-looking thing).
         """
+
+        # TODO: Add ROI visualizations
+        
         num_ROIs = 7
 
         # Array of intensity signal arrays
