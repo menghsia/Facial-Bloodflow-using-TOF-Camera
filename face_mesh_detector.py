@@ -216,6 +216,8 @@ class PhaseTwo():
         savemat(os.path.join(self.input_dir, self.output_filename + '.mat'), mdic)
         
         print('finished')
+
+        return
     
     def _process_face_landmarks(
         self,
