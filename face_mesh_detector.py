@@ -101,7 +101,7 @@ class PhaseTwo():
         """
 
         # TODO: Add ROI visualizations
-        
+
         num_ROIs = 7
 
         # Array of intensity signal arrays
@@ -111,7 +111,7 @@ class PhaseTwo():
         # Array of depth signal arrays
         self.depth_signals = np.zeros((num_ROIs, 1))
 
-        # Not sure what this is for
+        # Array of eye aspect ratio signal values
         self.ear_signal = np.zeros((1))
 
         # Get list of all input files in input_mats_dir (./skvs/mat/)
