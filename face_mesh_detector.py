@@ -195,23 +195,24 @@ class PhaseTwo():
                 frame_grayscale_rgb = cv2.cvtColor(frame_grayscale, cv2.COLOR_GRAY2RGB)
 
                 # Get pixel locations of all face landmarks
-                face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=False)
+                face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=visualize_FaceMesh)
 
                 if face_detected:
                     self._process_face_landmarks(landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file)
-                
-                # Calculate and overlay FPS
 
-                current_time = time.time()
-                # FPS = (# frames processed (1)) / (# seconds taken to process those frames)
-                fps = 1 / (current_time - previous_time)
-                previous_time = current_time
-                cv2.putText(frame_grayscale_rgb, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 3)
+                if visualize_FaceMesh:
+                    # Calculate and overlay FPS
 
-                # Display frame
+                    current_time = time.time()
+                    # FPS = (# frames processed (1)) / (# seconds taken to process those frames)
+                    fps = 1 / (current_time - previous_time)
+                    previous_time = current_time
+                    cv2.putText(frame_grayscale_rgb, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 3)
 
-                cv2.imshow("Image", frame_grayscale_rgb)
-                cv2.waitKey(1)
+                    # Display frame
+
+                    cv2.imshow("Image", frame_grayscale_rgb)
+                    cv2.waitKey(1)
 
             intensity_signals = np.concatenate((intensity_signals, intensity_signal_current_file), axis=1)
             depth_signals = np.concatenate((depth_signals, depth_signal_current_file), axis=1)
@@ -894,4 +895,4 @@ if __name__ == "__main__":
     skvs_dir = os.path.join(os.getcwd(), 'skvs')
 
     myFaceMeshDetector = PhaseTwo(input_dir=os.path.join(skvs_dir, "mat"), output_filename="auto_bfsig")
-    myFaceMeshDetector.run(visualize_ROI=False, visualize_FaceMesh=False)
+    myFaceMeshDetector.run(visualize_ROI=False, visualize_FaceMesh=True)
