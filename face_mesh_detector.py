@@ -128,9 +128,6 @@ class PhaseTwo():
         
         print(f"Using {num_threads} threads")
 
-        tasks = []
-        new_task = None
-
         # TODO: Make the thread_pool a class variable so we can queue up tasks and wait for
         # them to finish from within any class function
         
@@ -420,71 +417,6 @@ class PhaseTwo():
 
         return eye_aspect_ratio_value
 
-    def _process_frame(self, frame_x: np.ndarray, frame_y: np.ndarray, frame_z: np.ndarray,
-                              frame_confidence: np.ndarray, frame_idx: int,
-                              intensity_signal_current: np.ndarray, depth_signal_current: np.ndarray,
-                              ear_signal_current: np.ndarray, face_landmarks) -> None:
-        """
-        Processes a single frame to extract intensity and depth signals for each region of interest (ROI).
-
-        Args:
-            frame_x: X-coordinate values of the face mesh landmarks for the frame.
-            frame_y: Y-coordinate values of the face mesh landmarks for the frame.
-            frame_z: Z-coordinate values of the face mesh landmarks for the frame.
-            frame_confidence: Confidence values of the face mesh landmarks for the frame.
-            frame_idx: Frame index number.
-            intensity_signal_current: Array to store the intensity signals for each ROI.
-            depth_signal_current: Array to store the depth signals for each ROI.
-            ear_signal_current: Array to store the eye aspect ratio (EAR) signals.
-            face_landmarks: Face landmarks for the frame.
-        """
-        # print(f"{frame_num}: Worker starting...")
-
-        # find the ROI vertices
-        landmark_nose = self._ROI_coord_extract(face_landmarks, 'nose', self.image_height, self.image_width)
-        mask_nose = self._vtx2mask(landmark_nose, self.image_width, self.image_height)
-        landmark_forehead = self._ROI_coord_extract(face_landmarks, 'forehead', self.image_height, self.image_width)
-        mask_forehead = self._vtx2mask(landmark_forehead, self.image_width, self.image_height)
-        landmark_cheek_and_nose = self._ROI_coord_extract(face_landmarks, 'cheek_n_nose', self.image_height, self.image_width)
-        mask_cheek_and_nose = self._vtx2mask(landmark_cheek_and_nose, self.image_width, self.image_height)
-        landmark_left_cheek = self._ROI_coord_extract(face_landmarks, 'left_cheek', self.image_height, self.image_width)
-        mask_left_cheek = self._vtx2mask(landmark_left_cheek, self.image_width, self.image_height)
-        landmark_right_cheek = self._ROI_coord_extract(face_landmarks, 'right_cheek', self.image_height, self.image_width)
-        mask_right_cheek = self._vtx2mask(landmark_right_cheek, self.image_width, self.image_height)
-        landmark_low_forehead = self._ROI_coord_extract(face_landmarks, 'low_forehead', self.image_height, self.image_width)
-        mask_low_forehead = self._vtx2mask(landmark_low_forehead, self.image_width, self.image_height)
-
-        # calculate averaged intensity and depth for each ROI
-        intensity_signal_current[0, frame_idx] = np.average(frame_confidence[np.where(mask_nose > 0)])
-        intensity_signal_current[1, frame_idx] = np.average(frame_confidence[np.where(mask_forehead > 0)])
-        intensity_signal_current[2, frame_idx] = np.average(frame_confidence[np.where(mask_cheek_and_nose > 0)])
-        intensity_signal_current[3, frame_idx] = np.average(frame_confidence[np.where(mask_left_cheek > 0)])
-        intensity_signal_current[4, frame_idx] = np.average(frame_confidence[np.where(mask_right_cheek > 0)])
-        intensity_signal_current[5, frame_idx] = np.average(frame_confidence[np.where(mask_low_forehead > 0)])
-
-        depth_signal_current[0, frame_idx] = np.sqrt(np.average(frame_x[np.where(mask_nose > 0)]) ** 2 + np.average(frame_y[np.where(mask_nose > 0)]) ** 2 + np.average(frame_z[np.where(mask_nose > 0)]) ** 2)
-        depth_signal_current[1, frame_idx] = np.sqrt(np.average(frame_x[np.where(mask_forehead > 0)]) ** 2 + np.average(frame_y[np.where(mask_forehead > 0)]) ** 2 + np.average(frame_z[np.where(mask_forehead > 0)]) ** 2)
-        depth_signal_current[2, frame_idx] = np.sqrt(np.average(frame_x[np.where(mask_cheek_and_nose > 0)]) ** 2 + np.average(frame_y[np.where(mask_cheek_and_nose > 0)]) ** 2 + np.average(frame_z[np.where(mask_cheek_and_nose > 0)]) ** 2)
-        depth_signal_current[3, frame_idx] = np.sqrt(np.average(frame_x[np.where(mask_left_cheek > 0)]) ** 2 + np.average(frame_y[np.where(mask_left_cheek > 0)]) ** 2 + np.average(frame_z[np.where(mask_left_cheek > 0)]) ** 2)
-        depth_signal_current[4, frame_idx] = np.sqrt(np.average(frame_x[np.where(mask_right_cheek > 0)]) ** 2 + np.average(frame_y[np.where(mask_right_cheek > 0)]) ** 2 + np.average(frame_z[np.where(mask_right_cheek > 0)]) ** 2)
-        depth_signal_current[5, frame_idx] = np.sqrt(np.average(frame_x[np.where(mask_low_forehead > 0)]) ** 2 + np.average(frame_y[np.where(mask_low_forehead > 0)]) ** 2 + np.average(frame_z[np.where(mask_low_forehead > 0)]) ** 2)
-
-        # Percentage of Eye Closure (PERCLOS)
-        landmark_leye = self._ROI_coord_extract(face_landmarks, 'left_eye', self.image_height, self.image_width)
-        L_ear = self._eye_aspect_ratio(landmark_leye)
-        landmark_reye = self._ROI_coord_extract(face_landmarks, 'right_eye', self.image_height, self.image_width)
-        R_ear = self._eye_aspect_ratio(landmark_reye)
-        ear_signal_current[frame_idx] = (L_ear + R_ear) /2
-
-        # # Show visualizations (Disabled to improve performance. Also, not currently working.)
-        # if visualize_ROI:
-        #     self._visualize_ROI(frameTrk, landmark_leye, landmark_reye)
-        
-        # if visualize_FaceMesh:
-        #     self._visualize_FaceMesh(frameTrk, face_landmarks, results_face, mp_drawing_styles, mp_drawing, mp_face_mesh)
-        
-        # print(f"{frame_num}: Worker exiting...")
-
     def _visualize_ROI(self, frameTrk: np.ndarray, landmark_leye: list, landmark_reye: list) -> None:
         """
         Visualize the regions of interest (ROIs) on the image.
@@ -516,54 +448,6 @@ class PhaseTwo():
         # img_showROI = cv2.polylines(img_showROI,[pts],True, color = (0,0,255), thickness = 2)
 
         cv2.imshow('ROI', img_showROI)
-        cv2.waitKey(10)
-
-        return
-
-    def _visualize_FaceMesh(self, frameTrk: np.ndarray, face_landmarks,
-                            results_face, mp_drawing_styles,
-                            mp_drawing, mp_face_mesh) -> None:
-        """
-        Visualize the FaceMesh annotations on the image.
-
-        Args:
-            frameTrk: The frame image.
-            face_landmarks: Detected face landmarks.
-            results_face: FaceMesh detection results.
-            mp_drawing_styles: Drawing styles for FaceMesh annotations.
-            mp_drawing: Drawing utilities.
-            mp_face_mesh: FaceMesh solution.
-        """
-        # Draw the face mesh annotations on the image and display
-        frameTrk.flags.writeable = True
-        image = cv2.cvtColor(frameTrk, cv2.COLOR_RGB2BGR)
-
-        if face_landmarks is not None:
-            for face_landmarks_i in results_face.multi_face_landmarks:
-                mp_drawing.draw_landmarks(
-                    image=image,
-                    landmark_list=face_landmarks_i,
-                    connections=mp_face_mesh.FACEMESH_TESSELATION,
-                    landmark_drawing_spec=None,
-                    connection_drawing_spec=mp_drawing_styles
-                    .get_default_face_mesh_tesselation_style())
-                mp_drawing.draw_landmarks(
-                    image=image,
-                    landmark_list=face_landmarks_i,
-                    connections=mp_face_mesh.FACEMESH_CONTOURS,
-                    landmark_drawing_spec=None,
-                    connection_drawing_spec=mp_drawing_styles
-                    .get_default_face_mesh_contours_style())
-                mp_drawing.draw_landmarks(
-                    image=image,
-                    landmark_list=face_landmarks_i,
-                    connections=mp_face_mesh.FACEMESH_IRISES,
-                    landmark_drawing_spec=None,
-                    connection_drawing_spec=mp_drawing_styles
-                    .get_default_face_mesh_iris_connections_style())
-        
-        # Flip the image horizontally for a selfie-view display.
-        cv2.imshow('MediaPipe Face Mesh', cv2.flip(image, 1))
         cv2.waitKey(10)
 
         return
@@ -652,84 +536,6 @@ class PhaseTwo():
             print(' RectangleSelector activated.')
             self._toggle_selector.RS.set_active(True)
 
-    def _normalized_to_pixel_coordinates(self, normalized_x: float, normalized_y: float, image_width: int,
-            image_height: int) -> Union[None, Tuple[int, int]]:
-        """Converts normalized value pair to pixel coordinates."""
-
-        # Checks if the float value is between 0 and 1.
-        def is_valid_normalized_value(value: float) -> bool:
-            return (value > 0 or math.isclose(0, value)) and (value < 1 or math.isclose(1, value))
-
-        if not (is_valid_normalized_value(normalized_x) and
-                is_valid_normalized_value(normalized_y)):
-            # TODO: Draw coordinates even if it's outside of the image bounds.
-            return None
-        x_px = min(math.floor(normalized_x * image_width), image_width - 1)
-        y_px = min(math.floor(normalized_y * image_height), image_height - 1)
-        return x_px, y_px
-
-    def _ROI_coord_extract(self, face_landmarks, ROIwhich, image_rows, image_cols):
-        """
-        Takes in all face landmarks, which ROI we want, and returns an array of
-        pixel coordinates that represent the bounding box polygon of the ROI on the
-        image.
-        
-        Within the function, the bounding box for each ROI is defined by the
-        landmark ID numbers that represent vertices on the face mesh. These are
-        listed in clockwise order, starting from the top left vertex.
-        """
-        # face_landmarks are the detected landmarks in a image
-        if ROIwhich == 'full_face':
-            ROI_vertex = [54, 284, 454, 365, 136, 234]
-            # ROI_vertex = [137, 366, 365,152, 136]
-        elif ROIwhich == 'left_face':
-            ROI_vertex = [70, 135, 200, 8]
-        elif ROIwhich == 'cheek_n_nose':
-            ROI_vertex = [117, 346, 411, 187]
-            # ROI_vertex = [116, 340, 433, 213]
-        elif ROIwhich == 'left_cheek':
-            ROI_vertex = [131, 165, 214, 50]
-        elif ROIwhich == 'right_cheek':
-            ROI_vertex = [372, 433, 358]
-        elif ROIwhich == 'chin':
-            ROI_vertex = [175, 148, 152, 377]
-        elif ROIwhich == 'nose':
-            ROI_vertex = [196, 419, 455, 235]
-        elif ROIwhich == 'low_forehead':
-            # ROI_vertex = [109,338,336,107]
-            ROI_vertex = [108, 337, 8]
-            # ROI_vertex = [109,338,9]
-
-        elif ROIwhich == 'forehead':
-            ROI_vertex = [109, 338, 9]
-
-        elif ROIwhich == 'palm':
-            ROI_vertex = [0, 5, 17]
-        elif ROIwhich == 'left_eye':
-            ROI_vertex = [33, 160, 159, 158, 133, 153, 145, 144]
-        elif ROIwhich == 'right_eye':
-            ROI_vertex = [263, 387, 386, 385, 362, 380, 374, 373]
-
-        else:
-            print('No such ROI')
-            quit()
-        # Landmarks can be found on https://github.com/tensorflow/tfjs-models/blob/master/face-landmarks-detection/mesh_map.jpg
-        # (old link: https://github.com/tensorflow/tfjs-models/blob/master/facemesh/mesh_map.jpg)
-
-        # Facemesh detection
-
-        # Extract coordinates of all pixels within the ROI polygon
-        landmark_px = []
-
-        for i, vtx in enumerate(ROI_vertex):
-            landmark_current = self._normalized_to_pixel_coordinates(face_landmarks.landmark[vtx].x,
-                                                                face_landmarks.landmark[vtx].y, image_cols, image_rows)
-            landmark_px.append(landmark_current)
-            # print(landmark_px)
-
-        # n-by-2 2d array
-        return landmark_px
-
     def _Chest_ROI_extract(self, image, chin_location, plot=False):
         # mp_pose = mp.solutions.pose
         # pose = mp_pose.Pose(static_image_mode=False, min_detection_confidence=0.6, min_tracking_confidence=0.6)
@@ -812,24 +618,6 @@ class PhaseTwo():
         # return landmark_px_rr
         return
 
-    def _vtx2mask(self, vtx, image_cols, image_rows):
-        """
-        Takes in a list of 2D (x, y) coordinates that represent the vertices of a polygon.
-        Then, creates a temporary image where the polygon is drawn onto.
-        Then, returns a numpy array that contains the coordinates of every pixel that is
-        inside the polygon.
-
-        :param vtx: list of 2D coordinates of the polygon vertices
-        :param image_cols: image columns
-        :param image_rows: image rows
-        :return: mask of polygon
-        """
-        maskimg = Image.new('L', (image_cols, image_rows), 0)
-        ImageDraw.Draw(maskimg).polygon(vtx, outline=1, fill=1)
-        mask = np.array(maskimg)
-
-        return mask
-
     def _pre_whiten(self, signal):
         sig_avg = np.average(signal)
         sig_std = np.std(signal)
@@ -871,32 +659,6 @@ class PhaseTwo():
         # grayscale_image = (normalized_data * 255).astype(np.uint8)
 
         # return grayscale_image
-
-    def _eye_aspect_ratio(self, eye):
-        """
-        Takes in a list of 2D (x, y) pixel coordinates that represent the vertices of the
-        bounding box of an ROI that represents an eye.
-        Then, calculates the distances between certain landmarks of the eye.
-        Then, calculates the Eye Aspect Ratio (EAR) of the eye using "The EAR Equation".
-
-        Returns the EAR of the eye.
-        """
-        
-        # TODO: See if this reference can help us work on this feature:
-        # https://www.pyimagesearch.com/2017/04/24/eye-blink-detection-opencv-python-dlib/
-
-        # Vertical eye landmarks
-        distance_a = dist.euclidean(eye[1], eye[7])
-        distance_b = dist.euclidean(eye[2], eye[6])
-        distance_c = dist.euclidean(eye[3], eye[5])
-
-        # Horizontal eye landmarks
-        distance_d = dist.euclidean(eye[0], eye[4])
-
-        # The EAR Equation
-        ear_value = (distance_a + distance_b + distance_c) / (3.0 * distance_d)
-
-        return ear_value
 
 if __name__ == "__main__":
     skvs_dir = os.path.join(os.getcwd(), 'skvs')
