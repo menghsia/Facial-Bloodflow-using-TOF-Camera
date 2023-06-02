@@ -165,6 +165,7 @@ def mat_to_bfsig(skvs_dir):
     # myFaceMeshDetector = PhaseTwo(input_mats_dir="./skvs/mat/", output_bfsig_name="auto_bfsig")
     myFaceMeshDetector = PhaseTwo(input_dir=os.path.join(skvs_dir, "mat"), output_filename="auto_bfsig")
     myFaceMeshDetector.run(visualize_ROI=False, visualize_FaceMesh=False)
+    myFaceMeshDetector.clean_up()
 
 def bfsig_to_plot():
     # Run plotting matlab script

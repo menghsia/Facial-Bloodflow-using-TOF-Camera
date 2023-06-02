@@ -75,6 +75,24 @@ class PhaseTwo():
         # 'left_face': np.array([71, 136, 201, 9]),
         # 'chin': np.array([176, 149, 153, 378]),
         # 'palm': np.array([1, 6, 18])
+
+        # Get the number of available threads
+        num_threads = os.cpu_count()
+
+        # If the CPU does not support multithreading, set num_threads to 1 (single-threaded)
+        if num_threads is None:
+            num_threads = 1
+        elif num_threads < 1:
+            num_threads = 1
+        
+        print(f"Using {num_threads} threads")
+        
+        self.thread_pool = concurrent.futures.ThreadPoolExecutor(max_workers=num_threads)
+
+        # Set flag to indicate whether or not the class has been cleaned up
+        # (either manually or automatically if the destructor was called by the garbage
+        # collector)
+        self.cleaned_up = False
     
     def run(self, visualize_ROI: bool = False, visualize_FaceMesh: bool = False) -> None:
         """
@@ -116,22 +134,6 @@ class PhaseTwo():
         # Increasing min_tracking_confidence [0.0, 1.0] will generally improve the quality of the landmarks at the expense of a higher latency.
         # To improve performance, optionally mark the image as not writeable to pass by reference.
         # with mp_face_mesh.FaceMesh(static_image_mode=False, max_num_faces=1, refine_landmarks=True, min_detection_confidence=0.5, min_tracking_confidence=0.5) as face_mesh:
-
-        # Get the number of available threads
-        num_threads = os.cpu_count()
-
-        # If the CPU does not support multithreading, set num_threads to 1 (single-threaded)
-        if num_threads is None:
-            num_threads = 1
-        elif num_threads < 1:
-            num_threads = 1
-        
-        print(f"Using {num_threads} threads")
-
-        # TODO: Make the thread_pool a class variable so we can queue up tasks and wait for
-        # them to finish from within any class function
-        
-        thread_pool = concurrent.futures.ThreadPoolExecutor(max_workers=num_threads)
         
         # with my_mp_face_mesh.FaceMesh(static_image_mode=False, max_num_faces=1, refine_landmarks=True, min_detection_confidence=0.5, min_tracking_confidence=0.5) as my_face_mesh:
         
@@ -214,8 +216,6 @@ class PhaseTwo():
             intensity_signals = np.concatenate((intensity_signals, intensity_signal_current_file), axis=1)
             depth_signals = np.concatenate((depth_signals, depth_signal_current_file), axis=1)
             ear_signal = np.concatenate((ear_signal, ear_signal_current_file),axis=0)
-        
-        thread_pool.shutdown(wait=True, cancel_futures=False)
                     
         intensity_signals = np.delete(intensity_signals, 0, 1)
         depth_signals = np.delete(depth_signals, 0, 1)
@@ -659,9 +659,34 @@ class PhaseTwo():
         # grayscale_image = (normalized_data * 255).astype(np.uint8)
 
         # return grayscale_image
+    
+    def clean_up(self):
+        """
+        Clean up class variables.
+
+        NOTE: This should be called when the class is no longer needed. If this is not
+        called, the garbage collector will attempt to call the destructor automatically, but
+        it should not be relied on.
+        """
+        self.__del__()
+
+    def __del__(self):
+        """
+        Destructor to clean up class variables.
+
+        NOTE: This should be called automatically by the garbage collector when the object
+        is no longer needed, however it may be unreliable. It is recommended to call
+        self.clean_up() manually when the class is no longer needed.
+        """
+        if not self.cleaned_up:
+            # Shut down the thread pool
+            self.thread_pool.shutdown(wait=True, cancel_futures=False)
+
+            self.cleaned_up = True
 
 if __name__ == "__main__":
     skvs_dir = os.path.join(os.getcwd(), 'skvs')
 
     myFaceMeshDetector = PhaseTwo(input_dir=os.path.join(skvs_dir, "mat"), output_filename="auto_bfsig")
     myFaceMeshDetector.run(visualize_ROI=False, visualize_FaceMesh=False)
+    myFaceMeshDetector.clean_up()
