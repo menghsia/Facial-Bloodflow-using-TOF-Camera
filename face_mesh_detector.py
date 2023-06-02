@@ -362,7 +362,6 @@ class PhaseTwo():
 
         # Convert the mask_canvas image, with the filled-in polygon on it, to a numpy array
         # The array will have a shape of (self.image_height, self.image_width)
-        # TODO: Verify output shape
         pixels_in_ROI = np.array(mask_canvas)
 
         # # Display the image using matplotlib
