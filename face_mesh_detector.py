@@ -60,21 +60,21 @@ class PhaseTwo():
         # Define the landmarks that represent the vertices of the bounding box for each ROI
         # (used in _get_ROI_bounding_box_pixels())
         self.face_roi_definitions = {
-            'nose': np.array([196, 419, 455, 235]),
-            'forehead': np.array([109, 338, 9]),
-            'cheek_n_nose': np.array([117, 346, 411, 187]),
-            'left_cheek': np.array([131, 165, 214, 50]),
-            'right_cheek': np.array([372, 433, 358]),
-            'low_forehead': np.array([108, 337, 8]),
-            'left_eye': np.array([33, 160, 159, 158, 133, 153, 145, 144]),
-            'right_eye': np.array([263, 387, 386, 385, 362, 380, 374, 373])
+            'nose': np.array([197, 420, 456, 236]),
+            'forehead': np.array([110, 339, 10]),
+            'cheek_n_nose': np.array([118, 347, 412, 188]),
+            'left_cheek': np.array([132, 166, 215, 51]),
+            'right_cheek': np.array([373, 434, 359]),
+            'low_forehead': np.array([109, 338, 9]),
+            'left_eye': np.array([34, 161, 160, 159, 134, 154, 146, 145]),
+            'right_eye': np.array([264, 388, 387, 386, 363, 381, 375, 374])
         }
 
         # These were some other ROIs that were defined, but unused:
-        # 'full_face': np.array([54, 284, 454, 365, 136, 234]),
-        # 'left_face': np.array([70, 135, 200, 8]),
-        # 'chin': np.array([175, 148, 152, 377]),
-        # 'palm': np.array([0, 5, 17])
+        # 'full_face': np.array([55, 285, 455, 366, 137, 235]),
+        # 'left_face': np.array([71, 136, 201, 9]),
+        # 'chin': np.array([176, 149, 153, 378]),
+        # 'palm': np.array([1, 6, 18])
     
     def run(self, visualize_ROI: bool = False, visualize_FaceMesh: bool = False) -> None:
         """
@@ -363,15 +363,22 @@ class PhaseTwo():
         # (https://pillow.readthedocs.io/en/stable/handbook/concepts.html#concept-modes)
         mask_canvas = Image.new('L', (self.image_width, self.image_height), 0)
 
+        # Reformat to a list of 2-tuples
+        pixels_passed_in = list(map(tuple, bounding_box_pixels.tolist()))
+
         # Draw a polygon on the mask_canvas using the ROI bounding box pixel coordinates
         # The polygon will be filled in with pixels with value 1, and the outline will
         # be 1 pixel wide with a value of 1 as well.
-        ImageDraw.Draw(mask_canvas).polygon(bounding_box_pixels.reshape(-1), fill=1, outline=1, width=1)
+        ImageDraw.Draw(mask_canvas).polygon(pixels_passed_in, fill=1, outline=1, width=1)
 
         # Convert the mask_canvas image, with the filled-in polygon on it, to a numpy array
         # The array will have a shape of (self.image_height, self.image_width)
         # TODO: Verify output shape
         pixels_in_ROI = np.array(mask_canvas)
+
+        # # Display the image using matplotlib
+        # plt.imshow(mask_canvas, cmap='gray')
+        # plt.show()
 
         return pixels_in_ROI
 
