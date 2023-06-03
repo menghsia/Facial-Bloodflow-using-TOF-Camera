@@ -113,6 +113,7 @@ def main():
         exit(1)
 
     previous_time = 0
+    start_time = time.time()
 
     detector = FaceMeshDetector()
 
@@ -141,6 +142,10 @@ def main():
 
         cv2.imshow("Image", frame)
         cv2.waitKey(1)
+    
+    end_time = time.time()
+    average_fps = (video.get(cv2.CAP_PROP_FRAME_COUNT) - 1) / (end_time - start_time)
+    print(f"Average FPS: {average_fps}")
 
     video.release()
 
