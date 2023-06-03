@@ -100,6 +100,8 @@ class FaceMeshDetector():
                     # Store pixel coordinates in array
                     landmarks_pixels[id] = (x, y)
 
+                    # TODO: Check if 468 landmarks are always detected in every possible input image
+
         return face_detected, landmarks_pixels
 
 
