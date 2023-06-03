@@ -206,6 +206,8 @@ class PhaseTwo():
         # Used to calculate FPS
         previous_time = 0
         start_time = time.time()
+
+        multithreading_tasks = []
         
         # Loop through all frames
         for frame_idx in range(num_frames):
@@ -230,7 +232,7 @@ class PhaseTwo():
             face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=visualize_FaceMesh)
 
             if face_detected:
-                self._process_face_landmarks(landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file)
+                multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file))
 
             if visualize_FaceMesh:
                 # Calculate and overlay FPS
@@ -250,6 +252,9 @@ class PhaseTwo():
         end_time = time.time()
         average_fps = num_frames / (end_time - start_time)
         print(f"Average FPS: {average_fps}")
+
+        # Wait for all multithreading tasks to finish
+        concurrent.futures.wait(multithreading_tasks)
 
         self.intensity_signals = np.concatenate((self.intensity_signals, intensity_signal_current_file), axis=1)
         self.depth_signals = np.concatenate((self.depth_signals, depth_signal_current_file), axis=1)
