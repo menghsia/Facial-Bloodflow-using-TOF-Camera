@@ -149,8 +149,6 @@ class PhaseTwo():
         self.ear_signal = np.delete(self.ear_signal,0,0)
         mdic = {"Depth": self.depth_signals, 'I_raw': self.intensity_signals, 'EAR': self.ear_signal} # EAR: eye aspect ratio
         savemat(os.path.join(self.input_dir, self.output_filename + '.mat'), mdic)
-        
-        print('finished')
 
         return
     
