@@ -301,8 +301,10 @@ class PhaseTwo():
             `ear_signal_current_file`.
         """
         # Variables for calculating eye aspect ratio
-        left_eye_aspect_ratio = 0.0
-        right_eye_aspect_ratio = 0.0
+        left_eye_aspect_ratio_task = None
+        right_eye_aspect_ratio_task = None
+
+        multithreading_tasks = []
 
         # Loop through each ROI
         for roi_idx, roi_name in enumerate(self.face_roi_definitions.keys()):
@@ -311,27 +313,40 @@ class PhaseTwo():
 
             if roi_name == "left_eye":
                 # Calculate and save eye aspect ratio for the ROI
-                left_eye_aspect_ratio = self._get_eye_aspect_ratio(roi_bounding_box_pixels)
+                left_eye_aspect_ratio_task = self.thread_pool.submit(self._get_eye_aspect_ratio, roi_bounding_box_pixels)
             elif roi_name == "right_eye":
                 # Calculate and save eye aspect ratio for the ROI
-                right_eye_aspect_ratio = self._get_eye_aspect_ratio(roi_bounding_box_pixels)
+                right_eye_aspect_ratio_task = self.thread_pool.submit(self._get_eye_aspect_ratio, roi_bounding_box_pixels)
             else:
                 # Get pixels contained within ROI bounding box
                 pixels_in_ROI = self._get_pixels_within_ROI_bounding_box(roi_bounding_box_pixels)
                 
                 # Calculate and save averaged intensity for the ROI
-                intensity_signal_current_file[roi_idx, frame_idx] = np.average(frame_confidence[np.where(pixels_in_ROI > 0)])
+                multithreading_tasks.append(self.thread_pool.submit(self._save_intensity_signal, intensity_signal_current_file, roi_idx, frame_idx, frame_confidence, pixels_in_ROI))
                 
                 # Calculate and save averaged depth for the ROI
-                depth_signal_current_file[roi_idx, frame_idx] = np.sqrt(
-                    np.average(frame_x[np.where(pixels_in_ROI > 0)]) ** 2 +
-                    np.average(frame_y[np.where(pixels_in_ROI > 0)]) ** 2 +
-                    np.average(frame_z[np.where(pixels_in_ROI > 0)]) ** 2
-                )
+                multithreading_tasks.append(self.thread_pool.submit(self._save_depth_signal, depth_signal_current_file, roi_idx, frame_idx, frame_x, frame_y, frame_z, pixels_in_ROI))
         
         # Calculate and save eye aspect ratio for the ROI
-        ear_signal_current_file[frame_idx] = (left_eye_aspect_ratio + right_eye_aspect_ratio) / 2
+        ear_signal_current_file[frame_idx] = (left_eye_aspect_ratio_task.result() + right_eye_aspect_ratio_task.result()) / 2
+
+        # Wait for all multi-threaded tasks for this ROI to complete
+        concurrent.futures.wait(multithreading_tasks)
         
+        return
+    
+    def _save_intensity_signal(self, intensity_signal_current_file, roi_idx, frame_idx, frame_confidence, pixels_in_ROI):
+        intensity_signal_current_file[roi_idx, frame_idx] = np.average(frame_confidence[np.where(pixels_in_ROI > 0)])
+
+        return
+    
+    def _save_depth_signal(self, depth_signal_current_file, roi_idx, frame_idx, frame_x, frame_y, frame_z, pixels_in_ROI):
+        depth_signal_current_file[roi_idx, frame_idx] = np.sqrt(
+            np.average(frame_x[np.where(pixels_in_ROI > 0)]) ** 2 +
+            np.average(frame_y[np.where(pixels_in_ROI > 0)]) ** 2 +
+            np.average(frame_z[np.where(pixels_in_ROI > 0)]) ** 2
+        )
+
         return
     
     def _get_ROI_bounding_box_pixels(self, landmarks_pixels: np.ndarray, roi_name: str) -> np.ndarray:
