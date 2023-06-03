@@ -205,6 +205,7 @@ class PhaseTwo():
 
         # Used to calculate FPS
         previous_time = 0
+        start_time = time.time()
         
         # Loop through all frames
         for frame_idx in range(num_frames):
@@ -244,6 +245,11 @@ class PhaseTwo():
 
                 cv2.imshow("Image", frame_grayscale_rgb)
                 cv2.waitKey(1)
+        
+        # Calculate and print average FPS
+        end_time = time.time()
+        average_fps = num_frames / (end_time - start_time)
+        print(f"Average FPS: {average_fps}")
 
         self.intensity_signals = np.concatenate((self.intensity_signals, intensity_signal_current_file), axis=1)
         self.depth_signals = np.concatenate((self.depth_signals, depth_signal_current_file), axis=1)
