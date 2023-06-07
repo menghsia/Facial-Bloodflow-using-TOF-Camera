@@ -134,7 +134,7 @@ def check_for_skvs(skvs_dir):
         print('No .skv files found in ./skvs/')
         sys.exit()
 
-def skv_to_mat(skvs_dir):
+def skv_to_bin(skvs_dir):
     ## For each .skv file in skvs_dir, convert to .mat file using imx520_sample.exe and save to ./skvs/mat/
     #for skv_filename in os.listdir(skvs_dir):
     #    # print("skv_filename:")
@@ -160,7 +160,7 @@ def skv_to_mat(skvs_dir):
     # ./imx520_sample.exe -i ./skvs/ -o ./skvs/mat/ -d
     process = subprocess.run([imx520_sample_exe_path, "-i", skvs_dir, "-o", output_mat_dir, "-d"], shell=True)
 
-def mat_to_bfsig(skvs_dir):
+def bin_to_bfsig(skvs_dir):
     # Tag regions in face and generate bloodflow signature .mat file
     # myFaceMeshDetector = PhaseTwo(input_mats_dir="./skvs/mat/", output_bfsig_name="auto_bfsig")
     myPhaseTwo = PhaseTwo(input_dir=os.path.join(skvs_dir, "mat"), output_filename="auto_bfsig")
@@ -175,15 +175,15 @@ def bfsig_to_plot():
 
 def process_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--skv_to_mat', action='store_true')
-    parser.add_argument('--mat_to_bfsig', action='store_true')
+    parser.add_argument('--skv_to_bin', action='store_true')
+    parser.add_argument('--bin_to_bfsig', action='store_true')
     parser.add_argument('--bfsig_to_plot', action='store_true')
     args = parser.parse_args()
 
     # If no args are provided, set all 3 bools to True
     if not any(vars(args).values()):
-        args.skv_to_mat = True
-        args.mat_to_bfsig = True
+        args.skv_to_bin = True
+        args.bin_to_bfsig = True
         args.bfsig_to_plot = True
     
     return args
@@ -203,12 +203,12 @@ if __name__ == '__main__':
 
     check_for_skvs(skvs_dir)
 
-    if args.skv_to_mat:
-        skv_to_mat(skvs_dir)
+    if args.skv_to_bin:
+        skv_to_bin(skvs_dir)
     
-    if args.mat_to_bfsig:
+    if args.bin_to_bfsig:
         # start_time = time.time()
-        mat_to_bfsig(skvs_dir)
+        bin_to_bfsig(skvs_dir)
         # end_time = time.time()
         # print("mat_to_bfsig() took " + str(end_time - start_time) + " seconds to run")
     
