@@ -79,6 +79,7 @@ class PhaseTwo():
         # Create thread_pool
         num_threads = self._get_num_threads()
         print(f"Using {num_threads} threads")
+        # TODO: Consider disabling mutexes for thread pool and see if that improves performance
         self.thread_pool = concurrent.futures.ThreadPoolExecutor(max_workers=num_threads)
 
         # Set flag to indicate whether or not the class has been cleaned up
