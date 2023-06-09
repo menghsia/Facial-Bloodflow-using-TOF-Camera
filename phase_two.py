@@ -393,25 +393,21 @@ class PhaseTwo():
                 as the frame image.
         """
 
-        # Create a black (0) grayscale image with the same dimensions as the frame
-        # TODO: Try using mode='1' instead of mode='L' to save memory
-        # (https://pillow.readthedocs.io/en/stable/handbook/concepts.html#concept-modes)
-        mask_canvas = Image.new('L', (self.image_width, self.image_height), 0)
+        # Create an empty binary mask with the same shape as the frame image
+        mask = np.zeros((self.image_height, self.image_width), dtype=np.uint8)
 
-        # Reformat to a list of 2-tuples
+        # # Reformat to a list of 2-tuples
         pixels_passed_in = list(map(tuple, bounding_box_pixels.tolist()))
 
-        # Draw a polygon on the mask_canvas using the ROI bounding box pixel coordinates
-        # The polygon will be filled in with pixels with value 1, and the outline will
-        # be 1 pixel wide with a value of 1 as well.
-        ImageDraw.Draw(mask_canvas).polygon(pixels_passed_in, fill=1, outline=1, width=1)
+        # Draw a filled polygon on the mask using the ROI bounding box pixel coordinates
+        cv2.fillPoly(mask, [np.array(pixels_passed_in)], color=1)
+        # cv2.fillPoly(mask, [bounding_box_pixels], color=1)
 
-        # Convert the mask_canvas image, with the filled-in polygon on it, to a numpy array
-        # The array will have a shape of (self.image_height, self.image_width)
-        pixels_in_ROI = np.array(mask_canvas)
+        # Convert the mask to a binary array
+        pixels_in_ROI = mask.astype(np.uint8)
 
         # # Display the image using matplotlib
-        # plt.imshow(mask_canvas, cmap='gray')
+        # plt.imshow(mask, cmap='gray')
         # plt.show()
 
         return pixels_in_ROI
