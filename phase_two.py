@@ -396,12 +396,8 @@ class PhaseTwo():
         # Create an empty binary mask with the same shape as the frame image
         mask = np.zeros((self.image_height, self.image_width), dtype=np.uint8)
 
-        # # Reformat to a list of 2-tuples
-        pixels_passed_in = list(map(tuple, bounding_box_pixels.tolist()))
-
         # Draw a filled polygon on the mask using the ROI bounding box pixel coordinates
-        cv2.fillPoly(mask, [np.array(pixels_passed_in)], color=1)
-        # cv2.fillPoly(mask, [bounding_box_pixels], color=1)
+        cv2.fillPoly(mask, [bounding_box_pixels], color=1)
 
         # Convert the mask to a binary array
         pixels_in_ROI = mask.astype(np.uint8)
