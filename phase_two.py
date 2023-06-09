@@ -92,13 +92,13 @@ class PhaseTwo():
         self.depth_signals = np.array([])
         self.ear_signal = np.array([])
     
-    def run(self, visualize_ROI: bool = False, visualize_FaceMesh: bool = False) -> None:
+    def run(self, visualize_FaceMesh: bool = False, visualize_ROIs: bool = False) -> None:
         """
         Run the face mesh detection and intensity signal extraction.
 
         Args:
-            visualize_ROI: Flag indicating whether to visualize the region(s) of interest (not sure what region(s) this is referring to).
-            visualize_FaceMesh: Flag indicating whether to visualize the face mesh (the creepy mask-looking thing).
+            visualize_FaceMesh: A boolean indicating whether to visualize the face mesh (the creepy mask-looking thing).
+            visualize_ROIs: A boolean indicating whether to visualize the region(s) of interest.
         """
 
         # TODO: Add ROI visualizations
@@ -143,7 +143,7 @@ class PhaseTwo():
             file_num = file_num + 1
             
             # Process the file
-            self._process_file(file_num, num_files_to_process, filename, num_ROIs, face_mesh_detector, visualize_FaceMesh)
+            self._process_file(file_num, num_files_to_process, filename, num_ROIs, face_mesh_detector, visualize_FaceMesh, visualize_ROIs)
                     
         self.intensity_signals = np.delete(self.intensity_signals, 0, 1)
         self.depth_signals = np.delete(self.depth_signals, 0, 1)
@@ -154,7 +154,7 @@ class PhaseTwo():
         return
     
     def _process_file(self, file_num: int, num_files_to_process: int, filename: str, num_ROIs: int,
-                  face_mesh_detector: FaceMeshDetector, visualize_FaceMesh: bool) -> None:
+                  face_mesh_detector: FaceMeshDetector, visualize_FaceMesh: bool, visualize_ROIs: bool) -> None:
         """
         Processes a single file.
         
@@ -168,6 +168,7 @@ class PhaseTwo():
             num_ROIs: The number of regions of interest (ROIs) for which to extract signals.
             face_mesh_detector: An instance of the FaceMeshDetector class for performing face mesh detection.
             visualize_FaceMesh: A boolean indicating whether to visualize the face mesh on each frame.
+            visualize_ROIs: A boolean indicating whether to visualize the region(s) of interest.
 
         Returns:
             None. Updates the self.intensity_signals, self.depth_signals, and self.ear_signal arrays
@@ -235,7 +236,7 @@ class PhaseTwo():
             if face_detected:
                 multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file))
 
-            if visualize_FaceMesh:
+            if visualize_FaceMesh or visualize_ROIs:
                 # Calculate and overlay FPS
 
                 current_time = time.time()
@@ -737,5 +738,5 @@ if __name__ == "__main__":
     skvs_dir = os.path.join(os.getcwd(), 'skvs')
 
     myFaceMeshDetector = PhaseTwo(input_dir=os.path.join(skvs_dir, "mat"), output_filename="auto_bfsig")
-    myFaceMeshDetector.run(visualize_ROI=False, visualize_FaceMesh=False)
+    myFaceMeshDetector.run(visualize_FaceMesh=False, visualize_ROIs=False)
     myFaceMeshDetector.clean_up()

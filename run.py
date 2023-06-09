@@ -164,7 +164,7 @@ def bin_to_bfsig(skvs_dir):
     # Tag regions in face and generate bloodflow signature .mat file
     # myFaceMeshDetector = PhaseTwo(input_mats_dir="./skvs/mat/", output_bfsig_name="auto_bfsig")
     myPhaseTwo = PhaseTwo(input_dir=os.path.join(skvs_dir, "mat"), output_filename="auto_bfsig")
-    myPhaseTwo.run(visualize_ROI=False, visualize_FaceMesh=False)
+    myPhaseTwo.run(visualize_FaceMesh=False, visualize_ROIs=False)
     myPhaseTwo.clean_up()
 
 def bfsig_to_plot():
