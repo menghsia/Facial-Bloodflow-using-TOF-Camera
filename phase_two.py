@@ -455,6 +455,8 @@ class PhaseTwo():
             frameTrk: The frame image.
             landmark_leye: Landmark coordinates of the left eye.
             landmark_reye: Landmark coordinates of the right eye.
+        
+        NOTE: This function is old and has no guarantee of working.
         """
         # Draw the face mesh annotations on the image and display
         frameTrk.flags.writeable = True
