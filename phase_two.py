@@ -447,7 +447,7 @@ class PhaseTwo():
 
         return eye_aspect_ratio_value
 
-    def _visualize_ROI(self, frameTrk: np.ndarray, landmark_leye: list, landmark_reye: list) -> None:
+    def _visualize_ROI_old(self, frameTrk: np.ndarray, landmark_leye: list, landmark_reye: list) -> None:
         """
         Visualize the regions of interest (ROIs) on the image.
 
