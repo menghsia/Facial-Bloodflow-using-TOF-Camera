@@ -76,6 +76,18 @@ class PhaseTwo():
         # 'chin': np.array([176, 149, 153, 378]),
         # 'palm': np.array([1, 6, 18])
 
+        # Define which ROIs we want to visualize
+        self.ROIs_to_visualize = [
+            'nose',
+            'forehead',
+            'cheek_n_nose',
+            'left_cheek',
+            'right_cheek',
+            'low_forehead',
+            'left_eye',
+            'right_eye'
+        ]
+
         # Create thread_pool
         num_threads = self._get_num_threads()
         print(f"Using {num_threads} threads")
@@ -98,7 +110,7 @@ class PhaseTwo():
 
         Args:
             visualize_FaceMesh: A boolean indicating whether to visualize the face mesh (the creepy mask-looking thing).
-            visualize_ROIs: A boolean indicating whether to visualize the region(s) of interest.
+            visualize_ROIs: A boolean indicating whether to visualize the regions of interest.
         """
 
         # TODO: Add ROI visualizations
@@ -168,7 +180,7 @@ class PhaseTwo():
             num_ROIs: The number of regions of interest (ROIs) for which to extract signals.
             face_mesh_detector: An instance of the FaceMeshDetector class for performing face mesh detection.
             visualize_FaceMesh: A boolean indicating whether to visualize the face mesh on each frame.
-            visualize_ROIs: A boolean indicating whether to visualize the region(s) of interest.
+            visualize_ROIs: A boolean indicating whether to visualize the regions of interest.
 
         Returns:
             None. Updates the self.intensity_signals, self.depth_signals, and self.ear_signal arrays
@@ -234,7 +246,7 @@ class PhaseTwo():
             face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=visualize_FaceMesh)
 
             if face_detected:
-                multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file))
+                multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, visualize_ROIs, frame_grayscale_rgb))
 
             if visualize_FaceMesh or visualize_ROIs:
                 # Calculate and overlay FPS
@@ -274,7 +286,9 @@ class PhaseTwo():
         frame_confidence: np.ndarray,
         intensity_signal_current_file: np.ndarray,
         depth_signal_current_file: np.ndarray,
-        ear_signal_current_file: np.ndarray
+        ear_signal_current_file: np.ndarray,
+        visualize_ROIs: bool,
+        frame_grayscale_rgb: np.ndarray
     ) -> None:
         """
         Processes the face landmarks for a single frame.
@@ -290,6 +304,8 @@ class PhaseTwo():
             intensity_signal_current_file: An (n,d) array to store the intensity signals for all ROIs for all frames of this video clip.
             depth_signal_current_file: An (n,d) array to store the depth signals for all ROIs for all frames of this video clip.
             ear_signal_current_file: An (n,) array to store the eye aspect ratio (EAR) signals for all frames of this video clip.
+            visualize_ROIs: A boolean indicating whether to visualize the regions of interest.
+            frame_grayscale_rgb: An (n,d,3) array representing the current frame in RGB format.
 
         Returns:
             None. The results are stored in the output arrays `intensity_signal_current_file`, `depth_signal_current_file`,
@@ -306,15 +322,33 @@ class PhaseTwo():
             The eye aspect ratio signals are calculated for the left and right eyes separately using the
             `self._get_eye_aspect_ratio` function, and the averaged value is stored in
             `ear_signal_current_file`.
+        
+        NOTE: If visualize_ROIs is True, all bounding boxes listed in `self.ROIs_to_visualize` will be drawn on the frame. After
+        each ROI is drawn, the program will pause until the user presses any key. Pressing any key will continue to draw the next ROI.
+        By drawing all ROIs on the same image, the user can see the relative sizes and positions of the ROIs, as well as the overall
+        coverage of the face across all ROIs.
+
+        If the user wants to visualize only a subset of the ROIs, they can set `self.ROIs_to_visualize` to a list of the ROIs they want
+        to visualize. For example, if `self.ROIs_to_visualize = ["left_eye", "right_eye"]`, only the left and right eye ROIs will be
+        drawn on the frame.
         """
         # Variables for calculating eye aspect ratio
         left_eye_aspect_ratio = 0.0
         right_eye_aspect_ratio = 0.0
+        frame_with_ROIs_drawn = np.array([])
+
+        if visualize_ROIs and len(self.ROIs_to_visualize) > 0:
+            # Make a copy of the frame to draw ROIs on
+            frame_with_ROIs_drawn = frame_grayscale_rgb.copy()
 
         # Loop through each ROI
         for roi_idx, roi_name in enumerate(self.face_roi_definitions.keys()):
             # Get bounding box of ROI in pixels
             roi_bounding_box_pixels = self._get_ROI_bounding_box_pixels(landmarks_pixels, roi_name)
+            
+            if visualize_ROIs and roi_name in self.ROIs_to_visualize:
+                # Draw bounding box of ROI
+                self._draw_ROI_bounding_box(roi_bounding_box_pixels, frame_with_ROIs_drawn, roi_name)
 
             if roi_name == "left_eye":
                 # Calculate and save eye aspect ratio for the ROI
@@ -350,9 +384,8 @@ class PhaseTwo():
             landmarks_pixels (np.ndarray): An array of shape (468, 2) representing the pixel coordinates (x, y)
                 for each of the 468 total face landmarks detected. The i-th row corresponds to the i-th landmark
                 (zero-indexed, so row 0 is landmark 1).
-            roi_name (str): The name of the requested ROI. Choose from the following options:
-                'full_face', 'left_face', 'cheek_n_nose', 'left_cheek', 'right_cheek',
-                'chin', 'nose', 'low_forehead', 'forehead', 'palm', 'left_eye', 'right_eye'.
+            roi_name (str): The name of the requested ROI. Must be one of the predefined ROIs in
+                `self.face_roi_definitions`.
 
         Returns:
             np.ndarray: An array of shape (n, 2), where n is the number of landmarks
@@ -446,6 +479,40 @@ class PhaseTwo():
         eye_aspect_ratio_value = (distance_a + distance_b + distance_c) / (3.0 * distance_d)
 
         return eye_aspect_ratio_value
+
+    def _draw_ROI_bounding_box(self, bounding_box_pixels: np.ndarray, frame_grayscale_rgb: np.ndarray, roi_name: str) -> None:
+        """
+        Draws the bounding box for an ROI on the frame image along with the ROI name.
+
+        Args:
+            bounding_box_pixels (np.ndarray): An array of shape (n, 2), where n is the number of landmarks
+                that form the bounding box for the requested ROI. Each row represents the (x, y)
+                coordinates of a landmark pixel.
+            frame_grayscale_rgb (np.ndarray): The frame image in grayscale RGB format.
+            roi_name (str): The name of the requested ROI. This is the text that will be displayed
+                above the bounding box.
+
+        Returns:
+            None
+        
+        NOTE: After drawing the bounding box and displaying the image, the function will wait for
+        the user to press any key before continuing.
+
+        NOTE: The usage of this function requires multi-threading to be disabled (aka num_threads=1).
+        """
+
+        # Draw the bounding box on the frame image
+        cv2.polylines(frame_grayscale_rgb, [bounding_box_pixels], isClosed=True, color=(0, 0, 255), thickness=2)
+
+        # Add roi_name as text above the bounding box
+        text_position = (bounding_box_pixels[0, 0], bounding_box_pixels[0, 1] - 10)
+        cv2.putText(frame_grayscale_rgb, roi_name, text_position, cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+
+        # Display the image
+        cv2.imshow("ROI Bounding Boxes", frame_grayscale_rgb)
+        cv2.waitKey(0)
+    
+        return
 
     def _visualize_ROI_old(self, frameTrk: np.ndarray, landmark_leye: list, landmark_reye: list) -> None:
         """
