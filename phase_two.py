@@ -244,6 +244,8 @@ class PhaseTwo():
                 previous_time = current_time
                 cv2.putText(frame_grayscale_rgb, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 3)
 
+                # TODO: Overlay frame number
+
                 # Display frame
 
                 cv2.imshow("Image", frame_grayscale_rgb)
