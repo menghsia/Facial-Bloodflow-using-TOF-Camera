@@ -1,23 +1,12 @@
 import os
 import time
-import math
 import cv2
 import numpy as np
-# import mediapipe as mp
-import matplotlib.pyplot as plt
-# from mediapipe.python.solutions import face_mesh as mp_face_mesh
-# from mediapipe.framework.formats import landmark_pb2
-from PIL import Image, ImageDraw
 from scipy.io import savemat
-# from scipy.io import loadmat
-from typing import Tuple, Union
 from scipy.spatial import distance as dist
 import concurrent.futures
 
 from face_mesh_module import FaceMeshDetector
-
-# import h5py
-# import hdf5storage
 
 class PhaseTwo():
     """

@@ -4,7 +4,6 @@ import subprocess
 import shutil
 import argparse
 import time
-# import tensorflow as tf
 
 from phase_two import PhaseTwo
 
