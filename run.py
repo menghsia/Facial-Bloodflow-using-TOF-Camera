@@ -215,8 +215,6 @@ if __name__ == '__main__':
     if args.bfsig_to_plot:
         bfsig_to_plot()
 
-    # print(tf.config.list_physical_devices('GPU'))
-
     print('Done!')
 
     main_end_time = time.time()
