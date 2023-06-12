@@ -523,7 +523,7 @@ class PhaseTwo():
         Example usage:
             x, y, z, confidence = _read_binary_file('data.bin')
         """
-        x_all, y_all, z_all, confidence_all = None, None, None, None
+        x_all, y_all, z_all, confidence_all = np.array([]), np.array([]), np.array([]), np.array([])
 
         NUM_FRAMES_PER_FILE = 600
 
