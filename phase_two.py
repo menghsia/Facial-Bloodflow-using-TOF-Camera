@@ -501,43 +501,6 @@ class PhaseTwo():
     
         return
 
-    def _visualize_ROI_old(self, frameTrk: np.ndarray, landmark_leye: list, landmark_reye: list) -> None:
-        """
-        Visualize the regions of interest (ROIs) on the image.
-
-        Args:
-            frameTrk: The frame image.
-            landmark_leye: Landmark coordinates of the left eye.
-            landmark_reye: Landmark coordinates of the right eye.
-        
-        NOTE: This function is old and has no guarantee of working.
-        """
-        # Draw the face mesh annotations on the image and display
-        frameTrk.flags.writeable = True
-        image = cv2.cvtColor(frameTrk, cv2.COLOR_RGB2BGR)
-
-        # pts = np.asarray(landmark_forehead)
-        # pts = pts.reshape((-1, 1, 2))
-        # img_showROI = cv2.polylines(image, [pts], True, color=(0, 0, 255), thickness=2)
-        # pts = np.asarray(landmark_nose)
-        # pts = pts.reshape((-1, 1, 2))
-        # img_showROI = cv2.polylines(img_showROI, [pts], True, color=(0, 0, 255), thickness=2)
-        pts = np.asarray(landmark_leye)
-        pts = pts.reshape((-1, 1, 2))
-        img_showROI = cv2.polylines(image, [pts], True, color=(0, 0, 255), thickness=2)
-        pts = np.asarray(landmark_reye)
-        pts = pts.reshape((-1, 1, 2))
-        img_showROI = cv2.polylines(img_showROI, [pts], True, color=(0, 0, 255), thickness=2)
-
-        # pts = np.asarray(landmark_palm)
-        # pts = pts.reshape((-1, 1, 2))
-        # img_showROI = cv2.polylines(img_showROI,[pts],True, color = (0,0,255), thickness = 2)
-
-        cv2.imshow('ROI', img_showROI)
-        cv2.waitKey(10)
-
-        return
-
     def _read_binary_file(self, filepath: str) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
         Read a binary file containing x, y, z coordinates, and confidence values.
