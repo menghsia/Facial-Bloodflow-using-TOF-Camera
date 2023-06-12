@@ -98,33 +98,6 @@ def record_skv():
             print('No new .skv file was recorded')
             sys.exit()
 
-# Launch ./automotive_suite_recorder_viewer_v0.0.0/automotive_suite.exe
-# Wait until the user exits the program (automotive_suite.exe) and then continue
-
-# # Launch the program
-# process = subprocess.Popen("./automotive_suite_recorder_viewer_v0.0.0/automotive_suite.exe")
-
-# # Wait for the program to exit
-# process.wait()
-
-
-#   - Once the user is done recording, they will close the program
-#   - After it is closed, the .skv file will be processed into a .mat file
-
-
-# Convert .skv video file into .mat file
-#   - imx520_sample.exe -i skvs/input_skv.skv -o skvs/mat/output.mat
-
-
-# Generate bloodflow signature .mat file
-#   - facial_skBF_facemeshTrak.py
-#   - Outputs to facial-blood-ToF/skv_mat/20221003-Sparsh_Fex_bfsig.mat
-
-
-# Generate plots of heart rate from bloodflow signature .mat file
-#   - process_thermal.m
-#   - Outputs plots of the heart rate
-
 def check_for_skvs(skvs_dir):
     skvs_before_recording = set(filter(lambda x: x[0].endswith('.skv'), map(lambda x: (x, os.path.getctime(os.path.join(skvs_dir, x))), os.listdir(skvs_dir))))
 
