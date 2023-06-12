@@ -113,8 +113,6 @@ class PhaseTwo():
             visualize_ROIs: A boolean indicating whether to visualize the regions of interest.
         """
 
-        # TODO: Add ROI visualizations
-
         num_ROIs = 7
 
         # Array of intensity signal arrays
