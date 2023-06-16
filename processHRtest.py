@@ -54,36 +54,42 @@ def motionComp(HRsig, depth):
     f_Filtered_range = np.logical_or(f < 40, f > 150)
     specW[f_Filtered_range] = 0
 
-
     peak_locs, _ = find_peaks(specW)
-    peaks = np.array(peak_locs, specW[peak_locs]).T
-    maxindex = np.argmax(peaks)
-    HR = f[loc[maxindex]]
-
+    peaks = specW[peak_locs]
+    peaks = peaks.tolist()
+    maxIndex = peaks.index(max(peaks))
+    HR = f[peak_locs[maxIndex]]
 
     # Calculate final heart rate (No motion comp)
     specND[f_Filtered_range] = 0
 
+    peak_locs, _ = find_peaks(specND)
+    peaks = specND[peak_locs]
+    peaks = peaks.tolist()
+    maxIndex = peaks.index(max(peaks))
+    HR_ND = f[peak_locs[maxIndex]]
 
-    peaks, loc = findpeaks(specND)
-    maxindex = np.argmax(peaks)
-    HR_ND = f[loc[maxindex]]
 
 
     # Plot and display results
-    plt.figure()
+    fig, ax1 = plt.subplots()
     plt.xlabel('Heart Rate (BPM)')
     plt.title('Heart Rate Frequency Spectrum')
-    plt.xlim([40, 150])
 
+    ax1.set_ylabel('Spectrum (W/ MC)')
 
-    plt.plot(f, specW, label='W/ MC')
-    plt.plot(f, specND, label='W/O MC')
-    plt.legend()
+    ax2 = ax1.twinx()
+    ax2.set_ylabel('Spectrum (W/O MC)')
 
+    ax1.plot(f, specW, label='W/ MC', color='blue')
+    ax2.plot(f, specND, label='W/O MC', color='green')
 
+    lines1, labels1 = ax1.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines1 + lines2, labels1 + labels2)
+
+    plt.xlim([40,150])
     plt.show()
-
 
     print('Heart rate (With Motion Comp):', HR)
     print('Heart rate (W/O Motion Comp):', HR_ND)
@@ -153,41 +159,37 @@ def depthComp(I_raw, Depth, timeWindow, Fs):
 
     return comp
 
+def getHR(HRsig, L, trial):
+    # Prepare Parameters
+    Fs = 30
+    step = 30
+    step_t = step / Fs
+    L_t = L / Fs
+    HR = []
 
-    '''
-    def getHR( HRsig, L):
-        Fs = 30
-        step = 30
-        step_t = step / Fs
-        L_t = L / Fs
-        HR = []
-        j = 1
-        counter = 1
+    # Get HR
+    j = 0
+    counter = 1
+    while j + L - 1 < HRsig.shape[1]:
+        spectrum = np.fft.fft(HRsig[:, j:j + L].squeeze())
+        P2 = np.abs(spectrum / L)
+        onesided = P2[:, :(L // 2) + 1]
+        onesided[:, 1:-1] = 2 * onesided[:, 1:-1]
+        f = Fs * np.arange((L // 2) + 1) / L * 60
+        f_Filtered_range = np.logical_or(f < 40, f > 150)
+        onesided[:, f_Filtered_range] = 0
 
+        # HR peak locate
+        pks, loc = find_peaks(onesided.squeeze())
+        maxindex = np.argmax(pks)
+        HR_current = f[loc[maxindex]]
+        HR.append(HR_current)
 
-        while j + L - 1 < HRsig.shape[0]:
-            spectrum = np.fft.fft(HRsig[j:j + L - 1])
-            P2 = abs(spectrum / L)
-            onesided = P2[:(L // 2) + 1]
-            onesided[1:-1] = 2 * onesided[1:-1]
-            f = Fs * (np.arange(0, L // 2 + 1) / L) * 60
-            f_Filtered_range = (f < 40) | (f > 150)
-            onesided[f_Filtered_range] = 0
+        j = j + step
+        counter = counter + 1
 
-
-            pks, loc = findpeaks(onesided)
-            maxindex = np.argmax(pks)
-            HR_current = f[loc[maxindex]]
-            HR.append(HR_current)
-
-
-            j = j + step
-            counter = counter + 1
-
-
-        t_HR = np.arange(L_t / 2, ((len(HR) - 1) * step_t + L_t / 2), step_t)
-        return t_HR, HR
-    '''
+    t_HR = np.arange(L_t / 2, len(HR) * step_t + L_t / 2, step_t)
+    return t_HR, HR
    
 def smooth(a,WSZ):
     # a: NumPy 1-D array containing the data to be smoothed
@@ -198,13 +200,6 @@ def smooth(a,WSZ):
     start = np.cumsum(a[:WSZ-1])[::2]/r
     stop = (np.cumsum(a[:-WSZ:-1])[::2]/r)[::-1]
     return np.concatenate((  start , out0, stop  ))
-
-def findpeaks(x):
-    dx = np.diff(x)
-    peak_locs = np.where((np.hstack((dx, 0)) < 0) & (np.hstack((0, dx)) > 0))[0]
-    peak_vals = x[peak_locs]
-    return peak_vals, peak_locs
-
 
 def processRawData( filename, dataTitle=None):
     data = scipy.io.loadmat(filename)
@@ -275,16 +270,8 @@ def processRawData( filename, dataTitle=None):
 tb, bc, HRsig, HRsigRaw, I_comp, Depth = processRawData('lauren_5-23.mat')
 
 
-
-
 # Plot smoothed blood concentration
 plt.figure()
-'''
-plt.plot(tb, savgol_filter(bc[1], 50, 3), color = 'blue')
-plt.plot(tb, savgol_filter(bc[0], 50, 3), color = 'red')
-plt.plot(tb, savgol_filter((bc[2]+bc[3]/2), 50, 3), color = 'orange')
-'''
-#hi = bc[2]+bc[3]/2
 
 plt.plot(tb, smooth(bc[1], 51), color = 'blue')
 plt.plot(tb, smooth(bc[0], 51), color = 'red')
