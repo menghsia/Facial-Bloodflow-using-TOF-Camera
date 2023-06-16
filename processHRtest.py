@@ -128,9 +128,9 @@ def depthComp( I_raw, Depth, timeWindow, Fs):
         # For the remainder
         cor = 1
         for bii in np.arange(0.1, 5, 0.01):
-            bI_comp = I_raw[j, (((i - 1) * (timeWindow * Fs)) + 1) :] / (Depth[j, (((i - 1) * (timeWindow * Fs)) + 1) :] ** (-bii))
+            bI_comp = I_raw[j, (((i - 1) * (timeWindow * Fs))) :] / (Depth[j, (((i - 1) * (timeWindow * Fs))) :] ** (-bii))
             # Find correlation between bI_comp and Depth
-            corr_v = np.corrcoef(bI_comp, Depth[j, (((i - 1) * (timeWindow * Fs)) + 1) :])
+            corr_v = np.corrcoef(bI_comp, Depth[j, (((i - 1) * (timeWindow * Fs)) ) :])
             # Take absolute value of correlation coefficients
             corr_ = np.abs(corr_v[0, 1])
 
@@ -230,14 +230,18 @@ def processRawData( filename, dataTitle=None):
     HRsig = I_comp[2, :]
     HRsigRaw = I_raw[2, :]
 
-
+    '''
     bc_nose = savgol_filter(-np.log(I_comp[0, :]), 20, 3)
     bc_forehead = savgol_filter(-np.log(I_comp[1, :]), 20, 3)
     bc_lc = savgol_filter(-np.log(I_comp[3, :]), 20, 3)
     bc_rc = savgol_filter(-np.log(I_comp[4, :]), 20, 3)
+    '''
+    bc_nose = smooth(-np.log(I_comp[0, :]), 19)
+    bc_forehead = smooth(-np.log(I_comp[1, :]), 19)
+    bc_lc = smooth(-np.log(I_comp[3, :]), 19)
+    bc_rc = smooth(-np.log(I_comp[4, :]), 19)
 
-
-    bc = np.vstack((bc_forehead, bc_nose, bc_lc, bc_rc)).T
+    bc = np.vstack((bc_forehead, bc_nose, bc_lc, bc_rc))
     tb = np.arange(0, I_raw.shape[1]) * T
 
 
@@ -272,10 +276,14 @@ tb, bc, HRsig, HRsigRaw, I_comp, Depth = processRawData('lauren_5-23.mat')
 
 # Plot smoothed blood concentration
 plt.figure()
-plt.plot(tb, np.convolve(bc[1], np.ones(50) / 50, mode='same'))
-plt.plot(tb, np.convolve(bc[0], np.ones(50) / 50, mode='same'))
-plt.plot(tb, np.convolve((bc[2] + bc[3]) / 2, np.ones(50) / 50, mode='same'))
-
+'''
+plt.plot(tb, savgol_filter(bc[1], 50, 3), color = 'blue')
+plt.plot(tb, savgol_filter(bc[0], 50, 3), color = 'red')
+plt.plot(tb, savgol_filter((bc[2]+bc[3]/2), 50, 3), color = 'orange')
+'''
+plt.plot(tb, smooth(bc[1], 49), color = 'blue')
+plt.plot(tb, smooth(bc[0], 49), color = 'red')
+plt.plot(tb, smooth((bc[2]+bc[3]/2), 49), color = 'orange')
 
 plt.xlabel('Time (s)')
 plt.legend(['Nose', 'Forehead', 'Cheek Average'])
