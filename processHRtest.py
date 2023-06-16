@@ -3,6 +3,7 @@ import scipy.io as sio
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import savgol_filter
+from scipy.signal import find_peaks
 
 
 ##MOTION COMP
@@ -11,12 +12,12 @@ from scipy.signal import savgol_filter
 ## depthComp returns 2D array
 ## I_comp
 ## use stft
-def __init__( input_dir):
+def __init__(input_dir):
     # Directory where input files are located (likely ./skvs/mat/)
     input_dir = input_dir
 
 
-def motionComp( HRsig, depth):
+def motionComp(HRsig, depth):
     specW = np.zeros(151)
     specND = np.zeros(151)
     i = 0
@@ -31,7 +32,9 @@ def motionComp( HRsig, depth):
 
 
         # Find top two peaks
-        peaks = np.sort(P1[P1 > 0])[::-1][:2]
+        peak_indices, _ = find_peaks(P1)
+        peaks = sorted(P1[peak_indices])
+        peaks = peaks[::-1]
         A1, A2 = peaks[0], peaks[1]
 
 
@@ -47,12 +50,13 @@ def motionComp( HRsig, depth):
 
 
     # Calculate final heart rate
-    f = 30 * (np.arange(150/2+1) / 150) * 60
+    f = 30 * (np.arange(300/2+1) / 300) * 60
     f_Filtered_range = np.logical_or(f < 40, f > 150)
     specW[f_Filtered_range] = 0
 
 
-    peaks, loc = findpeaks(specW)
+    peak_locs, _ = find_peaks(specW)
+    peaks = np.array(peak_locs, specW[peak_locs]).T
     maxindex = np.argmax(peaks)
     HR = f[loc[maxindex]]
 
@@ -88,7 +92,7 @@ def motionComp( HRsig, depth):
     return specW, HR, specND, HR_ND
 
 
-def depthComp( I_raw, Depth, timeWindow, Fs):
+def depthComp(I_raw, Depth, timeWindow, Fs):
     # Make matrix for final output
     comp = np.ones_like(I_raw)
 
@@ -185,7 +189,7 @@ def depthComp( I_raw, Depth, timeWindow, Fs):
         return t_HR, HR
     '''
    
-def smooth( a,WSZ):
+def smooth(a,WSZ):
     # a: NumPy 1-D array containing the data to be smoothed
     # WSZ: smoothing window size needs, which must be odd number,
     # as in the original MATLAB implementation
@@ -195,8 +199,7 @@ def smooth( a,WSZ):
     stop = (np.cumsum(a[:-WSZ:-1])[::2]/r)[::-1]
     return np.concatenate((  start , out0, stop  ))
 
-
-def findpeaks( x):
+def findpeaks(x):
     dx = np.diff(x)
     peak_locs = np.where((np.hstack((dx, 0)) < 0) & (np.hstack((0, dx)) > 0))[0]
     peak_vals = x[peak_locs]
@@ -281,12 +284,14 @@ plt.plot(tb, savgol_filter(bc[1], 50, 3), color = 'blue')
 plt.plot(tb, savgol_filter(bc[0], 50, 3), color = 'red')
 plt.plot(tb, savgol_filter((bc[2]+bc[3]/2), 50, 3), color = 'orange')
 '''
+#hi = bc[2]+bc[3]/2
+
 plt.plot(tb, smooth(bc[1], 51), color = 'blue')
 plt.plot(tb, smooth(bc[0], 51), color = 'red')
-#plt.plot(tb, smooth((bc[2]+bc[3]/2), 49), color = 'orange')
+plt.plot(tb, smooth(((bc[2]+bc[3])/2), 51), color = 'orange')
 
 plt.xlabel('Time (s)')
-plt.legend(['Nose', 'Forehead'])
+plt.legend(['Nose', 'Forehead', 'Cheek Average'])
 plt.ylabel('Relative Blood Concentration Change (a.u.)')
 plt.show()
 
