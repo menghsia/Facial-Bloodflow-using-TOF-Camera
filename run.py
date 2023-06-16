@@ -7,6 +7,7 @@ import time
 # import tensorflow as tf
 
 from face_mesh_detector import FaceMeshDetector
+from processHR import ProcessHR
 
 # Steps:
 # - Use Automotive Suite to record a video clip (.skv file)
@@ -169,8 +170,8 @@ def mat_to_bfsig(skvs_dir):
 def bfsig_to_plot():
     # Run plotting matlab script
     # Create path to matlab script
-    matlab_script_path = os.path.join(os.getcwd(), "auto_matlab/process_thermal_SINGLE.m")
-    process = subprocess.run(["matlab", "-r", "run('" + matlab_script_path + "');"], shell=True)
+    processHR = ProcessHR()
+    processHR.run()
 
 def process_args():
     parser = argparse.ArgumentParser()
