@@ -142,7 +142,7 @@ def depthComp( I_raw, Depth, timeWindow, Fs):
 
 
         # Normalize data
-        compj[(((i - 1) * (timeWindow * Fs)) + 1) :] = best_comp / np.mean(best_comp)
+        compj[(((i - 1) * (timeWindow * Fs))) :] = best_comp / np.mean(best_comp)
         # Append to final output matrix
         comp[j, :] = compj
 
@@ -281,12 +281,12 @@ plt.plot(tb, savgol_filter(bc[1], 50, 3), color = 'blue')
 plt.plot(tb, savgol_filter(bc[0], 50, 3), color = 'red')
 plt.plot(tb, savgol_filter((bc[2]+bc[3]/2), 50, 3), color = 'orange')
 '''
-plt.plot(tb, smooth(bc[1], 49), color = 'blue')
-plt.plot(tb, smooth(bc[0], 49), color = 'red')
-plt.plot(tb, smooth((bc[2]+bc[3]/2), 49), color = 'orange')
+plt.plot(tb, smooth(bc[1], 51), color = 'blue')
+plt.plot(tb, smooth(bc[0], 51), color = 'red')
+#plt.plot(tb, smooth((bc[2]+bc[3]/2), 49), color = 'orange')
 
 plt.xlabel('Time (s)')
-plt.legend(['Nose', 'Forehead', 'Cheek Average'])
+plt.legend(['Nose', 'Forehead'])
 plt.ylabel('Relative Blood Concentration Change (a.u.)')
 plt.show()
 
