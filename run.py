@@ -167,10 +167,10 @@ def mat_to_bfsig(skvs_dir):
     myFaceMeshDetector = FaceMeshDetector(input_dir=os.path.join(skvs_dir, "mat"), output_filename="auto_bfsig")
     myFaceMeshDetector.run(visualize_ROI=False, visualize_FaceMesh=False)
 
-def bfsig_to_plot():
+def bfsig_to_plot(skvs_dir):
     # Run plotting matlab script
     # Create path to matlab script
-    processHR = ProcessHR()
+    processHR = ProcessHR(input_file=os.path.join(skvs_dir, "mat", "auto_bfsig"))
     processHR.run()
 
 def process_args():
@@ -210,7 +210,7 @@ if __name__ == '__main__':
         # print("mat_to_bfsig() took " + str(end_time - start_time) + " seconds to run")
     
     if args.bfsig_to_plot:
-        bfsig_to_plot()
+        bfsig_to_plot(skvs_dir)
 
     # print(tf.config.list_physical_devices('GPU'))
 

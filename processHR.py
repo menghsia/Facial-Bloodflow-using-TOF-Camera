@@ -4,18 +4,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import savgol_filter
 from scipy.signal import find_peaks
+import os
 
 
 class ProcessHR():
-    def __init__(self, input_dir=None):
+    def __init__(self, input_file):
         # Directory where input files are located (likely ./skvs/mat/)
         # or filename if input file is in same folder
-        self.input_dir = input_dir
+        self.input_file = input_file
     
     def run(self):
         # FUNCTION: run() calls supporting functions to ouput plots
 
-        tb, bc, HRsig, HRsigRaw, I_comp, Depth = self.processRawData('lauren_5-23.mat')
+        tb, bc, HRsig, HRsigRaw, I_comp, Depth = self.processRawData()
 
         # Plot smoothed blood concentration
         plt.figure()
@@ -52,12 +53,12 @@ class ProcessHR():
         self.motionComp(HRsig[600:1200], Depth[2, 600:1200])
         self.motionComp(HRsig[1200:1800], Depth[2, 1200:1800])
 
-    def processRawData(self, filename, dataTitle=None):
+    def processRawData(self, dataTitle=None):
         # FUNCTION: Extracts raw data from .mat file to 
         #           plot raw and compensated intensities at a ROI
 
         # Load in raw depth and intensities
-        data = scipy.io.loadmat(filename)
+        data = scipy.io.loadmat(self.input_file)
         Depth = data['Depth']
         I_raw = data['I_raw']
 
@@ -113,6 +114,9 @@ class ProcessHR():
 
         # Make matrix for final output
         comp = np.ones_like(I_raw)
+
+        best = 0
+        best_comp = 0
 
         # Iterate through the different ROIs
         for j in range(I_raw.shape[0]):
