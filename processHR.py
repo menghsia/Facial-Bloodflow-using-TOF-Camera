@@ -4,20 +4,51 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import savgol_filter
 from scipy.signal import find_peaks
+import time
 
 
 class ProcessHR():
+    """
+    ProcessHR is a class that uses depths and intensities to output a calculated heartrate.
+
+    Args:
+        input_file (str): filename from the correct directory where while is located
+
+    Attributes:
+        input_file (str): input filename in which raw depths and intensities are stored
+    """
+
     def __init__(self, input_file):
-        # Directory where input files are located (likely ./skvs/mat/)
-        # or filename if input file is in same folder
+        """
+        Initializes class variables
+
+        Args:
+            input_file (str): filename from the correct directory where while is located
+        """  
+
         self.input_file = input_file
     
     def run(self):
-        # FUNCTION: run() calls supporting functions to ouput plots
+        """
+        Runs supporting functions to retreive relavant values and output plots.
+        Supporting functions:
+            Plots Raw and Compensated Forehead Intensities 
+            Plots Relative Blood Concentration Change for Nose, Forehead and Cheek ROIs
+            Plots 3 Heart Rate Frequency Spectrum Graphs w and w/o motion compensation for three 20 second clips
+            Return Average Heart Rates in terminal w and w/o motion comp. for the three 20 second clips
 
+        Args:
+            None 
+
+        """
+
+        # tb: time array (doubles)
+        # bc: blood concentration (au) array
+        # HRsig: Heart Rate Signal array
+        # Depth: Raw depth array
         tb, bc, HRsig, HRsigRaw, I_comp, Depth = self.processRawData()
 
-        # Plot smoothed blood concentration
+        # Plot smoothed blood concentration at times(s)
         plt.figure()
 
         plt.plot(tb, self.smooth(bc[1], 51), color = 'blue')
@@ -27,7 +58,7 @@ class ProcessHR():
         plt.xlabel('Time (s)')
         plt.legend(['Nose', 'Forehead', 'Cheek Average'])
         plt.ylabel('Relative Blood Concentration Change (a.u.)')
-        plt.show()
+        
 
         ''' ## getHR() NEEDS FIXING ##
         # Get HR Data
@@ -51,8 +82,11 @@ class ProcessHR():
         self.motionComp(HRsig[:600], Depth[2, :600])
         self.motionComp(HRsig[600:1200], Depth[2, 600:1200])
         self.motionComp(HRsig[1200:1800], Depth[2, 1200:1800])
+        plt.show()
+        return 
 
     def processRawData(self, dataTitle=None):
+        
         # FUNCTION: Extracts raw data from .mat file to 
         #           plot raw and compensated intensities at a ROI
 
@@ -104,7 +138,7 @@ class ProcessHR():
         else:
             axs[0].set_title('Forehead Signal Intensity')
 
-        plt.show()
+        #plt.show()
 
         return tb, bc, HRsig, HRsigRaw, I_comp, Depth
     
@@ -114,8 +148,8 @@ class ProcessHR():
         # Make matrix for final output
         comp = np.ones_like(I_raw)
 
-        best = 0
-        best_comp = 0
+        best = 1
+        best_comp = 1
 
         # Iterate through the different ROIs
         for j in range(I_raw.shape[0]):
@@ -198,7 +232,7 @@ class ProcessHR():
             i += 30
 
         # Calculate final heart rate
-        f = 30 * (np.arange(300/2+1) / 300) * 60
+        f = 30 * np.arange(300/2+1) / 300 * 60
         f_Filtered_range = np.logical_or(f < 40, f > 150)
         specW[f_Filtered_range] = 0
 
@@ -228,14 +262,14 @@ class ProcessHR():
         ax2.set_ylabel('Spectrum (W/O MC)')
 
         ax1.plot(f, specW, label='W/ MC', color='blue')
-        ax2.plot(f, specND, label='W/O MC', color='green')
+        ax2.plot(f, specND, label='W/O MC', color='orange')
 
         lines1, labels1 = ax1.get_legend_handles_labels()
         lines2, labels2 = ax2.get_legend_handles_labels()
         ax1.legend(lines1 + lines2, labels1 + labels2)
 
         plt.xlim([40,150])
-        plt.show()
+        ##plt.show()
 
         print('Heart rate (With Motion Comp):', HR)
         print('Heart rate (W/O Motion Comp):', HR_ND)
