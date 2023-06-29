@@ -21,7 +21,7 @@ class PhaseTwo():
         output_filename (str): Filename of the output .mat file.
     """
 
-    def __init__(self, input_dir: str, output_filename: str, image_width: int = 640, image_height: int = 480):
+    def __init__(self, input_dir: str, output_filename: str, image_width: int = 640, image_height: int = 480, visualize_FaceMesh=False, visualize_ROIs=False):
         """
         Initialize class variables.
 
@@ -30,6 +30,8 @@ class PhaseTwo():
             output_filename: Filename of the output .mat file.
             image_width: Width of input image (in pixels) (aka number of columns)
             image_height: Height of input image (in pixels) (aka number of rows)
+            visualize_FaceMesh: A boolean indicating whether to visualize the face mesh (the creepy mask-looking thing).
+            visualize_ROIs: A boolean indicating whether to visualize the regions of interest.
 
         Note: The IMX520 sensor has an image resolution of 640x480=307200 pixels per frame (width x height)
         (aka 640 columns x 480 rows)
@@ -45,6 +47,9 @@ class PhaseTwo():
         
         self.image_width = image_width
         self.image_height = image_height
+
+        self.visualize_FaceMesh=visualize_FaceMesh
+        self.visualize_ROIs=visualize_ROIs
 
         # Define the landmarks that represent the vertices of the bounding box for each ROI
         # (used in _get_ROI_bounding_box_pixels())
@@ -68,17 +73,21 @@ class PhaseTwo():
         # Define which ROIs we want to visualize
         self.ROIs_to_visualize = [
             'nose',
-            'forehead',
-            'cheek_n_nose',
-            'left_cheek',
-            'right_cheek',
-            'low_forehead',
-            'left_eye',
-            'right_eye'
+            # 'forehead',
+            # 'cheek_n_nose',
+            # 'left_cheek',
+            # 'right_cheek',
+            # 'low_forehead',
+            # 'left_eye',
+            # 'right_eye'
         ]
 
         # Create thread_pool
         num_threads = self._get_num_threads()
+
+        if self.visualize_ROIs:
+            num_threads = 1
+
         print(f"Using {num_threads} threads")
         # TODO: Consider disabling mutexes for thread pool and see if that improves performance
         self.thread_pool = concurrent.futures.ThreadPoolExecutor(max_workers=num_threads)
@@ -93,13 +102,9 @@ class PhaseTwo():
         self.depth_signals = np.array([])
         self.ear_signal = np.array([])
     
-    def run(self, visualize_FaceMesh: bool = False, visualize_ROIs: bool = False) -> None:
+    def run(self) -> None:
         """
         Run the face mesh detection and intensity signal extraction.
-
-        Args:
-            visualize_FaceMesh: A boolean indicating whether to visualize the face mesh (the creepy mask-looking thing).
-            visualize_ROIs: A boolean indicating whether to visualize the regions of interest.
         """
 
         num_ROIs = 7
@@ -142,7 +147,7 @@ class PhaseTwo():
             file_num = file_num + 1
             
             # Process the file
-            self._process_file(file_num, num_files_to_process, filename, num_ROIs, face_mesh_detector, visualize_FaceMesh, visualize_ROIs)
+            self._process_file(file_num, num_files_to_process, filename, num_ROIs, face_mesh_detector)
                     
         self.intensity_signals = np.delete(self.intensity_signals, 0, 1)
         self.depth_signals = np.delete(self.depth_signals, 0, 1)
@@ -153,7 +158,7 @@ class PhaseTwo():
         return
     
     def _process_file(self, file_num: int, num_files_to_process: int, filename: str, num_ROIs: int,
-                  face_mesh_detector: FaceMeshDetector, visualize_FaceMesh: bool, visualize_ROIs: bool) -> None:
+                  face_mesh_detector: FaceMeshDetector) -> None:
         """
         Processes a single file.
         
@@ -166,8 +171,6 @@ class PhaseTwo():
             filename: The name of the file to be processed.
             num_ROIs: The number of regions of interest (ROIs) for which to extract signals.
             face_mesh_detector: An instance of the FaceMeshDetector class for performing face mesh detection.
-            visualize_FaceMesh: A boolean indicating whether to visualize the face mesh on each frame.
-            visualize_ROIs: A boolean indicating whether to visualize the regions of interest.
 
         Returns:
             None. Updates the self.intensity_signals, self.depth_signals, and self.ear_signal arrays
@@ -230,12 +233,12 @@ class PhaseTwo():
             frame_grayscale_rgb = cv2.cvtColor(frame_grayscale, cv2.COLOR_GRAY2RGB)
 
             # Get pixel locations of all face landmarks
-            face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=visualize_FaceMesh)
+            face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=self.visualize_FaceMesh)
 
             if face_detected:
-                multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, visualize_ROIs, frame_grayscale_rgb))
+                multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb))
 
-            if visualize_FaceMesh or visualize_ROIs:
+            if self.visualize_FaceMesh or self.visualize_ROIs:
                 # Calculate and overlay FPS
 
                 current_time = time.time()
@@ -244,7 +247,14 @@ class PhaseTwo():
                 previous_time = current_time
                 cv2.putText(frame_grayscale_rgb, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 3)
 
-                # TODO: Overlay frame number
+                # TODO: Overlay frame number in top right corner
+                # cv2.putText(frame_grayscale_rgb, f'Frame {frame_idx + 1}', (20, 120), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 3)
+
+                text = f'{frame_idx + 1}'
+                text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_PLAIN, 1, 2)[0]
+                text_x = frame_grayscale_rgb.shape[1] - text_size[0] - 20  # Position text at the top right corner
+                text_y = text_size[1] + 20
+                cv2.putText(frame_grayscale_rgb, text, (text_x, text_y), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 2)
 
                 # Display frame
 
@@ -276,7 +286,6 @@ class PhaseTwo():
         intensity_signal_current_file: np.ndarray,
         depth_signal_current_file: np.ndarray,
         ear_signal_current_file: np.ndarray,
-        visualize_ROIs: bool,
         frame_grayscale_rgb: np.ndarray
     ) -> None:
         """
@@ -293,7 +302,6 @@ class PhaseTwo():
             intensity_signal_current_file: An (n,d) array to store the intensity signals for all ROIs for all frames of this video clip.
             depth_signal_current_file: An (n,d) array to store the depth signals for all ROIs for all frames of this video clip.
             ear_signal_current_file: An (n,) array to store the eye aspect ratio (EAR) signals for all frames of this video clip.
-            visualize_ROIs: A boolean indicating whether to visualize the regions of interest.
             frame_grayscale_rgb: An (n,d,3) array representing the current frame in RGB format.
 
         Returns:
@@ -326,7 +334,7 @@ class PhaseTwo():
         right_eye_aspect_ratio = 0.0
         frame_with_ROIs_drawn = np.array([])
 
-        if visualize_ROIs and len(self.ROIs_to_visualize) > 0:
+        if self.visualize_ROIs and len(self.ROIs_to_visualize) > 0:
             # Make a copy of the frame to draw ROIs on
             frame_with_ROIs_drawn = frame_grayscale_rgb.copy()
 
@@ -335,7 +343,7 @@ class PhaseTwo():
             # Get bounding box of ROI in pixels
             roi_bounding_box_pixels = self._get_ROI_bounding_box_pixels(landmarks_pixels, roi_name)
             
-            if visualize_ROIs and roi_name in self.ROIs_to_visualize:
+            if self.visualize_ROIs and roi_name in self.ROIs_to_visualize:
                 # Draw bounding box of ROI
                 self._draw_ROI_bounding_box(roi_bounding_box_pixels, frame_with_ROIs_drawn, roi_name)
 
@@ -760,6 +768,6 @@ class PhaseTwo():
 if __name__ == "__main__":
     skvs_dir = os.path.join(os.getcwd(), 'skvs')
 
-    myFaceMeshDetector = PhaseTwo(input_dir=os.path.join(skvs_dir, "mat"), output_filename="auto_bfsig")
-    myFaceMeshDetector.run(visualize_FaceMesh=False, visualize_ROIs=False)
+    myFaceMeshDetector = PhaseTwo(input_dir=os.path.join(skvs_dir, "mat"), output_filename="auto_bfsig", visualize_FaceMesh=False, visualize_ROIs=False)
+    myFaceMeshDetector.run()
     myFaceMeshDetector.clean_up()
