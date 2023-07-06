@@ -4,9 +4,9 @@ import subprocess
 import shutil
 import argparse
 import time
-# import tensorflow as tf
+from typing import Optional
 
-from face_mesh_detector import FaceMeshDetector
+from phase_two import PhaseTwo
 from processHR import ProcessHR
 
 # Steps:
@@ -24,13 +24,18 @@ from processHR import ProcessHR
 # Record skv video file
 #   - Open Automotive Suite to let user manually record a video clip (.skv file)
 
-def record_skv():
+def record_skv() -> Optional[str]:
     """
-        Launch Automotive Suite and wait until the user exits it.
-        Once the user is done recording, they will close the program.
-        After it is closed, move all of the newly recorded files to ./skvs/ and
-        return the absolute path to ./skvs.
-        If no new files, terminate the script.
+    Launches Automotive Suite and waits until the user exits it.
+    Once the user is done recording, they can close the program.
+    After it is closed, moves all of the newly recorded files from the
+    Automotive Suite recordings directory to the './skvs/' directory.
+    
+    Returns:
+        str: The absolute path to the './skvs/' directory if new files were recorded,
+        otherwise script terminates.
+    
+    NOTE: If no new files were recorded, terminates the script.
     """
     # Find the folder path that matches the pattern "./automotive_suite_recorder_viewer*"
     # print(os.getcwd())
@@ -100,42 +105,36 @@ def record_skv():
             print('No new .skv file was recorded')
             sys.exit()
 
-# Launch ./automotive_suite_recorder_viewer_v0.0.0/automotive_suite.exe
-# Wait until the user exits the program (automotive_suite.exe) and then continue
+def check_for_skvs(skvs_dir: str):
+    """
+    Checks if there are any .skv files in ./skvs/.
+    If there are no .skv files, terminates the script.
 
-# # Launch the program
-# process = subprocess.Popen("./automotive_suite_recorder_viewer_v0.0.0/automotive_suite.exe")
+    Args:
+        skvs_dir (str): absolute path to ./skvs/
 
-# # Wait for the program to exit
-# process.wait()
-
-
-#   - Once the user is done recording, they will close the program
-#   - After it is closed, the .skv file will be processed into a .mat file
-
-
-# Convert .skv video file into .mat file
-#   - imx520_sample.exe -i skvs/input_skv.skv -o skvs/mat/output.mat
-
-
-# Generate bloodflow signature .mat file
-#   - facial_skBF_facemeshTrak.py
-#   - Outputs to facial-blood-ToF/skv_mat/20221003-Sparsh_Fex_bfsig.mat
-
-
-# Generate plots of heart rate from bloodflow signature .mat file
-#   - process_thermal.m
-#   - Outputs plots of the heart rate
-
-def check_for_skvs(skvs_dir):
+    Returns:
+        None
+    """
     skvs_before_recording = set(filter(lambda x: x[0].endswith('.skv'), map(lambda x: (x, os.path.getctime(os.path.join(skvs_dir, x))), os.listdir(skvs_dir))))
 
     # if skvs_before_recording empty, exit
     if not skvs_before_recording:
         print('No .skv files found in ./skvs/')
         sys.exit()
+    
+    return
 
-def skv_to_mat(skvs_dir):
+def skv_to_bin(skvs_dir: str):
+    """
+    Convert each .skv file in skvs_dir to .bin file using imx520_sample.exe and save to ./skvs/mat/
+
+    Args:
+        skvs_dir (str): absolute path to ./skvs/
+
+    Returns:
+        None
+    """
     ## For each .skv file in skvs_dir, convert to .mat file using imx520_sample.exe and save to ./skvs/mat/
     #for skv_filename in os.listdir(skvs_dir):
     #    # print("skv_filename:")
@@ -161,11 +160,27 @@ def skv_to_mat(skvs_dir):
     # ./imx520_sample.exe -i ./skvs/ -o ./skvs/mat/ -d
     process = subprocess.run([imx520_sample_exe_path, "-i", skvs_dir, "-o", output_mat_dir, "-d"], shell=True)
 
-def mat_to_bfsig(skvs_dir):
+    return
+
+def bin_to_bfsig(skvs_dir: str):
+    """
+    Take all .bin files in ./skvs/mat/ and convert to bloodflow signature .mat file using
+    phase_two.py and save output to ./skvs/mat/
+
+    Args:
+        skvs_dir (str): absolute path to ./skvs/
+
+    Returns:
+        None
+    """
     # Tag regions in face and generate bloodflow signature .mat file
-    # myFaceMeshDetector = FaceMeshDetector(input_mats_dir="./skvs/mat/", output_bfsig_name="auto_bfsig")
-    myFaceMeshDetector = FaceMeshDetector(input_dir=os.path.join(skvs_dir, "mat"), output_filename="auto_bfsig")
-    myFaceMeshDetector.run(visualize_ROI=False, visualize_FaceMesh=False)
+    # myFaceMeshDetector = PhaseTwo(input_mats_dir="./skvs/mat/", output_bfsig_name="auto_bfsig")
+    myPhaseTwo = PhaseTwo(input_dir=os.path.join(skvs_dir, "mat"), output_filename="auto_bfsig", visualize_FaceMesh=False, visualize_ROIs=False)
+    myPhaseTwo.run()
+    myPhaseTwo.clean_up()
+
+    return
+
 
 def bfsig_to_plot(skvs_dir):
     # Run plotting matlab script
@@ -174,22 +189,34 @@ def bfsig_to_plot(skvs_dir):
     processHR.run()
     return processHR.time
 
-def process_args():
+  
+def process_args() -> argparse.Namespace:
+    """
+    Process command line arguments
+
+    Returns:
+        args (argparse.Namespace): parsed command line arguments
+
+    Notes:
+        If no command-line arguments are provided, all options are set to True by default.
+    """
     parser = argparse.ArgumentParser()
-    parser.add_argument('--skv_to_mat', action='store_true')
-    parser.add_argument('--mat_to_bfsig', action='store_true')
-    parser.add_argument('--bfsig_to_plot', action='store_true')
+    parser.add_argument('--skv_to_bin', action='store_true', help='Convert .skv files to .bin files')
+    parser.add_argument('--bin_to_bfsig', action='store_true', help='Take all .bin files and generate bloodflow signature .mat file')
+    parser.add_argument('--bfsig_to_plot', action='store_true', help='Plot bloodflow signature .mat file')
     args = parser.parse_args()
 
     # If no args are provided, set all 3 bools to True
     if not any(vars(args).values()):
-        args.skv_to_mat = True
-        args.mat_to_bfsig = True
+        args.skv_to_bin = True
+        args.bin_to_bfsig = True
         args.bfsig_to_plot = True
     
     return args
 
 if __name__ == '__main__':
+    # TODO: Add checks to ensure that /skvs/ and /skvs/mat/ exist. If not, create them.
+    
     main_start_time = time.time()
     
     args = process_args()
@@ -201,6 +228,16 @@ if __name__ == '__main__':
 
     check_for_skvs(skvs_dir)
 
+
+    if args.skv_to_bin:
+        skv_to_bin(skvs_dir)
+    
+    if args.bin_to_bfsig:
+        # start_time = time.time()
+        bin_to_bfsig(skvs_dir)
+        # end_time = time.time()
+        # print("mat_to_bfsig() took " + str(end_time - start_time) + " seconds to run")
+        
     if args.skv_to_mat:
         start_time = time.time()
         skv_to_mat(skvs_dir)
@@ -220,10 +257,9 @@ if __name__ == '__main__':
     if args.bfsig_to_plot:
         plotting_time = bfsig_to_plot(skvs_dir)
 
-    # print(tf.config.list_physical_devices('GPU'))
-
     print('Done!')
 
     # comment for commit
 
     print(f"run.py took {main_end_time - main_start_time + plotting_time} seconds to run")
+
