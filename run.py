@@ -230,25 +230,17 @@ if __name__ == '__main__':
 
 
     if args.skv_to_bin:
+        start_time = time.time()
         skv_to_bin(skvs_dir)
+        end_time = time.time()
+        print("skv_to_bin() took " + str(end_time - start_time) + " seconds to run")
     
     if args.bin_to_bfsig:
-        # start_time = time.time()
+        start_time = time.time()
         bin_to_bfsig(skvs_dir)
-        # end_time = time.time()
-        # print("mat_to_bfsig() took " + str(end_time - start_time) + " seconds to run")
+        end_time = time.time()
+        print("bin_to_bfsig() took " + str(end_time - start_time) + " seconds to run")
         
-    if args.skv_to_mat:
-        start_time = time.time()
-        skv_to_mat(skvs_dir)
-        end_time = time.time()
-        print("skv_to_mat() took " + str(end_time - start_time) + " seconds to run")
-    
-    if args.mat_to_bfsig:
-        start_time = time.time()
-        mat_to_bfsig(skvs_dir)
-        end_time = time.time()
-        print("mat_to_bfsig() took " + str(end_time - start_time) + " seconds to run")
 
     main_end_time = time.time()
 
