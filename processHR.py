@@ -97,7 +97,7 @@ class ProcessHR():
         Stores Heart Rate Signal info 
 
         Args:
-            None
+            dataTitle (str): title of data that is being processed (OPTIONAL)
 
         Returns:
             tb (1D array of ints): Time (seconds)
