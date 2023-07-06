@@ -82,17 +82,35 @@ class ProcessHR():
         self.motionComp(HRsig[:600], Depth[2, :600])
         self.motionComp(HRsig[600:1200], Depth[2, 600:1200])
         self.motionComp(HRsig[1200:1800], Depth[2, 1200:1800])
+        time = 
         plt.show()
         return 
 
-    def processRawData(self, dataTitle=None):
-        
-        # FUNCTION: Extracts raw data from .mat file to 
-        #           plot raw and compensated intensities at a ROI
+    def processRawData(self, dataTitle = None):
+        """
+        processRawData:
+        Extracts raw depths and intensities from .mat file
+        Plots compensated and raw forehead intensities
+        Stores Heart Rate Signal info 
+
+        Args:
+            None
+
+        Returns:
+            tb (1D array of ints): Time (seconds)
+            bc (Stacked arrays):  Smoothed blood concentrations (au) for nose, forehead, left cheek, and right cheek ROIs
+            HRsig (1D array): Cheek and Nose ROI compensated intensity used for heart rate signal
+            HRsigRaw (1D array): Cheek and Nose ROI raw intensity
+            I_comp (2D array): Compensated intensities
+            Depth (2D array):  Raw depths 
+
+        """
 
         # Load in raw depth and intensities
         data = scipy.io.loadmat(self.input_file)
-        Depth = data['Depth']
+        # Depth: 2D array of depths (7x1800 for a 1 minute clip)
+        # I_raw: 2D array of raw intensities (7x1800 for a 1 minute clip)
+        Depth = data['Depth'] 
         I_raw = data['I_raw']
 
         # Remove extraneous zeros
@@ -104,25 +122,30 @@ class ProcessHR():
                 break
 
         # Compensate for movement
+        # I_comp: 2D array of compensated intensities
         I_comp = self.depthComp(I_raw, Depth, 60, 30)
 
         # Process waveforms into the different regions
         Fs = 30 # Frames/Second
         T = 1 / Fs
 
+        # Cheek and nose ROI is set aside for Heart Rate Signal calculation
         HRsig = I_comp[2, :] 
         HRsigRaw = I_raw[2, :]
 
+        # Smoothed blood concentrations for nose, forehead, left cheek, and right cheek ROIs
+        # bc_nose, bc_forehead, bc_lc, bc_rc: 1D array
         bc_nose = self.smooth(-np.log(I_comp[0, :]), 19)
         bc_forehead = self.smooth(-np.log(I_comp[1, :]), 19)
         bc_lc = self.smooth(-np.log(I_comp[3, :]), 19)
         bc_rc = self.smooth(-np.log(I_comp[4, :]), 19)
 
+        # Stacked bc's for plotting time and blood concentrations
         bc = np.vstack((bc_forehead, bc_nose, bc_lc, bc_rc))
         tb = np.arange(0, I_raw.shape[1]) * T
 
 
-        # Plot Raw and Compensated Data
+        # Plots Raw and Compensated forehead intensities
         fig, axs = plt.subplots(2, 1, figsize=(8, 6))
         axs[0].plot(I_raw[0, :])
         axs[0].set_ylabel('Raw Intensity')
@@ -143,12 +166,25 @@ class ProcessHR():
         return tb, bc, HRsig, HRsigRaw, I_comp, Depth
     
     def depthComp(self, I_raw, Depth, timeWindow, Fs):
-        # FUNCTION: Returns Compensated Intensity 
+        """
+        depthComp finds compensated intensity using the equation in the research paper
 
-        # Make matrix for final output
+        Args:
+            I_raw (2D Array of ints): Raw intensities at each ROI
+            Depth (2D Array of ints): Raw depths at each ROI
+            timeWindow (int): Every time window to iterate for finding best b value
+            Fs (int): frames per second
+
+        Returns:
+            comp (2D Array of ints): Compensated intesities (7x1800 for 60s)
+            
+        """
+
         comp = np.ones_like(I_raw)
 
+        # best: scalar variable to find best b value
         best = 1
+        # best_comp: scalar variable to find best b value for the remainder of the clip less than 20s
         best_comp = 1
 
         # Iterate through the different ROIs
@@ -178,7 +214,7 @@ class ProcessHR():
                 compj[((i - 1) * (timeWindow * Fs)) : (i * (timeWindow * Fs))] = best / np.mean(best)
                 i += 1
 
-            # For the remainder
+            # For the remainder of the clip if it is 
             cor = 1
             for bii in np.arange(0.1, 5, 0.01):
                 bI_comp = I_raw[j, (((i - 1) * (timeWindow * Fs))) :] / (Depth[j, (((i - 1) * (timeWindow * Fs))) :] ** (-bii))
@@ -197,18 +233,29 @@ class ProcessHR():
             # Append to final output matrix
             comp[j, :] = compj
 
-
         return comp
 
     def motionComp(self, HRsig, depth):
-        # FUNCTION: Finds heart rate using motion score 
-        #           ie. with regard to motion compensation
-        # Outputs a plot of heart rate found w and w/o motion comp.
+        """
+        motionComp caculates and outputs a plot of heart rate found w and w/o motion comp.
+
+        Args:
+            HRsig: 1D array of Cheek and Nose compensated intensity
+            depth: 2D array of raw depth
+
+        Returns:
+            specW (1D array of ints): Heart rate (BPM) with motion comp. 
+            HR (int): Heart rate with motion compensation for the last 20 second clip
+            specND (1D array of ints): Heart rate (BPM) with motion comp.
+            HR_ND (int): Heart rate without motion compensation for the last 20 second clip
+            
+        """
 
         specW = np.zeros(151)
         specND = np.zeros(151)
         i = 0
 
+        # Loops through 10 second increments of 20 second clip to FFT HRsig spectrum
         while i <= 300:
             # FFT for spectrum, convert to one sided
             spec = np.fft.fft(HRsig[i:(i+300)])
@@ -311,9 +358,18 @@ class ProcessHR():
         return t_HR, HR
     
     def smooth(self, a, span):
-        # FUNCTION: smooth function equivalent to matlab 
-        # a: NumPy 1-D array containing the data to be smoothed
-        # span: smoothing window size needs, which must be odd number
+        '''
+        smooth is a function to smooth data. This smooth function equivalent to Matlab's
+
+        Args:
+            a: NumPy 1-D array containing the data to be smoothed
+            span: smoothing window size needs, which must be odd number
+        
+        Returns:
+            1D array of smoothed data of a
+
+        '''
+        
         out0 = np.convolve(a,np.ones(span,dtype=int),'valid')/span    
         r = np.arange(1,span-1,2)
         start = np.cumsum(a[:span-1])[::2]/r
