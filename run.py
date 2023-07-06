@@ -7,6 +7,7 @@ import time
 from typing import Optional
 
 from phase_two import PhaseTwo
+from processHR import ProcessHR
 
 # Steps:
 # - Use Automotive Suite to record a video clip (.skv file)
@@ -180,17 +181,15 @@ def bin_to_bfsig(skvs_dir: str):
 
     return
 
-def bfsig_to_plot():
-    """
-    Plot bloodflow signature .mat file using process_thermal_SINGLE.m
-    """
+
+def bfsig_to_plot(skvs_dir):
     # Run plotting matlab script
     # Create path to matlab script
-    matlab_script_path = os.path.join(os.getcwd(), "auto_matlab/process_thermal_SINGLE.m")
-    process = subprocess.run(["matlab", "-r", "run('" + matlab_script_path + "');"], shell=True)
+    processHR = ProcessHR(input_file=os.path.join(skvs_dir, "mat", "auto_bfsig"))
+    processHR.run()
+    return processHR.time
 
-    return
-
+  
 def process_args() -> argparse.Namespace:
     """
     Process command line arguments
@@ -229,6 +228,7 @@ if __name__ == '__main__':
 
     check_for_skvs(skvs_dir)
 
+
     if args.skv_to_bin:
         skv_to_bin(skvs_dir)
     
@@ -237,11 +237,29 @@ if __name__ == '__main__':
         bin_to_bfsig(skvs_dir)
         # end_time = time.time()
         # print("mat_to_bfsig() took " + str(end_time - start_time) + " seconds to run")
+        
+    if args.skv_to_mat:
+        start_time = time.time()
+        skv_to_mat(skvs_dir)
+        end_time = time.time()
+        print("skv_to_mat() took " + str(end_time - start_time) + " seconds to run")
+    
+    if args.mat_to_bfsig:
+        start_time = time.time()
+        mat_to_bfsig(skvs_dir)
+        end_time = time.time()
+        print("mat_to_bfsig() took " + str(end_time - start_time) + " seconds to run")
+
+    main_end_time = time.time()
+
+    plotting_time = 0
     
     if args.bfsig_to_plot:
-        bfsig_to_plot()
+        plotting_time = bfsig_to_plot(skvs_dir)
 
     print('Done!')
 
-    main_end_time = time.time()
-    print(f"run.py took {main_end_time - main_start_time} seconds to run")
+    # comment for commit
+
+    print(f"run.py took {main_end_time - main_start_time + plotting_time} seconds to run")
+
