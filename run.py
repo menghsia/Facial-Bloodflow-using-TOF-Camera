@@ -216,6 +216,7 @@ if __name__ == '__main__':
     main_end_time = time.time()
 
     plotting_time = 0
+    
     if args.bfsig_to_plot:
         plotting_time = bfsig_to_plot(skvs_dir)
 
