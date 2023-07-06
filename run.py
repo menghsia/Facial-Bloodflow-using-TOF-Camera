@@ -172,6 +172,7 @@ def bfsig_to_plot(skvs_dir):
     # Create path to matlab script
     processHR = ProcessHR(input_file=os.path.join(skvs_dir, "mat", "auto_bfsig"))
     processHR.run()
+    return processHR.time
 
 def process_args():
     parser = argparse.ArgumentParser()
@@ -201,16 +202,22 @@ if __name__ == '__main__':
     check_for_skvs(skvs_dir)
 
     if args.skv_to_mat:
+        start_time = time.time()
         skv_to_mat(skvs_dir)
+        end_time = time.time()
+        print("skv_to_mat() took " + str(end_time - start_time) + " seconds to run")
     
     if args.mat_to_bfsig:
         start_time = time.time()
         mat_to_bfsig(skvs_dir)
         end_time = time.time()
         print("mat_to_bfsig() took " + str(end_time - start_time) + " seconds to run")
-    
+
+    main_end_time = time.time()
+
+    plotting_time = 0
     if args.bfsig_to_plot:
-        bfsig_to_plot(skvs_dir)
+        plotting_time = bfsig_to_plot(skvs_dir)
 
     # print(tf.config.list_physical_devices('GPU'))
 
@@ -218,5 +225,4 @@ if __name__ == '__main__':
 
     # comment for commit
 
-    main_end_time = time.time()
-    print(f"run.py took {main_end_time - main_start_time} seconds to run")
+    print(f"run.py took {main_end_time - main_start_time + plotting_time} seconds to run")

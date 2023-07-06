@@ -27,6 +27,7 @@ class ProcessHR():
         """  
 
         self.input_file = input_file
+        self.time = 0
     
     def run(self):
         """
@@ -46,6 +47,7 @@ class ProcessHR():
         # bc: blood concentration (au) array
         # HRsig: Heart Rate Signal array
         # Depth: Raw depth array
+        start_HRtime = time.time()
         tb, bc, HRsig, HRsigRaw, I_comp, Depth = self.processRawData()
 
         # Plot smoothed blood concentration at times(s)
@@ -82,7 +84,8 @@ class ProcessHR():
         self.motionComp(HRsig[:600], Depth[2, :600])
         self.motionComp(HRsig[600:1200], Depth[2, 600:1200])
         self.motionComp(HRsig[1200:1800], Depth[2, 1200:1800])
-        time = 
+        end_HRtime = time.time()
+        self.time = end_HRtime - start_HRtime
         plt.show()
         return 
 
