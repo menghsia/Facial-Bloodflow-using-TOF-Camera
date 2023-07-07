@@ -16,6 +16,7 @@ class ProcessHR():
 
     Attributes:
         input_file (str): input filename in which raw depths and intensities are stored
+        time (float): runtime of run() from start to finish
     """
 
     def __init__(self, input_file):
