@@ -84,6 +84,7 @@ class PhaseTwo():
 
         # Create thread_pool
         num_threads = self._get_num_threads()
+        # num_threads = 1
 
         if self.visualize_ROIs:
             num_threads = 1
@@ -356,6 +357,10 @@ class PhaseTwo():
             else:
                 # Get pixels contained within ROI bounding box
                 pixels_in_ROI = self._get_pixels_within_ROI_bounding_box(roi_bounding_box_pixels)
+
+                # if roi_name == "cheek_n_nose":
+                #     # Save the mask of pixels contained within the ROI bounding box to a .mat file
+                #     savemat("main_mask_cheek_n_nose_2.mat", {"mask_cheek_n_nose": pixels_in_ROI})
                 
                 # Calculate and save averaged intensity for the ROI
                 intensity_signal_current_file[roi_idx, frame_idx] = np.average(frame_confidence[np.where(pixels_in_ROI > 0)])
