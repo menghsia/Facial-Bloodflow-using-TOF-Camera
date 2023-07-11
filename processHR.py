@@ -67,8 +67,9 @@ class ProcessHR():
         HR_ND = self.getHR(HRsigRaw, 600)
 
 
+
         # Calculate Heart Rate (Motion Score)
-        self.motionComp(HRsig, Depth)
+        #self.motionComp(HRsig, Depth)
         end_HRtime = time.time()
         self.time = end_HRtime - start_HRtime
         plt.show()
@@ -108,11 +109,12 @@ class ProcessHR():
                 I_raw = np.delete(I_raw, i, axis=1)
             else:
                 break
-
+        Depth = np.delete(Depth, 6, axis=0)
+        I_raw = np.delete(I_raw, 6, axis=0)
+        
         # Compensate for movement
         # I_comp: 2D array of compensated intensities
         I_comp = self.depthComp(I_raw, Depth, 2, 30)
-
         # Process waveforms into the different regions
         Fs = 30 # Frames/Second
         T = 1 / Fs
@@ -186,8 +188,8 @@ class ProcessHR():
                 cor = 1
 
                 # For each clip, iterate through different b values with a = 1
-                for bi in np.arange(0.2, 5, 0.01):
-                    bI_comp = I_raw[j, ((i - 1) * (timeWindow * Fs)) : (i * (timeWindow * Fs))] / (Depth[j, ((i - 1) * (timeWindow * Fs)) : (i * (timeWindow * Fs))] ** (-bi))
+                for bi in np.arange(0.2, 5.1, 0.1):
+                    bI_comp = I_raw[j, ((i - 1) * (timeWindow * Fs)) : (i * (timeWindow * Fs))] / (Depth[j, ((i - 1) * (timeWindow * Fs)) : (i * (timeWindow * Fs))]) ** (-bi)
                     # Find correlation between bI_comp and Depth
                     corr_v = np.corrcoef(bI_comp, Depth[j, ((i - 1) * (timeWindow * Fs)) : (i * (timeWindow * Fs))])
                     # Take absolute value of correlation coefficients
@@ -204,8 +206,8 @@ class ProcessHR():
 
             # For the remainder of the clip if it is 
             cor = 1
-            for bii in np.arange(0.1, 5, 0.01):
-                bI_comp = I_raw[j, (((i - 1) * (timeWindow * Fs))) :] / (Depth[j, (((i - 1) * (timeWindow * Fs))) :] ** (-bii))
+            for bii in np.arange(0.2, 5.1, 0.1):
+                bI_comp = I_raw[j, (((i - 1) * (timeWindow * Fs))) :] / (Depth[j, (((i - 1) * (timeWindow * Fs))) :]) ** (-bii)
                 # Find correlation between bI_comp and Depth
                 corr_v = np.corrcoef(bI_comp, Depth[j, (((i - 1) * (timeWindow * Fs)) ) :])
                 # Take absolute value of correlation coefficients
@@ -328,9 +330,9 @@ class ProcessHR():
         onesided[f_Filtered_range] = 0
 
         # HR peak locate
-        pks, loc = find_peaks(onesided.squeeze())
-        maxindex = np.argmax(pks)
-        HR_current = f[loc[maxindex]]
+        pks, properties = find_peaks(onesided.squeeze())
+        maxindex = np.argmax(spectrum[pks])
+        HR_current = f[pks[maxindex]]
         HR.append(HR_current)
 
         return HR
