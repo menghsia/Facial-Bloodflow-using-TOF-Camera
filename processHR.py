@@ -125,7 +125,7 @@ class ProcessHR():
 
         # Compensate for movement
         # I_comp: 2D array of compensated intensities
-        I_comp = self.depthComp(I_raw, Depth, 60, 30)
+        I_comp = self.depthComp(I_raw, Depth, 2, 30)
 
         # Process waveforms into the different regions
         Fs = 30 # Frames/Second
@@ -174,7 +174,7 @@ class ProcessHR():
         Args:
             I_raw (2D Array of ints): Raw intensities at each ROI
             Depth (2D Array of ints): Raw depths at each ROI
-            timeWindow (int): Every time window to iterate for finding best b value
+            timeWindow (int): Every time window to iterate for finding best b value, in seconds
             Fs (int): frames per second
 
         Returns:
@@ -213,7 +213,7 @@ class ProcessHR():
                         best = bI_comp
 
                 # Normalize data
-                compj[((i - 1) * (timeWindow * Fs)) : (i * (timeWindow * Fs))] = best / np.mean(best)
+                compj[((i - 1) * (timeWindow * Fs)) : (i * (timeWindow * Fs))] = (best - np.mean(best))/np.std(best)
                 i += 1
 
             # For the remainder of the clip if it is 
@@ -231,7 +231,7 @@ class ProcessHR():
                     best_rem = bI_comp
 
             # Normalize data
-            compj[(((i - 1) * (timeWindow * Fs))) :] = best_rem / np.mean(best_rem)
+            compj[(((i - 1) * (timeWindow * Fs))) :] = (best_rem - np.mean(best_rem))/np.std(best_rem)
             # Append to final output matrix
             comp[j, :] = compj
 
