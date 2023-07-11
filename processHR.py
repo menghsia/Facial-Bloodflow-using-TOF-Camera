@@ -168,11 +168,11 @@ class ProcessHR():
             Fs (int): frames per second
 
         Returns:
-            comp (2D Array of ints): Compensated intesities (7x1800 for 60s)
+            I_comp (2D Array of ints): Compensated intesities (7x1800 for 60s)
             
         """
 
-        comp = np.ones_like(I_raw)
+        I_comp = np.ones_like(I_raw)
 
         # best: scalar variable to find best b value
         best = 1
@@ -180,38 +180,40 @@ class ProcessHR():
         best_rem = 1
 
         # Iterate through the different ROIs
-        for j in range(I_raw.shape[0]):
-            # Make variables for I_comp (to be appended) and i to iterate through
-            compj = np.ones(I_raw.shape[1])
+        for ROI in range(I_raw.shape[0]):
+            # I_comp_ROI: 2D array of ints with the compensated intensities for the ROI
+            I_comp_ROI = np.ones(I_raw.shape[1])
+            # i: scalar variable to iterate through each clip(time window)
             i = 1
 
             # Iterate through every clip...so every 60 frames
-            while (i * (timeWindow * Fs)) < len(I_raw[j, :]):
+            while (i * (timeWindow * Fs)) < len(I_raw[ROI, :]):
+                # cor: the lowest correlation coefficient that we compare to/reset (we start at 1 because that is highest possible value)
                 cor = 1
 
                 # For each clip, iterate through different b values with a = 1
                 for bi in np.arange(0.2, 5.1, 0.1):
-                    bI_comp = I_raw[j, ((i - 1) * (timeWindow * Fs)) : (i * (timeWindow * Fs))] / (Depth[j, ((i - 1) * (timeWindow * Fs)) : (i * (timeWindow * Fs))]) ** (-bi)
+                    bI_comp = I_raw[ROI, ((i - 1) * (timeWindow * Fs)) : (i * (timeWindow * Fs))] / (Depth[ROI, ((i - 1) * (timeWindow * Fs)) : (i * (timeWindow * Fs))]) ** (-bi)
                     # Find correlation between bI_comp and Depth
-                    corr_v = np.corrcoef(bI_comp, Depth[j, ((i - 1) * (timeWindow * Fs)) : (i * (timeWindow * Fs))])
+                    corr_v = np.corrcoef(bI_comp, Depth[ROI, ((i - 1) * (timeWindow * Fs)) : (i * (timeWindow * Fs))])
                     # Take absolute value of correlation coefficients
                     corr_ = np.abs(corr_v[0, 1])
 
-                    # If the new correlation coeff is less than the old one, reset cor value and I_comp
+                    # If the new correlation coeff is less than the old one, reset cor value and best I_comp
                     if corr_ < cor:
                         cor = corr_
                         best = bI_comp
 
-                # Normalize data
-                compj[((i - 1) * (timeWindow * Fs)) : (i * (timeWindow * Fs))] = (best - np.mean(best))/np.std(best)
+                # Normalize data using z-scores
+                I_comp_ROI[((i - 1) * (timeWindow * Fs)) : (i * (timeWindow * Fs))] = (best - np.mean(best))/np.std(best)
                 i += 1
 
             # For the remainder of the clip if it is 
             cor = 1
             for bii in np.arange(0.2, 5.1, 0.1):
-                bI_comp = I_raw[j, (((i - 1) * (timeWindow * Fs))) :] / (Depth[j, (((i - 1) * (timeWindow * Fs))) :]) ** (-bii)
+                bI_comp = I_raw[ROI, (((i - 1) * (timeWindow * Fs))) :] / (Depth[ROI, (((i - 1) * (timeWindow * Fs))) :]) ** (-bii)
                 # Find correlation between bI_comp and Depth
-                corr_v = np.corrcoef(bI_comp, Depth[j, (((i - 1) * (timeWindow * Fs)) ) :])
+                corr_v = np.corrcoef(bI_comp, Depth[ROI, (((i - 1) * (timeWindow * Fs)) ) :])
                 # Take absolute value of correlation coefficients
                 corr_ = np.abs(corr_v[0, 1])
 
@@ -221,11 +223,11 @@ class ProcessHR():
                     best_rem = bI_comp
 
             # Normalize data
-            compj[(((i - 1) * (timeWindow * Fs))) :] = (best_rem - np.mean(best_rem))/np.std(best_rem)
+            I_comp_ROI[(((i - 1) * (timeWindow * Fs))) :] = (best_rem - np.mean(best_rem))/np.std(best_rem)
             # Append to final output matrix
-            comp[j, :] = compj
+            I_comp[ROI, :] = I_comp_ROI
 
-        return comp
+        return I_comp
 
     def motionComp(self, HRsig, depth):
         """
