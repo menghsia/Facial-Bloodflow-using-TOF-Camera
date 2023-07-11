@@ -321,7 +321,7 @@ class ProcessHR():
         ##plt.show()
 
         print('Heart rate (With Motion Comp):', HR)
-        print('Heart rate (W/O Motion Comp):', HR_ND)
+        #print('Heart rate (W/O Motion Comp):', HR_ND)
 
         return specW, HR, specND, HR_ND
 
