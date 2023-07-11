@@ -47,18 +47,18 @@ class ProcessHR():
         # HRsig: Heart Rate Signal array
         # Depth: Raw depth array
         start_HRtime = time.time()
-        tb, bc, HRsig, HRsigRaw, I_comp, Depth = self.processRawData()
+        HRsig, HRsigRaw, I_comp, Depth = self.processRawData()
 
         # Plot smoothed blood concentration at times(s)
-        plt.figure()
+        # plt.figure()
 
-        plt.plot(tb, self.smooth(bc[1], 51), color = 'blue')
-        plt.plot(tb, self.smooth(bc[0], 51), color = 'red')
-        plt.plot(tb, self.smooth(((bc[2]+bc[3])/2), 51), color = 'orange')
+        # plt.plot(tb, self.smooth(bc[1], 51), color = 'blue')
+        # plt.plot(tb, self.smooth(bc[0], 51), color = 'red')
+        # plt.plot(tb, self.smooth(((bc[2]+bc[3])/2), 51), color = 'orange')
 
-        plt.xlabel('Time (s)')
-        plt.legend(['Nose', 'Forehead', 'Cheek Average'])
-        plt.ylabel('Relative Blood Concentration Change (a.u.)')
+        # plt.xlabel('Time (s)')
+        # plt.legend(['Nose', 'Forehead', 'Cheek Average'])
+        # plt.ylabel('Relative Blood Concentration Change (a.u.)')
         
 
         ## getHR() NEEDS FIXING ##
@@ -123,14 +123,14 @@ class ProcessHR():
 
         # Smoothed blood concentrations for nose, forehead, left cheek, and right cheek ROIs
         # bc_nose, bc_forehead, bc_lc, bc_rc: 1D array
-        bc_nose = self.smooth(-np.log(I_comp[0, :]), 19)
-        bc_forehead = self.smooth(-np.log(I_comp[1, :]), 19)
-        bc_lc = self.smooth(-np.log(I_comp[3, :]), 19)
-        bc_rc = self.smooth(-np.log(I_comp[4, :]), 19)
+        # bc_nose = self.smooth(-np.log(I_comp[0, :]), 19)
+        # bc_forehead = self.smooth(-np.log(I_comp[1, :]), 19)
+        # bc_lc = self.smooth(-np.log(I_comp[3, :]), 19)
+        # bc_rc = self.smooth(-np.log(I_comp[4, :]), 19)
 
-        # Stacked bc's for plotting time and blood concentrations
-        bc = np.vstack((bc_forehead, bc_nose, bc_lc, bc_rc))
-        tb = np.arange(0, I_raw.shape[1]) * T
+        # # Stacked bc's for plotting time and blood concentrations
+        # bc = np.vstack((bc_forehead, bc_nose, bc_lc, bc_rc))
+        # tb = np.arange(0, I_raw.shape[1]) * T
 
 
         # Plots Raw and Compensated forehead intensities
@@ -151,7 +151,7 @@ class ProcessHR():
 
         #plt.show()
 
-        return tb, bc, HRsig, HRsigRaw, I_comp, Depth
+        return HRsig, HRsigRaw, I_comp, Depth
     
     def depthComp(self, I_raw, Depth, timeWindow, Fs):
         """
@@ -321,7 +321,7 @@ class ProcessHR():
         # Get HR
         spectrum = np.fft.fft(HRsig)
         P2 = np.abs(spectrum / L)
-        onesided = P2[1:(L//2) + 1]
+        onesided = P2[0:(L//2) + 1]
         onesided[1:-1] = 2*onesided[1:-1]
         f = Fs * np.arange((L//2) + 1) / L * 60
         f_Filtered_range = np.logical_or(f < 40, f > 150)
