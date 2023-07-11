@@ -66,7 +66,8 @@ class ProcessHR():
         HR_comp = self.getHR(HRsig, 600)
         HR_ND = self.getHR(HRsigRaw, 600)
 
-
+        print(HR_comp)
+        print(HR_ND)
 
         # Calculate Heart Rate (Motion Score)
         #self.motionComp(HRsig, Depth)
@@ -109,9 +110,10 @@ class ProcessHR():
                 I_raw = np.delete(I_raw, i, axis=1)
             else:
                 break
+
         Depth = np.delete(Depth, 6, axis=0)
         I_raw = np.delete(I_raw, 6, axis=0)
-        
+
         # Compensate for movement
         # I_comp: 2D array of compensated intensities
         I_comp = self.depthComp(I_raw, Depth, 2, 30)
