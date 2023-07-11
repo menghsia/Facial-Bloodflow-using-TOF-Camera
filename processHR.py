@@ -193,11 +193,11 @@ class ProcessHR():
 
                 # For each clip, iterate through different b values with a = 1
                 for bi in np.arange(0.2, 5.1, 0.1):
-                    bI_comp = I_raw[ROI, ((i - 1) * (timeWindow * Fs)) : (i * (timeWindow * Fs))] / (Depth[ROI, ((i - 1) * (timeWindow * Fs)) : (i * (timeWindow * Fs))]) ** (-bi)
+                    bI_comp = I_raw[ROI, ((i - 1) * (timeWindow * Fs)) : ((i * (timeWindow * Fs)) - 1)] / ((Depth[ROI, ((i - 1) * (timeWindow * Fs)) : ((i * (timeWindow * Fs)) - 1)]) ** (-bi))
                     # Find correlation between bI_comp and Depth
-                    corr_v = np.corrcoef(bI_comp, Depth[ROI, ((i - 1) * (timeWindow * Fs)) : (i * (timeWindow * Fs))])
+                    corr_v = np.corrcoef(bI_comp, Depth[ROI, ((i - 1) * (timeWindow * Fs)) : ((i * (timeWindow * Fs)) - 1)])
                     # Take absolute value of correlation coefficients
-                    corr_ = np.abs(corr_v[1, 0])
+                    corr_ = abs(corr_v[1, 0])
 
                     # If the new correlation coeff is less than the old one, reset cor value and best I_comp
                     if corr_ < cor:
@@ -205,7 +205,7 @@ class ProcessHR():
                         best = bI_comp
 
                 # Normalize data using z-scores
-                I_comp_ROI[((i - 1) * (timeWindow * Fs)) : (i * (timeWindow * Fs))] = (best - np.mean(best))/np.std(best)
+                I_comp_ROI[((i - 1) * (timeWindow * Fs)) : ((i * (timeWindow * Fs)) - 1)] = (best - np.mean(best))/np.std(best)
                 i += 1
 
             # For the remainder of the clip if it is 
@@ -215,7 +215,7 @@ class ProcessHR():
                 # Find correlation between bI_comp and Depth
                 corr_v = np.corrcoef(bI_comp, Depth[ROI, (((i - 1) * (timeWindow * Fs)) ) :])
                 # Take absolute value of correlation coefficients
-                corr_ = np.abs(corr_v[1, 0])
+                corr_ = abs(corr_v[1, 0])
 
                 # If the new correlation coeff is less than the old one, reset cor value and I_comp
                 if corr_ < cor:
