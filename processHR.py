@@ -186,8 +186,8 @@ class ProcessHR():
 
         # best: scalar variable to find best b value
         best = 1
-        # best_comp: scalar variable to find best b value for the remainder of the clip less than 20s
-        best_comp = 1
+        # best_rem: scalar variable to find best b value for the remainder of the clip less than 20s
+        best_rem = 1
 
         # Iterate through the different ROIs
         for j in range(I_raw.shape[0]):
@@ -228,10 +228,10 @@ class ProcessHR():
                 # If the new correlation coeff is less than the old one, reset cor value and I_comp
                 if corr_ < cor:
                     cor = corr_
-                    best_comp = bI_comp
+                    best_rem = bI_comp
 
             # Normalize data
-            compj[(((i - 1) * (timeWindow * Fs))) :] = best_comp / np.mean(best_comp)
+            compj[(((i - 1) * (timeWindow * Fs))) :] = best_rem / np.mean(best_rem)
             # Append to final output matrix
             comp[j, :] = compj
 
