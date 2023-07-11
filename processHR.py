@@ -197,7 +197,7 @@ class ProcessHR():
                     # Find correlation between bI_comp and Depth
                     corr_v = np.corrcoef(bI_comp, Depth[ROI, ((i - 1) * (timeWindow * Fs)) : (i * (timeWindow * Fs))])
                     # Take absolute value of correlation coefficients
-                    corr_ = np.abs(corr_v[0, 1])
+                    corr_ = np.abs(corr_v[1, 0])
 
                     # If the new correlation coeff is less than the old one, reset cor value and best I_comp
                     if corr_ < cor:
@@ -215,7 +215,7 @@ class ProcessHR():
                 # Find correlation between bI_comp and Depth
                 corr_v = np.corrcoef(bI_comp, Depth[ROI, (((i - 1) * (timeWindow * Fs)) ) :])
                 # Take absolute value of correlation coefficients
-                corr_ = np.abs(corr_v[0, 1])
+                corr_ = np.abs(corr_v[1, 0])
 
                 # If the new correlation coeff is less than the old one, reset cor value and I_comp
                 if corr_ < cor:
