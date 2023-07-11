@@ -61,28 +61,14 @@ class ProcessHR():
         plt.ylabel('Relative Blood Concentration Change (a.u.)')
         
 
-        ''' ## getHR() NEEDS FIXING ##
+        ## getHR() NEEDS FIXING ##
         # Get HR Data
-        t_HR_comp, HR_comp = getHR(HRsig, 900)
+        HR_comp = self.getHR(HRsig, 600)
+        HR_ND = self.getHR(HRsigRaw, 600)
 
-        # Plot HR Data
-        plt.figure()
-        plt.plot(t_HR_comp, HR_comp, label='comp')
-        plt.title('Heart Rate')
-        plt.xlabel('Time (seconds)')
-        plt.ylabel('Heart Rate (bpm)')
-
-        t_HR_raw, HR_raw = getHR(HRsigRaw, 900)
-        plt.plot(t_HR_raw, HR_raw, '--', label='raw')
-
-        plt.legend()
-        plt.show()
-        '''
 
         # Calculate Heart Rate (Motion Score)
-        self.motionComp(HRsig[:600], Depth[2, :600])
-        self.motionComp(HRsig[600:1200], Depth[2, 600:1200])
-        self.motionComp(HRsig[1200:1800], Depth[2, 1200:1800])
+        self.motionComp(HRsig, Depth)
         end_HRtime = time.time()
         self.time = end_HRtime - start_HRtime
         plt.show()
@@ -330,34 +316,24 @@ class ProcessHR():
 
         # Prepare Parameters
         Fs = 30
-        step = 30
-        step_t = step / Fs
-        L_t = L / Fs
         HR = []
 
         # Get HR
-        j = 0
-        counter = 1
-        while j + L - 1 < HRsig.shape[0]:
-            spectrum = np.fft.fft(HRsig[j:(j+L)])
-            P2 = np.abs(spectrum / L)
-            onesided = P2[1:(L//2) + 1]
-            onesided[1:-1] = 2*onesided[1:-1]
-            f = Fs * np.arange((L//2) + 1) / L * 60
-            f_Filtered_range = np.logical_or(f < 40, f > 150)
-            onesided[f_Filtered_range] = 0
+        spectrum = np.fft.fft(HRsig)
+        P2 = np.abs(spectrum / L)
+        onesided = P2[1:(L//2) + 1]
+        onesided[1:-1] = 2*onesided[1:-1]
+        f = Fs * np.arange((L//2) + 1) / L * 60
+        f_Filtered_range = np.logical_or(f < 40, f > 150)
+        onesided[f_Filtered_range] = 0
 
-            # HR peak locate
-            pks, loc = find_peaks(onesided.squeeze())
-            maxindex = np.argmax(pks)
-            HR_current = f[loc[maxindex]]
-            HR.append(HR_current)
+        # HR peak locate
+        pks, loc = find_peaks(onesided.squeeze())
+        maxindex = np.argmax(pks)
+        HR_current = f[loc[maxindex]]
+        HR.append(HR_current)
 
-            j = j + step
-            counter = counter + 1
-
-        t_HR = np.arange(L_t / 2, len(HR) * step_t + L_t / 2, step_t)
-        return t_HR, HR
+        return HR
     
     def smooth(self, a, span):
         '''
