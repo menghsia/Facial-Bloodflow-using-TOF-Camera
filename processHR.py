@@ -189,13 +189,13 @@ class ProcessHR():
             # Iterate through every clip...so every 60 frames
             while (i * (timeWindow * Fs)) < len(I_raw[ROI, :]):
                 # cor: the lowest correlation coefficient that we compare to/reset (we start at 1 because that is highest possible value)
-                cor = 1
+                cor = 2
 
                 # For each clip, iterate through different b values with a = 1
                 for bi in np.arange(0.2, 5.1, 0.1):
-                    bI_comp = I_raw[ROI, ((i - 1) * (timeWindow * Fs)) : ((i * (timeWindow * Fs)) - 1)] / ((Depth[ROI, ((i - 1) * (timeWindow * Fs)) : ((i * (timeWindow * Fs)) - 1)]) ** (-bi))
+                    bI_comp = I_raw[ROI, ((i - 1) * (timeWindow * Fs)) : ((i * (timeWindow * Fs)))] / ((Depth[ROI, ((i - 1) * (timeWindow * Fs)) : ((i * (timeWindow * Fs)))]) ** (-bi))
                     # Find correlation between bI_comp and Depth
-                    corr_v = np.corrcoef(bI_comp, Depth[ROI, ((i - 1) * (timeWindow * Fs)) : ((i * (timeWindow * Fs)) - 1)])
+                    corr_v = np.corrcoef(bI_comp, Depth[ROI, ((i - 1) * (timeWindow * Fs)) : ((i * (timeWindow * Fs)))])
                     # Take absolute value of correlation coefficients
                     corr_ = abs(corr_v[1, 0])
 
@@ -205,11 +205,11 @@ class ProcessHR():
                         best = bI_comp
 
                 # Normalize data using z-scores
-                I_comp_ROI[((i - 1) * (timeWindow * Fs)) : ((i * (timeWindow * Fs)) - 1)] = (best - np.mean(best))/np.std(best)
+                I_comp_ROI[((i - 1) * (timeWindow * Fs)) : ((i * (timeWindow * Fs)))] = (best - np.mean(best))/np.std(best)
                 i += 1
 
             # For the remainder of the clip if it is 
-            cor = 1
+            cor = 2
             for bii in np.arange(0.2, 5.1, 0.1):
                 bI_comp = I_raw[ROI, (((i - 1) * (timeWindow * Fs))) :] / (Depth[ROI, (((i - 1) * (timeWindow * Fs))) :]) ** (-bii)
                 # Find correlation between bI_comp and Depth
