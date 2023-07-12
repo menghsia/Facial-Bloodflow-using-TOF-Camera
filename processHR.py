@@ -132,7 +132,7 @@ class ProcessHR():
         # I_comp: 2D array of compensated intensities
         I_comp = self.depthComp(I_raw, Depth, 2, 30)
 
-        plt.plot(I_comp[2,:])
+        plt.plot(I_raw[2,:])
         plt.show()
         
         # Process waveforms into the different regions
