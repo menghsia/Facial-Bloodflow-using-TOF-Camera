@@ -84,7 +84,7 @@ class ProcessHR():
         #self.motionComp(HRsig, Depth)
         end_HRtime = time.time()
         self.time = end_HRtime - start_HRtime
-        plt.show()
+        #plt.show()
         return 
 
     def processRawData(self, dataTitle = None):
