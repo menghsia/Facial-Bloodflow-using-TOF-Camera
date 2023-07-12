@@ -357,3 +357,80 @@ class ProcessHR():
         start = np.cumsum(a[:span-1])[::2]/r
         stop = (np.cumsum(a[:-span:-1])[::2]/r)[::-1]
         return np.concatenate((  start , out0, stop  ))
+    
+
+    ## FUNCTIONS FOR TABLET CODE PROCESSING ##
+
+    def tablet_depthComp(intensities, depths, b_values=np.arange(0.2, 5.1, 0.1), a_values=[1.0], sub_clip_length=2, frames_per_second=30):
+        """
+        Args:
+            intensities: 1D array of intensity signals
+            depths: 1D array of depth signals
+            b_values: array of b values to try
+            a_values: array of a values to try
+            sub_clip_length: length of each subclip that the full clip gets split into (seconds)
+            frames_per_second: frames per second of the video
+        Returns:
+            intensity_compensated: 1D array of depth-compensated intensity signals
+        """
+        # distmean1= moving_average(distmean1, 9);
+        num_frames_window = int(sub_clip_length*frames_per_second)  # number of points in 2s
+        num_frames = len(intensities)
+        window_idx = math.floor(num_frames/num_frames_window)
+        intensity_compensated = np.zeros(len(intensities))
+        intensity_compensated_temp = np.zeros(len(intensities))
+
+        for i in range(window_idx):
+            intensity_compensated[i*num_frames_window:(i+1)*num_frames_window] = intensities[i*num_frames_window:(i+1)*num_frames_window]*(depths[i*num_frames_window:(i+1)*num_frames_window]**0.5)
+            correlation_temp = np.corrcoef(intensity_compensated[i*num_frames_window:(i+1)*num_frames_window], depths[i*num_frames_window:(i+1)*num_frames_window])
+            correlation_best = abs(correlation_temp[1, 0])
+            for ii in b_values:
+                for iii in a_values:
+                    intensity_compensated_temp[i*num_frames_window:(i+1)*num_frames_window] = intensities[i*num_frames_window:(i+1)*num_frames_window]*(iii*(depths[i*num_frames_window:(i+1)*num_frames_window]**ii))
+                    correlation_temp = np.corrcoef(intensity_compensated_temp[i*num_frames_window:(i+1)*num_frames_window], depths[i*num_frames_window:(i+1)*num_frames_window])
+                    if abs(correlation_temp[1, 0]) < correlation_best:
+                        intensity_compensated[i*num_frames_window:(i+1)*num_frames_window] = intensity_compensated_temp[i*num_frames_window:(i+1)*num_frames_window]
+                        correlation_best = abs(correlation_temp[1, 0])
+            intensity_compensated[i*num_frames_window:(i+1)*num_frames_window] = (intensity_compensated[i*num_frames_window:(i+1)*num_frames_window]-np.mean(
+                intensity_compensated[i*num_frames_window:(i+1)*num_frames_window]))/np.std(intensity_compensated[i*num_frames_window:(i+1)*num_frames_window])
+        if num_frames % num_frames_window != 0:
+            # This is an edge case when the clip does not divide evenly into subclips
+            # In this case, do max number of full time windows and then with the final subclip, do the same thing as above except only use the number of frames in the subclip
+            if num_frames % num_frames_window >= 2:
+                intensity_compensated[int(num_frames-num_frames % num_frames_window):num_frames] = intensities[int(num_frames-num_frames % num_frames_window):num_frames]*((depths[int(num_frames-num_frames % num_frames_window):num_frames]**0.5))
+                correlation_temp = np.corrcoef(intensity_compensated[int(num_frames-num_frames % num_frames_window):num_frames], depths[int(num_frames-num_frames % num_frames_window):num_frames])
+                correlation_best = abs(correlation_temp[1, 0])
+                for ii in b_values:
+                    for iii in a_values:
+                        intensity_compensated_temp[int(num_frames-num_frames % num_frames_window):num_frames] = intensities[int(num_frames-num_frames % num_frames_window):num_frames]*(iii*(depths[int(num_frames-num_frames % num_frames_window):num_frames]**ii))
+                        correlation_temp = np.corrcoef(intensity_compensated_temp[int(num_frames-num_frames % num_frames_window):num_frames], depths[int(num_frames-num_frames % num_frames_window):num_frames])
+                        if abs(correlation_temp[1, 0]) < correlation_best:
+                            intensity_compensated[int(num_frames-num_frames % num_frames_window):num_frames] = intensity_compensated_temp[int(num_frames-num_frames % num_frames_window):num_frames]
+                            correlation_best = abs(correlation_temp[1, 0])
+            intensity_compensated[int(num_frames-num_frames % num_frames_window):num_frames] = (intensity_compensated[int(num_frames-num_frames % num_frames_window):num_frames]-np.mean(intensity_compensated[int(num_frames-num_frames % num_frames_window):num_frames]))/np.std(intensity_compensated[int(num_frames-num_frames % num_frames_window):num_frames])
+        else:
+            intensity_compensated[num_frames-1] = intensity_compensated[num_frames-2]
+        return intensity_compensated
+    
+
+    def tablet_getHR(intensity_signals_compensated,num_frames):
+
+        fps = 30
+        num_seconds_between_frames = 1.0 / fps
+        hr_magnitudes = abs(fft(intensity_signals_compensated))
+        # Make the magnitudes one-sided (double the positive magnitudes)
+        hr_magnitudes = 2.0 / num_frames * hr_magnitudes[:num_frames // 2]
+        # Specify the range of frequencies to look at
+        hr_frequencies = np.linspace(0.0, 1.0 / (2.0 * num_seconds_between_frames), num_frames // 2)
+        # Convert frequencies from bps to bpm
+        hr_frequencies = hr_frequencies * 60
+        # Eliminate frequencies outside of the range of interest
+        hr_magnitudes[np.where(hr_frequencies <= 40)] = 0
+        hr_magnitudes[np.where(hr_frequencies >= 150)] = 0
+
+        # Find all peak frequencies and select the peak with the greatest magnitude
+        peaks, properties = scipy.signal.find_peaks(hr_magnitudes)
+        max_index = np.argmax(hr_magnitudes[peaks])
+        HR_with_depth_comp = hr_frequencies[peaks[max_index]]
+
+        return HR_with_depth_comp
