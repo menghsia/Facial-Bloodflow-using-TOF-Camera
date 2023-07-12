@@ -322,22 +322,19 @@ class ProcessHR():
 
         # Prepare Parameters
         Fs = 30
-        HR = []
+        T = 1/Fs
 
         # Get HR
-        spectrum = np.fft.fft(HRsig)
-        P2 = np.abs(spectrum / L)
-        onesided = P2[0:(L//2) + 1]
-        onesided[1:-1] = 2*onesided[1:-1]
-        f = Fs * np.arange((L//2) + 1) / L * 60
+        spectrum = abs(np.fft.fft(HRsig))
+        spectrum = 2.0 / L * spectrum[:L // 2]
+        f = np.linspace(0.0, 1.0 / (2.0 * T), L // 2) * 60
         f_Filtered_range = np.logical_or(f < 40, f > 150)
-        onesided[f_Filtered_range] = 0
+        spectrum[f_Filtered_range] = 0
 
         # HR peak locate
-        pks, properties = find_peaks(onesided.squeeze())
+        pks, properties = find_peaks(spectrum.squeeze())
         maxindex = np.argmax(spectrum[pks])
-        HR_current = f[pks[maxindex]]
-        HR.append(HR_current)
+        HR = f[pks[maxindex]]
 
         return HR
     
