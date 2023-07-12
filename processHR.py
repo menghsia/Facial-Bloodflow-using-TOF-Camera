@@ -72,8 +72,8 @@ class ProcessHR():
         print(f'Main HR_ND: {HR_ND}')
 
 
-        I_comp_tab = self.tablet_depthComp(I_raw, Depth, )
-        HR_comp_tab = self.tablet_getHR(I_comp_tab[2,:], 600)
+        I_comp_tab = self.tablet_depthComp(I_raw[2,:], Depth[2,:])
+        HR_comp_tab = self.tablet_getHR(I_comp_tab, 600)
         HR_ND_tab = self.tablet_getHR(HRsigRaw, 600)
 
         print()
