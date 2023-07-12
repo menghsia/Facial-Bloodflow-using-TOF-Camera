@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from scipy.signal import find_peaks
 import time
 from scipy.fftpack import fft
+import math
 
 
 class ProcessHR():
@@ -48,7 +49,7 @@ class ProcessHR():
         # HRsig: Heart Rate Signal array
         # Depth: Raw depth array
         start_HRtime = time.time()
-        HRsig, HRsigRaw, I_comp, Depth = self.processRawData()
+        HRsig, HRsigRaw, I_comp, Depth, I_raw= self.processRawData()
 
         # Plot smoothed blood concentration at times(s)
         # plt.figure()
@@ -67,8 +68,17 @@ class ProcessHR():
         HR_comp = self.getHR(HRsig, 600)
         HR_ND = self.getHR(HRsigRaw, 600)
 
-        print(HR_comp)
-        print(HR_ND)
+        print(f'Main HR: {HR_comp}')
+        print(f'Main HR_ND: {HR_ND}')
+
+
+        I_comp_tab = self.tablet_depthComp(I_raw, Depth, )
+        HR_comp_tab = self.tablet_getHR(I_comp_tab[2,:], 600)
+        HR_ND_tab = self.tablet_getHR(HRsigRaw, 600)
+
+        print()
+        print(f'Tablet HR: {HR_comp}')
+        print(f'Tablet HR_ND: {HR_ND}')
 
         # Calculate Heart Rate (Motion Score)
         #self.motionComp(HRsig, Depth)
@@ -115,6 +125,9 @@ class ProcessHR():
         Depth = np.delete(Depth, 6, axis=0)
         I_raw = np.delete(I_raw, 6, axis=0)
 
+        Depth = scipy.signal.savgol_filter(Depth, 9, 2, mode='nearest', axis=0)
+        I_raw = scipy.signal.savgol_filter(I_raw, 5, 2, mode='nearest', axis=0)
+
         # Compensate for movement
         # I_comp: 2D array of compensated intensities
         I_comp = self.depthComp(I_raw, Depth, 2, 30)
@@ -156,7 +169,7 @@ class ProcessHR():
 
         #plt.show()
 
-        return HRsig, HRsigRaw, I_comp, Depth
+        return HRsig, HRsigRaw, I_comp, Depth, I_raw
     
     def depthComp(self, I_raw, Depth, timeWindow, Fs):
         """
@@ -337,6 +350,10 @@ class ProcessHR():
         maxindex = np.argmax(spectrum[pks])
         HR = f[pks[maxindex]]
 
+        plt.figure()
+        plt.plot(f, spectrum)
+        plt.xlim((40, 150))
+        
         return HR
     
     def smooth(self, a, span):
@@ -361,7 +378,7 @@ class ProcessHR():
 
     ## FUNCTIONS FOR TABLET CODE PROCESSING ##
 
-    def tablet_depthComp(intensities, depths, b_values=np.arange(0.2, 5.1, 0.1), a_values=[1.0], sub_clip_length=2, frames_per_second=30):
+    def tablet_depthComp(self, intensities, depths, b_values=np.arange(0.2, 5.1, 0.1), a_values=[1.0], sub_clip_length=2, frames_per_second=30):
         """
         Args:
             intensities: 1D array of intensity signals
@@ -413,7 +430,7 @@ class ProcessHR():
         return intensity_compensated
     
 
-    def tablet_getHR(intensity_signals_compensated,num_frames):
+    def tablet_getHR(self, intensity_signals_compensated,num_frames):
 
         fps = 30
         num_seconds_between_frames = 1.0 / fps
