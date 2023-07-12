@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import find_peaks
 import time
+from scipy.fftpack import fft
 
 
 class ProcessHR():
@@ -325,7 +326,7 @@ class ProcessHR():
         T = 1/Fs
 
         # Get HR
-        spectrum = abs(np.fft.fft(HRsig))
+        spectrum = abs(fft(HRsig))
         spectrum = 2.0 / L * spectrum[:L // 2]
         f = np.linspace(0.0, 1.0 / (2.0 * T), L // 2) * 60
         f_Filtered_range = np.logical_or(f < 40, f > 150)
