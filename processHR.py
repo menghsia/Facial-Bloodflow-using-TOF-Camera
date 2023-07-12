@@ -131,6 +131,10 @@ class ProcessHR():
         # Compensate for movement
         # I_comp: 2D array of compensated intensities
         I_comp = self.depthComp(I_raw, Depth, 2, 30)
+
+        plt.plot(I_comp[2,:])
+        plt.show()
+        
         # Process waveforms into the different regions
         Fs = 30 # Frames/Second
         T = 1 / Fs
