@@ -2,7 +2,7 @@ import os
 import time
 import cv2
 import numpy as np
-from scipy.io import savemat
+from scipy.io import savemat, loadmat
 from scipy.spatial import distance as dist
 import concurrent.futures
 
@@ -161,6 +161,20 @@ class PhaseTwo():
 
         # Save row 2 of depth_signals as a .mat file
         # savemat('main_depth_signals.mat', {'depth_signals': self.depth_signals[2]})
+
+        # Load the tablet_depth_signals.mat into a variable
+        # tablet_depth_signals = loadmat('tablet_depth_signals.mat')
+        # tablet_depth_signals = tablet_depth_signals['depth_signals']
+
+        # Load the tablet_intensity_signals.mat into a variable
+        # tablet_intensity_signals = loadmat('tablet_intensity_signals.mat')
+        # tablet_intensity_signals = tablet_intensity_signals['intensity_signals']
+
+        # Set row 2 of intensity_signals to tablet_intensity_signals
+        # self.intensity_signals[2] = tablet_intensity_signals
+
+        # Set row 2 of depth_signals to tablet_depth_signals
+        # self.depth_signals[2] = tablet_depth_signals
 
         mdic = {"Depth": self.depth_signals, 'I_raw': self.intensity_signals, 'EAR': self.ear_signal} # EAR: eye aspect ratio
         savemat(os.path.join(self.input_dir, self.output_filename + '.mat'), mdic)
