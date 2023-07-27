@@ -153,6 +153,15 @@ class PhaseTwo():
         self.intensity_signals = np.delete(self.intensity_signals, 0, 1)
         self.depth_signals = np.delete(self.depth_signals, 0, 1)
         self.ear_signal = np.delete(self.ear_signal,0,0)
+
+        # Save average intensities and depths for cheek_n_nose ROI as .mat files
+
+        # Save row 2 of intensity_signals as a .mat file
+        # savemat('main_intensity_signals.mat', {'intensity_signals': self.intensity_signals[2]})
+
+        # Save row 2 of depth_signals as a .mat file
+        # savemat('main_depth_signals.mat', {'depth_signals': self.depth_signals[2]})
+
         mdic = {"Depth": self.depth_signals, 'I_raw': self.intensity_signals, 'EAR': self.ear_signal} # EAR: eye aspect ratio
         savemat(os.path.join(self.input_dir, self.output_filename + '.mat'), mdic)
 
