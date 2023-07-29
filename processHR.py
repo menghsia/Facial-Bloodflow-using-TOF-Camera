@@ -127,8 +127,12 @@ class ProcessHR():
         Depth = np.delete(Depth, 6, axis=0)
         I_raw = np.delete(I_raw, 6, axis=0)
 
-        Depth = scipy.signal.savgol_filter(Depth, 9, 2, mode='nearest', axis=0)
-        I_raw = scipy.signal.savgol_filter(I_raw, 5, 2, mode='nearest', axis=0)
+        for i in range(6):
+            Depth[i,:] = scipy.signal.savgol_filter(Depth[i,:], 9, 2, mode='nearest', axis=0)
+            I_raw[i,:] = scipy.signal.savgol_filter(I_raw[i,:], 5, 2, mode='nearest', axis=0)
+
+        # Depth = scipy.signal.savgol_filter(Depth, 9, 2, mode='nearest', axis=0)
+        # I_raw = scipy.signal.savgol_filter(I_raw, 5, 2, mode='nearest', axis=0)
 
         # Compensate for movement
         # I_comp: 2D array of compensated intensities
@@ -215,7 +219,7 @@ class ProcessHR():
                 cor = 2
 
                 # For each clip, iterate through different b values with a = 1
-                for bi in np.arange(0.2, 5.1, 0.1):
+                for bi in np.arange(0.2, 5.01, 0.01):
                     bI_comp = I_raw[ROI, ((i - 1) * (timeWindow * Fs)) : ((i * (timeWindow * Fs)))] / ((Depth[ROI, ((i - 1) * (timeWindow * Fs)) : ((i * (timeWindow * Fs)))]) ** (-bi))
                     # Find correlation between bI_comp and Depth
                     corr_v = np.corrcoef(bI_comp, Depth[ROI, ((i - 1) * (timeWindow * Fs)) : ((i * (timeWindow * Fs)))])
