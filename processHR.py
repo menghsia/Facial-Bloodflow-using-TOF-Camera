@@ -127,6 +127,7 @@ class ProcessHR():
         Depth = np.delete(Depth, 6, axis=0)
         I_raw = np.delete(I_raw, 6, axis=0)
 
+        # Smooth each ROI in the 2D arrays of depths and intensities
         for i in range(6):
             Depth[i,:] = scipy.signal.savgol_filter(Depth[i,:], 9, 2, mode='nearest', axis=0)
             I_raw[i,:] = scipy.signal.savgol_filter(I_raw[i,:], 5, 2, mode='nearest', axis=0)
