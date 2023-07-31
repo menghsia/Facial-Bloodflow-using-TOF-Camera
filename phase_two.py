@@ -168,13 +168,21 @@ class PhaseTwo():
 
         # Load the tablet_intensity_signals.mat into a variable
         # tablet_intensity_signals = loadmat('tablet_intensity_signals.mat')
-        # tablet_intensity_signals = tablet_intensity_signals['intensity_signals']
+        # tablet_intensity_signals = tablet_intensity_signals['intensity_signals'][0]
 
         # Set row 2 of intensity_signals to tablet_intensity_signals
-        # self.intensity_signals[2] = tablet_intensity_signals
+        #self.intensity_signals[2] = tablet_intensity_signals
 
         # Set row 2 of depth_signals to tablet_depth_signals
         # self.depth_signals[2] = tablet_depth_signals
+
+        # Load indices where tablet intensities and main intensities vary by over 1
+        # tablet_intensity_diff_indx = loadmat('different_intensity_indx.mat')
+        # tablet_intensity_diff_indx = tablet_intensity_diff_indx['idx'][0]
+
+        # Make main intensities equal to tablet intensities where they vary by 1 and over 1
+        # for idx in tablet_intensity_diff_indx:
+        #     self.intensity_signals[2][idx-1] = tablet_intensity_signals[idx-1] 
 
         mdic = {"Depth": self.depth_signals, 'I_raw': self.intensity_signals, 'EAR': self.ear_signal} # EAR: eye aspect ratio
         savemat(os.path.join(self.input_dir, self.output_filename + '.mat'), mdic)
