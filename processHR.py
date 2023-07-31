@@ -1,4 +1,5 @@
 import scipy.io
+import scipy.io as savemat
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import find_peaks
@@ -131,6 +132,8 @@ class ProcessHR():
         for i in range(6):
             Depth[i,:] = scipy.signal.savgol_filter(Depth[i,:], 9, 2, mode='nearest', axis=0)
             I_raw[i,:] = scipy.signal.savgol_filter(I_raw[i,:], 5, 2, mode='nearest', axis=0)
+        
+        scipy.io.savemat('main_intensity_smooth.mat', {'main_intensity_smooth': I_raw[2,:]})
 
         # Depth = scipy.signal.savgol_filter(Depth, 9, 2, mode='nearest', axis=0)
         # I_raw = scipy.signal.savgol_filter(I_raw, 5, 2, mode='nearest', axis=0)
