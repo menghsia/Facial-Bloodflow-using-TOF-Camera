@@ -11,14 +11,6 @@ from face_mesh_module import FaceMeshDetector
 class PhaseTwo():
     """
     PhaseTwo is a class that performs face detection and landmark tracking using MediaPipe FaceMesh.
-
-    Args:
-        input_dir (str): Directory where input files are located.
-        output_filename (str): Filename of the output .mat file.
-
-    Attributes:
-        input_dir (str): Directory where input files are located.
-        output_filename (str): Filename of the output .mat file.
     """
 
     def __init__(self, input_dir: str, output_filename: str, image_width: int = 640, image_height: int = 480, visualize_FaceMesh=False, visualize_ROIs=False):
