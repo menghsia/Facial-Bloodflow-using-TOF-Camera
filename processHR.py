@@ -80,8 +80,8 @@ class ProcessHR():
         HR_ND_tab = self.tablet_getHR(HRsigRaw, 600)
 
         print()
-        print(f'Tablet HR: {HR_comp}')
-        print(f'Tablet HR_ND: {HR_ND}')
+        print(f'Tablet HR: {HR_comp_tab}')
+        print(f'Tablet HR_ND: {HR_ND_tab}')
 
         # Calculate Heart Rate (Motion Score)
         #self.motionComp(HRsig, Depth)
