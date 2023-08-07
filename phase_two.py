@@ -381,9 +381,9 @@ class PhaseTwo():
                 # Get pixels contained within ROI bounding box
                 pixels_in_ROI = self._get_pixels_within_ROI_bounding_box(roi_bounding_box_pixels)
 
-                # if roi_name == "cheek_n_nose":
-                #     # Save the mask of pixels contained within the ROI bounding box to a .mat file
-                #     savemat("main_mask_cheek_n_nose_2.mat", {"mask_cheek_n_nose": pixels_in_ROI})
+                if roi_name == "cheek_n_nose" and frame_idx == 0:
+                    # Save the mask of pixels contained within the ROI bounding box to a .mat file
+                    savemat("main_mask_cheek_n_nose_1.mat", {"main_mask_cheek_n_nose1": pixels_in_ROI})
                 
                 # Calculate and save averaged intensity for the ROI
                 intensity_signal_current_file[roi_idx, frame_idx] = np.average(frame_confidence[np.where(pixels_in_ROI > 0)])
@@ -433,15 +433,15 @@ class PhaseTwo():
         except KeyError:
             raise KeyError(f"ERROR: The provided roi_name \"{roi_name}\" does not match any of the predefined ROIs.")
 
-        # if roi_name == 'cheek_n_nose':
-        #     bounding_box_pixels[0][1] = bounding_box_pixels[0][1] + 2
-        #     bounding_box_pixels[1][1] = bounding_box_pixels[1][1] + 2
-        #     bounding_box_pixels[2][1] = bounding_box_pixels[2][1] - 0
-        #     bounding_box_pixels[3][1] = bounding_box_pixels[3][1] - 0
-        #     bounding_box_pixels[0][0] = bounding_box_pixels[0][0] + 5
-        #     bounding_box_pixels[1][0] = bounding_box_pixels[1][0] - 2
-        #     bounding_box_pixels[2][0] = bounding_box_pixels[2][0] - 2
-        #     bounding_box_pixels[3][0] = bounding_box_pixels[3][0] + 5
+        if roi_name == 'cheek_n_nose':
+            bounding_box_pixels[2][1] = bounding_box_pixels[2][1] - 2
+            bounding_box_pixels[3][1] = bounding_box_pixels[3][1] - 2
+            bounding_box_pixels[1][1] = bounding_box_pixels[1][1] + 2
+            bounding_box_pixels[0][1] = bounding_box_pixels[0][1] + 2
+            # bounding_box_pixels[0][0] = bounding_box_pixels[0][0] + 3
+            # bounding_box_pixels[1][0] = bounding_box_pixels[1][0] - 3
+            # bounding_box_pixels[2][0] = bounding_box_pixels[2][0] - 3
+            # bounding_box_pixels[3][0] = bounding_box_pixels[3][0] + 3
 
         return bounding_box_pixels
     
