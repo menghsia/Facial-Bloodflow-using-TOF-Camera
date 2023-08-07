@@ -130,8 +130,8 @@ class ProcessHR():
 
         # Smooth each ROI in the 2D arrays of depths and intensities
         for i in range(6):
-            Depth[i,:] = scipy.signal.savgol_filter(Depth[i,:], 9, 2, mode='nearest', axis=0)
-            I_raw[i,:] = scipy.signal.savgol_filter(I_raw[i,:], 5, 2, mode='nearest', axis=0)
+            Depth[i,:] = scipy.signal.savgol_filter(Depth[i,:], 9, 2, mode='nearest')
+            I_raw[i,:] = scipy.signal.savgol_filter(I_raw[i,:], 5, 2, mode='nearest')
         
         # scipy.io.savemat('main_intensity_smooth.mat', {'main_intensity_smooth': I_raw[2,:]})
 
