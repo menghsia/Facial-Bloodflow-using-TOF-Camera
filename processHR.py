@@ -80,8 +80,8 @@ class ProcessHR():
         HR_ND_tab = self.tablet_getHR(HRsigRaw, 600)
 
         print()
-        print(f'Tablet HR: {HR_comp}')
-        print(f'Tablet HR_ND: {HR_ND}')
+        print(f'Tablet HR: {HR_comp_tab}')
+        print(f'Tablet HR_ND: {HR_ND_tab}')
 
         # Calculate Heart Rate (Motion Score)
         #self.motionComp(HRsig, Depth)
@@ -130,8 +130,8 @@ class ProcessHR():
 
         # Smooth each ROI in the 2D arrays of depths and intensities
         for i in range(6):
-            Depth[i,:] = scipy.signal.savgol_filter(Depth[i,:], 9, 2, mode='nearest', axis=0)
-            I_raw[i,:] = scipy.signal.savgol_filter(I_raw[i,:], 5, 2, mode='nearest', axis=0)
+            Depth[i,:] = scipy.signal.savgol_filter(Depth[i,:], 9, 2, mode='nearest')
+            I_raw[i,:] = scipy.signal.savgol_filter(I_raw[i,:], 5, 2, mode='nearest')
         
         # scipy.io.savemat('main_intensity_smooth.mat', {'main_intensity_smooth': I_raw[2,:]})
 
