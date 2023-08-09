@@ -11,14 +11,6 @@ from face_mesh_module import FaceMeshDetector
 class PhaseTwo():
     """
     PhaseTwo is a class that performs face detection and landmark tracking using MediaPipe FaceMesh.
-
-    Args:
-        input_dir (str): Directory where input files are located.
-        output_filename (str): Filename of the output .mat file.
-
-    Attributes:
-        input_dir (str): Directory where input files are located.
-        output_filename (str): Filename of the output .mat file.
     """
 
     def __init__(self, input_dir: str, output_filename: str, image_width: int = 640, image_height: int = 480, visualize_FaceMesh=False, visualize_ROIs=False):
@@ -168,13 +160,21 @@ class PhaseTwo():
 
         # Load the tablet_intensity_signals.mat into a variable
         # tablet_intensity_signals = loadmat('tablet_intensity_signals.mat')
-        # tablet_intensity_signals = tablet_intensity_signals['intensity_signals']
+        # tablet_intensity_signals = tablet_intensity_signals['intensity_signals'][0]
 
         # Set row 2 of intensity_signals to tablet_intensity_signals
-        # self.intensity_signals[2] = tablet_intensity_signals
+        #self.intensity_signals[2] = tablet_intensity_signals
 
         # Set row 2 of depth_signals to tablet_depth_signals
         # self.depth_signals[2] = tablet_depth_signals
+
+        # Load indices where tablet intensities and main intensities vary by over 1
+        # tablet_intensity_diff_indx = loadmat('different_intensity_indx.mat')
+        # tablet_intensity_diff_indx = tablet_intensity_diff_indx['idx'][0]
+
+        # Make main intensities equal to tablet intensities where they vary by 1 and over 1
+        # for idx in tablet_intensity_diff_indx:
+        #     self.intensity_signals[2][idx-1] = tablet_intensity_signals[idx-1] 
 
         mdic = {"Depth": self.depth_signals, 'I_raw': self.intensity_signals, 'EAR': self.ear_signal} # EAR: eye aspect ratio
         savemat(os.path.join(self.input_dir, self.output_filename + '.mat'), mdic)
@@ -381,9 +381,9 @@ class PhaseTwo():
                 # Get pixels contained within ROI bounding box
                 pixels_in_ROI = self._get_pixels_within_ROI_bounding_box(roi_bounding_box_pixels)
 
-                # if roi_name == "cheek_n_nose":
-                #     # Save the mask of pixels contained within the ROI bounding box to a .mat file
-                #     savemat("main_mask_cheek_n_nose_2.mat", {"mask_cheek_n_nose": pixels_in_ROI})
+                if roi_name == "cheek_n_nose" and frame_idx == 0:
+                    # Save the mask of pixels contained within the ROI bounding box to a .mat file
+                    savemat("main_mask_cheek_n_nose_1.mat", {"main_mask_cheek_n_nose1": pixels_in_ROI})
                 
                 # Calculate and save averaged intensity for the ROI
                 intensity_signal_current_file[roi_idx, frame_idx] = np.average(frame_confidence[np.where(pixels_in_ROI > 0)])
@@ -432,6 +432,16 @@ class PhaseTwo():
             bounding_box_pixels = landmarks_pixels[landmark_indices - 1]
         except KeyError:
             raise KeyError(f"ERROR: The provided roi_name \"{roi_name}\" does not match any of the predefined ROIs.")
+
+        if roi_name == 'cheek_n_nose':
+            bounding_box_pixels[2][1] = bounding_box_pixels[2][1] - 2
+            bounding_box_pixels[3][1] = bounding_box_pixels[3][1] - 2
+            bounding_box_pixels[1][1] = bounding_box_pixels[1][1] + 2
+            bounding_box_pixels[0][1] = bounding_box_pixels[0][1] + 2
+            # bounding_box_pixels[0][0] = bounding_box_pixels[0][0] + 3
+            # bounding_box_pixels[1][0] = bounding_box_pixels[1][0] - 3
+            # bounding_box_pixels[2][0] = bounding_box_pixels[2][0] - 3
+            # bounding_box_pixels[3][0] = bounding_box_pixels[3][0] + 3
 
         return bounding_box_pixels
     

@@ -68,8 +68,8 @@ class ProcessHR():
 
         ## getHR() NEEDS FIXING ##
         # Get HR Data
-        HR_comp = self.getHR(HRsig, 600)
-        HR_ND = self.getHR(HRsigRaw, 600)
+        HR_comp = self.getHR(HRsig, 600, Window=True)
+        HR_ND = self.getHR(HRsigRaw, 600, Window=True)
 
         print(f'Main HR: {HR_comp}')
         print(f'Main HR_ND: {HR_ND}')
@@ -80,8 +80,8 @@ class ProcessHR():
         HR_ND_tab = self.tablet_getHR(HRsigRaw, 600)
 
         print()
-        print(f'Tablet HR: {HR_comp}')
-        print(f'Tablet HR_ND: {HR_ND}')
+        print(f'Tablet HR: {HR_comp_tab}')
+        print(f'Tablet HR_ND: {HR_ND_tab}')
 
         # Calculate Heart Rate (Motion Score)
         #self.motionComp(HRsig, Depth)
@@ -130,10 +130,10 @@ class ProcessHR():
 
         # Smooth each ROI in the 2D arrays of depths and intensities
         for i in range(6):
-            Depth[i,:] = scipy.signal.savgol_filter(Depth[i,:], 9, 2, mode='nearest', axis=0)
-            I_raw[i,:] = scipy.signal.savgol_filter(I_raw[i,:], 5, 2, mode='nearest', axis=0)
+            Depth[i,:] = scipy.signal.savgol_filter(Depth[i,:], 9, 2, mode='nearest')
+            I_raw[i,:] = scipy.signal.savgol_filter(I_raw[i,:], 5, 2, mode='nearest')
         
-        scipy.io.savemat('main_intensity_smooth.mat', {'main_intensity_smooth': I_raw[2,:]})
+        # scipy.io.savemat('main_intensity_smooth.mat', {'main_intensity_smooth': I_raw[2,:]})
 
         # Depth = scipy.signal.savgol_filter(Depth, 9, 2, mode='nearest', axis=0)
         # I_raw = scipy.signal.savgol_filter(I_raw, 5, 2, mode='nearest', axis=0)
@@ -348,8 +348,17 @@ class ProcessHR():
 
         return specW, HR, specND, HR_ND
 
-    def getHR(self, HRsig, L, trial=None): 
+    def getHR(self, HRsig, L, trial=None, Window=False): 
         ###  NEEDS FIXING ###
+
+        # Apply windowing if True
+        if Window:
+            min_val = np.min(HRsig)
+            max_val = np.max(HRsig)
+            HRsig = (HRsig - min_val) / (max_val - min_val)
+
+            window = np.hanning(600)
+            HRsig = HRsig * window
 
         # Prepare Parameters
         Fs = 30
