@@ -370,7 +370,9 @@ class ProcessHR():
         plt.figure()
         plt.plot(f, spectrum)
         plt.xlim((40, 150))
-        
+        plt.title("main hr power spectrum")
+        plt.show()
+
         return HR
     
     def smooth(self, a, span):
