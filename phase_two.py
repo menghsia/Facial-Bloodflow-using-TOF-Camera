@@ -21,7 +21,7 @@ class PhaseTwo():
     PhaseTwo is a class that performs face detection and landmark tracking using MediaPipe FaceMesh.
     """
 
-    def __init__(self, input_dir: str, output_filename: str, image_width: int = 640, image_height: int = 480, visualize_FaceMesh=False, visualize_ROIs=False):
+    def __init__(self, input_dir: str, output_filename: str, image_width: int = 640, image_height: int = 480, visualize_FaceMesh=False, visualize_ROIs=False, doRR = True):
         """
         Initialize class variables.
 
@@ -54,6 +54,7 @@ class PhaseTwo():
         self.chest_intensity = []
         self.chest_depth = []
         self.RR = None
+        self.doRR = doRR
 
 
         # Define the landmarks that represent the vertices of the bounding box for each ROI
@@ -166,8 +167,8 @@ class PhaseTwo():
             firstCol = [[value] for value in firstCol]  # Convert each value to a single
             writer.writerows(firstCol) 
 
-        #if self.doRR:
-        #self.RR = self.getRespitoryRate(self.chest_depth, outputFile=None, Savgof=False, Lowpass=True, Window=True, realFFT = True)
+        if self.doRR:
+            self.RR = self.getRespitoryRate(self.chest_depth, outputFile=None, Savgof=False, Lowpass=True, Window=True, realFFT = True)
 
 
         # Save average intensities and depths for cheek_n_nose ROI as .mat files
@@ -226,8 +227,8 @@ class PhaseTwo():
         """
         print(f"Processing file {file_num}/{num_files_to_process}: {filename}...")
 
-     
-        #chest_detector = ChestROI()
+        
+        chest_detector = ChestROI()
 
         # Load the file
         filepath = os.path.join(self.input_dir, filename + '.bin')
@@ -286,9 +287,9 @@ class PhaseTwo():
             # Get pixel locations of all face landmarks
             face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=self.visualize_FaceMesh)
 
-            #if self.doRR:
-            #chest_ROIs = chest_detector._Chest_ROI_extract(image=frame_grayscale_rgb, face_landmarks=landmarks_pixels, draw = False)
-            #self.chestCalculations(chest_ROIs, frame_x, frame_y, frame_z, frame_confidence)
+            if self.doRR:
+                chest_ROIs = chest_detector._Chest_ROI_extract(image=frame_grayscale_rgb, face_landmarks=landmarks_pixels, draw = False)
+                self.chestCalculations(chest_ROIs, frame_x, frame_y, frame_z, frame_confidence)
 
             if face_detected:
                 multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb))
@@ -389,8 +390,6 @@ class PhaseTwo():
         axes[0].plot(time, data)
         axes[0].set_xlabel("Time (seconds)")
         axes[0].set_ylabel("Chest Depth")
-
-        print(data)
 
         if Savgof:
             data = scipy.signal.savgol_filter(
@@ -585,17 +584,17 @@ class PhaseTwo():
         except KeyError:
             raise KeyError(f"ERROR: The provided roi_name \"{roi_name}\" does not match any of the predefined ROIs.")
 
-        # if roi_name == 'cheek_n_nose':
-            # bounding_box_pixels[2][1] = bounding_box_pixels[2][1] - 2
-            # bounding_box_pixels[3][1] = bounding_box_pixels[3][1] - 2
-            # bounding_box_pixels[1][1] = bounding_box_pixels[1][1] + 2
-            # bounding_box_pixels[0][1] = bounding_box_pixels[0][1] + 2
+        if roi_name == 'cheek_n_nose':
+            bounding_box_pixels[2][1] = bounding_box_pixels[2][1] - 2
+            bounding_box_pixels[3][1] = bounding_box_pixels[3][1] - 2
+            bounding_box_pixels[1][1] = bounding_box_pixels[1][1] + 2
+            bounding_box_pixels[0][1] = bounding_box_pixels[0][1] + 2
             # bounding_box_pixels[0][0] = bounding_box_pixels[0][0] + 3
             # bounding_box_pixels[1][0] = bounding_box_pixels[1][0] - 3
             # bounding_box_pixels[2][0] = bounding_box_pixels[2][0] - 3
             # bounding_box_pixels[3][0] = bounding_box_pixels[3][0] + 3
 
-        # return bounding_box_pixels
+        return bounding_box_pixels
     
     def _get_pixels_within_ROI_bounding_box(self, bounding_box_pixels: np.ndarray) -> np.ndarray:
         """
