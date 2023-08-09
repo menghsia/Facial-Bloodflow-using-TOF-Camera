@@ -7,6 +7,14 @@ from scipy.spatial import distance as dist
 import concurrent.futures
 
 from face_mesh_module import FaceMeshDetector
+from chestROIReverseEngineering import ChestROI
+
+from scipy.signal import butter, filtfilt
+import matplotlib.pyplot as plt
+import scipy
+
+import csv
+
 
 class PhaseTwo():
     """
@@ -42,6 +50,11 @@ class PhaseTwo():
 
         self.visualize_FaceMesh=visualize_FaceMesh
         self.visualize_ROIs=visualize_ROIs
+
+        self.chest_intensity = []
+        self.chest_depth = []
+        self.RR = None
+
 
         # Define the landmarks that represent the vertices of the bounding box for each ROI
         # (used in _get_ROI_bounding_box_pixels())
@@ -146,6 +159,16 @@ class PhaseTwo():
         self.depth_signals = np.delete(self.depth_signals, 0, 1)
         self.ear_signal = np.delete(self.ear_signal,0,0)
 
+        with open("depth.csv", 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            firstCol = np.array(self.chest_depth)
+            firstCol = firstCol.tolist()
+            firstCol = [[value] for value in firstCol]  # Convert each value to a single
+            writer.writerows(firstCol) 
+
+        self.RR = self.getRespitoryRate(self.chest_depth, outputFile=None, Savgof=False, Lowpass=True, Window=True, realFFT = True)
+
+
         # Save average intensities and depths for cheek_n_nose ROI as .mat files
 
         # Save row 2 of intensity_signals as a .mat file
@@ -201,6 +224,8 @@ class PhaseTwo():
             of the class.
         """
         print(f"Processing file {file_num}/{num_files_to_process}: {filename}...")
+
+        chest_detector = ChestROI()
 
         # Load the file
         filepath = os.path.join(self.input_dir, filename + '.bin')
@@ -259,6 +284,9 @@ class PhaseTwo():
             # Get pixel locations of all face landmarks
             face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=self.visualize_FaceMesh)
 
+            chest_ROIs = chest_detector._Chest_ROI_extract(image=frame_grayscale_rgb, face_landmarks=landmarks_pixels, draw = False)
+            self.chestCalculations(chest_ROIs, frame_x, frame_y, frame_z, frame_confidence)
+
             if face_detected:
                 multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb))
 
@@ -298,6 +326,127 @@ class PhaseTwo():
         self.ear_signal = np.concatenate((self.ear_signal, ear_signal_current_file),axis=0)
 
         return
+    
+    def chestCalculations(self, corner_landmarks, frame_x, frame_y, frame_z, frame_confidence): 
+
+        #takes corner points of chest ROIs as a 2 by 4 by 2 array where there are 2 ROIs which have 4 points
+        #having an x,y coordinate each
+        #then takes frame x,y,z data to determine chest depth and chest intensity
+        #modifies chest_depth array and chest_intensity array by filling in depths and intensities for each ROI for each frame
+
+        #seperates ROIs and converts to typeinteger
+        chest_ROI_upper_pixels = corner_landmarks[0].astype(np.int32) 
+        chest_ROI_lower_pixels = corner_landmarks[1].astype(np.int32)
+
+        #gets all pixels within 4 corner outline
+        chest_ROI_upper_pixels_in_ROI = self._get_pixels_within_ROI_bounding_box(chest_ROI_upper_pixels)
+        chest_ROI_lower_pixels_in_ROI = self._get_pixels_within_ROI_bounding_box(chest_ROI_lower_pixels)
+
+        #calculates intensity
+        chest_ROI_upper_average_intensity = np.average(frame_confidence[np.where(chest_ROI_upper_pixels_in_ROI > 0)])
+        chest_ROI_lower_average_intensity = np.average(frame_confidence[np.where(chest_ROI_lower_pixels_in_ROI > 0)])
+
+        #calculates depth by using pythagorean theorm using x,y,z coords,
+        chest_ROI_upper_average_depth = np.sqrt(
+                np.average(frame_x[np.where(chest_ROI_upper_pixels_in_ROI > 0)]) ** 2 +
+                np.average(frame_y[np.where(chest_ROI_upper_pixels_in_ROI > 0)]) ** 2 +
+                np.average(frame_z[np.where(chest_ROI_upper_pixels_in_ROI > 0)]) ** 2
+            )
+        chest_ROI_lower_average_depth = np.sqrt(
+                np.average(frame_x[np.where(chest_ROI_lower_pixels_in_ROI > 0)]) ** 2 +
+                np.average(frame_y[np.where(chest_ROI_lower_pixels_in_ROI > 0)]) ** 2 +
+                np.average(frame_z[np.where(chest_ROI_lower_pixels_in_ROI > 0)]) ** 2
+            )
+        
+        #adds to arrays
+        self.chest_depth.append(chest_ROI_lower_average_depth)
+        #self.chest_depth.append([chest_ROI_lower_average_depth, chest_ROI_upper_average_depth])
+        self.chest_intensity.append([chest_ROI_lower_average_intensity, chest_ROI_upper_average_intensity])
+
+        #print(f"Chest ROI upper average intensity: {chest_ROI_upper_average_intensity}")
+        #print(f"Chest ROI lower average intensity: {chest_ROI_lower_average_intensity}")
+        #print(f"Chest ROI upper average depth: {chest_ROI_upper_average_depth}")
+        #print(f"Chest ROI lower average depth: {chest_ROI_lower_average_depth}")
+
+    def apply_lowpass_filter(self, signal, cutoff_frequency, sampling_rate, filter_order=5):
+        nyquist_frequency = 0.5 * sampling_rate
+        normalized_cutoff = cutoff_frequency / nyquist_frequency
+        b, a = butter(filter_order, normalized_cutoff, btype='low', analog=False)
+        filtered_signal = filtfilt(b, a, signal)
+        return filtered_signal
+
+
+    def getRespitoryRate(self, data, outputFile=None, Savgof=False, Lowpass=True, Window=False, realFFT = True):
+        num_frames = len(data)
+
+        fig, axes = plt.subplots(1, 3, figsize=(15, 6))
+
+        time = np.linspace(0, 60, len(data))
+
+        axes[0].plot(time, data)
+        axes[0].set_xlabel("Time (seconds)")
+        axes[0].set_ylabel("Chest Depth")
+
+        print(data)
+
+        if Savgof:
+            data = scipy.signal.savgol_filter(
+                data, 79, 2, mode='nearest')
+
+        if Lowpass:
+            data = self.apply_lowpass_filter(data, 1, 30)
+
+        if Window:
+            min_val = np.min(data)
+            max_val = np.max(data)
+            data = (data - min_val) / (max_val - min_val)
+
+            window = np.hanning(num_frames)
+            data = data * window
+
+        axes[1].plot(time, data)
+        axes[1].set_xlabel("Time (seconds)")
+        axes[1].set_ylabel("Chest Depth")
+
+        T = 1/30
+        if realFFT:
+            yf_rr1 = abs(np.fft.rfft(data))
+        # yf_rr1 = 2.0 / num_frames * yf_rr1[:num_frames // 2]
+        # xf_rr1 = np.linspace(0.0, 1.0 / (2.0 * T), num_frames // 2)
+            N = data.size
+            xf_rr1 = np.fft.rfftfreq(N, d=T)
+            xf_rr1 = xf_rr1 * 60
+        #print(xf_rr1)
+
+        else:
+            yf_rr1 = abs(np.fft.fft(data))
+            yf_rr1 = 2.0 / num_frames * yf_rr1[:num_frames // 2]
+            xf_rr1 = np.linspace(0.0, 1.0 / (2.0 * T), num_frames // 2)      
+
+        yf_rr1[np.where(xf_rr1 <= 5)] = 0
+        yf_rr1[np.where(xf_rr1 >= 30)] = 0
+
+        axes[2].plot(xf_rr1, yf_rr1)
+        axes[2].set_xlim((5,30))
+        #plt.ylim((0,2))
+        axes[2].set_xlabel("Frequency (Breaths Per Minute)")
+        axes[2].set_ylabel("Fourier Magnitude")
+
+
+        peaks, properties = scipy.signal.find_peaks(yf_rr1)
+        max_index = np.argmax(yf_rr1[peaks])
+
+        RR = xf_rr1[peaks[max_index]]
+
+        print("Respiratory Rate Measured", RR)
+
+        if outputFile:
+            plt.savefig(outputFile)
+
+        else:
+            plt.show()
+
+        return RR
     
     def _process_face_landmarks(
         self,
