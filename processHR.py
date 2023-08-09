@@ -68,8 +68,8 @@ class ProcessHR():
 
         ## getHR() NEEDS FIXING ##
         # Get HR Data
-        HR_comp = self.getHR(HRsig, 600)
-        HR_ND = self.getHR(HRsigRaw, 600)
+        HR_comp = self.getHR(HRsig, 600, Window=True)
+        HR_ND = self.getHR(HRsigRaw, 600, Window=True)
 
         print(f'Main HR: {HR_comp}')
         print(f'Main HR_ND: {HR_ND}')
@@ -348,8 +348,17 @@ class ProcessHR():
 
         return specW, HR, specND, HR_ND
 
-    def getHR(self, HRsig, L, trial=None): 
+    def getHR(self, HRsig, L, trial=None, Window=False): 
         ###  NEEDS FIXING ###
+
+        # Apply windowing if True
+        if Window:
+            min_val = np.min(HRsig)
+            max_val = np.max(HRsig)
+            HRsig = (HRsig - min_val) / (max_val - min_val)
+
+            window = np.hanning(600)
+            HRsig = HRsig * window
 
         # Prepare Parameters
         Fs = 30
