@@ -434,10 +434,10 @@ class PhaseTwo():
             raise KeyError(f"ERROR: The provided roi_name \"{roi_name}\" does not match any of the predefined ROIs.")
 
         if roi_name == 'cheek_n_nose':
-            bounding_box_pixels[2][1] = bounding_box_pixels[2][1] - 2
-            bounding_box_pixels[3][1] = bounding_box_pixels[3][1] - 2
-            bounding_box_pixels[1][1] = bounding_box_pixels[1][1] + 2
-            bounding_box_pixels[0][1] = bounding_box_pixels[0][1] + 2
+            # bounding_box_pixels[2][1] = bounding_box_pixels[2][1] - 2
+            # bounding_box_pixels[3][1] = bounding_box_pixels[3][1] - 2
+            # bounding_box_pixels[1][1] = bounding_box_pixels[1][1] + 2
+            # bounding_box_pixels[0][1] = bounding_box_pixels[0][1] + 2
             # bounding_box_pixels[0][0] = bounding_box_pixels[0][0] + 3
             # bounding_box_pixels[1][0] = bounding_box_pixels[1][0] - 3
             # bounding_box_pixels[2][0] = bounding_box_pixels[2][0] - 3
