@@ -433,7 +433,7 @@ class PhaseTwo():
         except KeyError:
             raise KeyError(f"ERROR: The provided roi_name \"{roi_name}\" does not match any of the predefined ROIs.")
 
-        if roi_name == 'cheek_n_nose':
+        # if roi_name == 'cheek_n_nose':
             # bounding_box_pixels[2][1] = bounding_box_pixels[2][1] - 2
             # bounding_box_pixels[3][1] = bounding_box_pixels[3][1] - 2
             # bounding_box_pixels[1][1] = bounding_box_pixels[1][1] + 2
@@ -443,7 +443,7 @@ class PhaseTwo():
             # bounding_box_pixels[2][0] = bounding_box_pixels[2][0] - 3
             # bounding_box_pixels[3][0] = bounding_box_pixels[3][0] + 3
 
-        return bounding_box_pixels
+        # return bounding_box_pixels
     
     def _get_pixels_within_ROI_bounding_box(self, bounding_box_pixels: np.ndarray) -> np.ndarray:
         """
