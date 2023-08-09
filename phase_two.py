@@ -166,7 +166,8 @@ class PhaseTwo():
             firstCol = [[value] for value in firstCol]  # Convert each value to a single
             writer.writerows(firstCol) 
 
-        self.RR = self.getRespitoryRate(self.chest_depth, outputFile=None, Savgof=False, Lowpass=True, Window=True, realFFT = True)
+        #if self.doRR:
+        #self.RR = self.getRespitoryRate(self.chest_depth, outputFile=None, Savgof=False, Lowpass=True, Window=True, realFFT = True)
 
 
         # Save average intensities and depths for cheek_n_nose ROI as .mat files
@@ -225,7 +226,8 @@ class PhaseTwo():
         """
         print(f"Processing file {file_num}/{num_files_to_process}: {filename}...")
 
-        chest_detector = ChestROI()
+     
+        #chest_detector = ChestROI()
 
         # Load the file
         filepath = os.path.join(self.input_dir, filename + '.bin')
@@ -284,8 +286,9 @@ class PhaseTwo():
             # Get pixel locations of all face landmarks
             face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=self.visualize_FaceMesh)
 
-            chest_ROIs = chest_detector._Chest_ROI_extract(image=frame_grayscale_rgb, face_landmarks=landmarks_pixels, draw = False)
-            self.chestCalculations(chest_ROIs, frame_x, frame_y, frame_z, frame_confidence)
+            #if self.doRR:
+            #chest_ROIs = chest_detector._Chest_ROI_extract(image=frame_grayscale_rgb, face_landmarks=landmarks_pixels, draw = False)
+            #self.chestCalculations(chest_ROIs, frame_x, frame_y, frame_z, frame_confidence)
 
             if face_detected:
                 multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb))
