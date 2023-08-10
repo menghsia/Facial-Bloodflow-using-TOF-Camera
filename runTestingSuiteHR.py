@@ -317,7 +317,7 @@ def process(inputDir, outputDir, calcHR = False):
             run_main(csvPath)
             if calcHR:
                 outputImg = os.path.join(outputDir, individualTest + ".png")
-                HR = HRCalc.getHR(csvPath, outputImg)
+                HR = HRCalc.processRawData(csvPath, outputImg)
                 write_header_value_to_csv(individualTest, HR, outputFile)
             resetSkvs()
             
