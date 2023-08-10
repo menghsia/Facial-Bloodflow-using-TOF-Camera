@@ -146,7 +146,7 @@ class ProcessHR():
         moose_I_comp = depth_compensator.run(I_raw, Depth, window_length=2, fps=30)
 
         plt.plot(I_raw[2,:])
-        plt.show()
+        #plt.show()
         
         # Process waveforms into the different regions
         Fs = 30 # Frames/Second
@@ -380,7 +380,7 @@ class ProcessHR():
         plt.plot(f, spectrum)
         plt.xlim((40, 150))
         plt.title("main hr power spectrum")
-        plt.show()
+        #plt.show()
 
         return HR
     
