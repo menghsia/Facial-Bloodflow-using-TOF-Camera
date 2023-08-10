@@ -5,13 +5,10 @@ import shutil
 import argparse
 import time
 from typing import Optional
+import csv
 
 from phase_two import PhaseTwo
-import numpy as np
-
-from processHR import ProcessHR as HRCalc
-
-import csv
+from processHR import ProcessHR
 
 # Steps:
 # - Use Automotive Suite to record a video clip (.skv file)
@@ -166,7 +163,7 @@ def skv_to_bin(skvs_dir: str):
 
     return
 
-def bin_to_bfsig(skvs_dir: str, csvPath):
+def bin_to_bfsig(skvs_dir: str):
     """
     Take all .bin files in ./skvs/mat/ and convert to bloodflow signature .mat file using
     phase_two.py and save output to ./skvs/mat/
@@ -179,33 +176,21 @@ def bin_to_bfsig(skvs_dir: str, csvPath):
     """
     # Tag regions in face and generate bloodflow signature .mat file
     # myFaceMeshDetector = PhaseTwo(input_mats_dir="./skvs/mat/", output_bfsig_name="auto_bfsig")
-    myPhaseTwo = PhaseTwo(input_dir=os.path.join(skvs_dir, "mat"), output_filename="auto_bfsig")
-    myPhaseTwo.run(visualize_FaceMesh=False, visualize_ROIs=False)
-
-    with open(csvPath, 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        firstCol = np.array(myPhaseTwo.chest_depth)
-        firstCol = firstCol[:,0]
-        firstCol = firstCol.tolist()
-        firstCol = [[value] for value in firstCol]  # Convert each value to a single
-        writer.writerows(firstCol)
-    
-    
+    myPhaseTwo = PhaseTwo(input_dir=os.path.join(skvs_dir, "mat"), output_filename="auto_bfsig", visualize_FaceMesh=False, visualize_ROIs=False)
+    myPhaseTwo.run()
     myPhaseTwo.clean_up()
 
     return
 
-def bfsig_to_plot():
-    """
-    Plot bloodflow signature .mat file using process_thermal_SINGLE.m
-    """
+
+def bfsig_to_plot(skvs_dir):
     # Run plotting matlab script
     # Create path to matlab script
-    matlab_script_path = os.path.join(os.getcwd(), "auto_matlab/process_thermal_SINGLE.m")
-    process = subprocess.run(["matlab", "-r", "run('" + matlab_script_path + "');"], shell=True)
+    processHR = ProcessHR(input_file=os.path.join(skvs_dir, "mat", "auto_bfsig"))
+    HR, HR_ND = processHR.run()
+    return processHR.time, HR, HR_ND
 
-    return
-
+  
 def process_args() -> argparse.Namespace:
     """
     Process command line arguments
@@ -229,7 +214,6 @@ def process_args() -> argparse.Namespace:
         args.bfsig_to_plot = True
     
     return args
-
 
 def clear_directory(directory):
 
@@ -275,13 +259,13 @@ def run_main(csvPath):
     if args.bin_to_bfsig:
         print("BIN TO BFSIG")
         start_time = time.time()
-        bin_to_bfsig(skvs_dir, csvPath)
+        bin_to_bfsig(skvs_dir)
         end_time = time.time()
         print("mat_to_bfsig() took " + str(end_time - start_time) + " seconds to run")
     
     if args.bfsig_to_plot:
         print("BFSIG TO PLOT")
-        bfsig_to_plot()
+        run_time, HR, HR_ND = bfsig_to_plot(skvs_dir)
 
     print('Done!')
 
@@ -289,18 +273,30 @@ def run_main(csvPath):
     main_end_time = time.time()
     print(f"run.py took {main_end_time - main_start_time} seconds to run")
 
+    return HR, HR_ND
 
-def write_header_value_to_csv(header, value, filename):
+
+def write_header_value_to_csv(header, value1, value2, filename):
     with open(filename, 'a', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow([header, value])  # Writing the value
+        writer.writerow([header, value1, value2])  # Writing the value
 
 
 def process(inputDir, outputDir, calcHR = False):
+
+  
+    
+    fileName = input("Please input a HeartRateFilename (please include .csv): ")
+    for file in os.listdir(outputDir):
+        if file == fileName:
+            raise Exception("File already Exists, please use a different name")
+        
+
+
     resetSkvs()
     outputFile = None
     if calcHR:
-        outputFile = os.path.join(outputDir, "HRSummary.csv")
+        outputFile = os.path.join(outputDir, fileName)
         with open(outputFile, 'w'):
             pass
     for directory in os.listdir(inputDir):
@@ -314,66 +310,15 @@ def process(inputDir, outputDir, calcHR = False):
                     shutil.copy(fullFilePath, destination)
 
                 csvPath = os.path.join(outputDir, individualTest + ".csv")
-                run_main(csvPath)
+                HR, HR_ND = run_main(csvPath)
                 if calcHR:
                     outputImg = os.path.join(outputDir, individualTest + ".png")
-                    HR = HRCalc.getHR(csvPath, outputImg)
-                    write_header_value_to_csv(individualTest, HR, outputFile)
+                    write_header_value_to_csv(individualTest, HR, HR_ND, outputFile)
                 resetSkvs()
-                
+            
                     
 
 
 
-
-
-
 if __name__ == '__main__':
-    process("7-6-23", "Data_7_6", calcHR = True)
-
-"""if __name__ == '__main__':
-    # TODO: Add checks to ensure that /skvs/ and /skvs/mat/ exist. If not, create them.
-    
-    print("beginning of main")
-    main_start_time = time.time()
-    
-    args = process_args()
-
-    # Get the path to the new .skv file
-    # skvs_dir = record_skv()
-
-    for directory in os.listdir("test_clips"):
-        print(directory)
-
-    # filepath = os.path.join(directory, filename)
-    # if os.path.isfile(filepath):
-    #     # Process the file
-        
-    #     #copy file from loadedFilesTo
-    #     shutil.copy(filepath, destination)
-    #     directInput(os.path.join("output", filename))
-
-    skvs_dir = os.path.join(os.getcwd(), 'skvs')
-
-    check_for_skvs(skvs_dir)
-
-    if args.skv_to_bin:
-        print("SKV TO BIN")
-        skv_to_bin(skvs_dir)
-    
-    if args.bin_to_bfsig:
-        print("BIN TO BFSIG")
-        start_time = time.time()
-        bin_to_bfsig(skvs_dir)
-        end_time = time.time()
-        print("mat_to_bfsig() took " + str(end_time - start_time) + " seconds to run")
-    
-    if args.bfsig_to_plot:
-        print("BFSIG TO PLOT")
-        bfsig_to_plot()
-
-    print('Done!')
-
-
-    main_end_time = time.time()
-    print(f"run.py took {main_end_time - main_start_time} seconds to run")"""
+    process("7-6-23", "HR_Data_7_6", calcHR = True)

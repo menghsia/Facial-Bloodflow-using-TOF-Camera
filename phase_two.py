@@ -21,7 +21,7 @@ class PhaseTwo():
     PhaseTwo is a class that performs face detection and landmark tracking using MediaPipe FaceMesh.
     """
 
-    def __init__(self, input_dir: str, output_filename: str, image_width: int = 640, image_height: int = 480, visualize_FaceMesh=False, visualize_ROIs=False, doRR = True):
+    def __init__(self, input_dir: str, output_filename: str, image_width: int = 640, image_height: int = 480, visualize_FaceMesh=False, visualize_ROIs=False, doRR = False):
         """
         Initialize class variables.
 
@@ -209,7 +209,7 @@ class PhaseTwo():
     def _process_file(self, file_num: int, num_files_to_process: int, filename: str, num_ROIs: int,
                   face_mesh_detector: FaceMeshDetector) -> None:
         """
-        Processes a single file.
+        Processes a single file.proces
         
         Extracts intensity, depth, and eye aspect ratio signals for each region of interest (ROI)
         and updates the corresponding arrays.
