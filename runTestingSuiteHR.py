@@ -313,14 +313,14 @@ def process(inputDir, outputDir, calcHR = False):
                 if extension == ".skv":
                     shutil.copy(fullFilePath, destination)
 
-            csvPath = os.path.join(outputDir, individualTest + ".csv")
-            run_main(csvPath)
-            if calcHR:
-                outputImg = os.path.join(outputDir, individualTest + ".png")
-                HR = HRCalc.getHR(csvPath, outputImg)
-                write_header_value_to_csv(individualTest, HR, outputFile)
-            resetSkvs()
-            
+                csvPath = os.path.join(outputDir, individualTest + ".csv")
+                run_main(csvPath)
+                if calcHR:
+                    outputImg = os.path.join(outputDir, individualTest + ".png")
+                    HR = HRCalc.getHR(csvPath, outputImg)
+                    write_header_value_to_csv(individualTest, HR, outputFile)
+                resetSkvs()
+                
                     
 
 
