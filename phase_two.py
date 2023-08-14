@@ -78,9 +78,9 @@ class PhaseTwo():
 
         # Define which ROIs we want to visualize
         self.ROIs_to_visualize = [
-            'nose',
+            # 'nose',
             # 'forehead',
-            # 'cheek_n_nose',
+            'cheek_n_nose',
             # 'left_cheek',
             # 'right_cheek',
             # 'low_forehead',

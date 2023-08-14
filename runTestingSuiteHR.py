@@ -316,9 +316,6 @@ def process(inputDir, outputDir, calcHR = False):
                     write_header_value_to_csv(individualTest, HR, HR_ND, outputFile)
                 resetSkvs()
             
-                    
-
-
 
 if __name__ == '__main__':
     process("7-6-23", "HR_Data_7_6", calcHR = True)
