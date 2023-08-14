@@ -318,4 +318,5 @@ def process(inputDir, outputDir, calcHR = False):
             
 
 if __name__ == '__main__':
-    process("7-6-23", "HR_Data_7_6", calcHR = True)
+    process("7-6-23", "Data_7_6", calcHR = True)
+
