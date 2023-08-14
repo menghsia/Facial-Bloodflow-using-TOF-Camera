@@ -10,6 +10,8 @@ import csv
 from phase_two import PhaseTwo
 from processHR import ProcessHR
 
+import matplotlib.pyplot as plt
+
 # Steps:
 # - Use Automotive Suite to record a video clip (.skv file)
 # - Copy skv file(s) to /skvs/
@@ -176,11 +178,12 @@ def bin_to_bfsig(skvs_dir: str):
     """
     # Tag regions in face and generate bloodflow signature .mat file
     # myFaceMeshDetector = PhaseTwo(input_mats_dir="./skvs/mat/", output_bfsig_name="auto_bfsig")
-    myPhaseTwo = PhaseTwo(input_dir=os.path.join(skvs_dir, "mat"), output_filename="auto_bfsig", visualize_FaceMesh=False, visualize_ROIs=False)
+    myPhaseTwo = PhaseTwo(input_dir=os.path.join(skvs_dir, "mat"), output_filename="auto_bfsig", visualize_FaceMesh=False, visualize_ROIs=False, doRR=True)
     myPhaseTwo.run()
+    RR = myPhaseTwo.RR
     myPhaseTwo.clean_up()
 
-    return
+    return RR
 
 
 def bfsig_to_plot(skvs_dir):
@@ -256,13 +259,16 @@ def run_main(csvPath):
         print("SKV TO BIN")
         skv_to_bin(skvs_dir)
     
+    RR = None
     if args.bin_to_bfsig:
         print("BIN TO BFSIG")
         start_time = time.time()
-        bin_to_bfsig(skvs_dir)
+        RR = bin_to_bfsig(skvs_dir)
         end_time = time.time()
         print("mat_to_bfsig() took " + str(end_time - start_time) + " seconds to run")
     
+    HR = None
+    HR_ND = None
     if args.bfsig_to_plot:
         print("BFSIG TO PLOT")
         run_time, HR, HR_ND = bfsig_to_plot(skvs_dir)
@@ -273,7 +279,7 @@ def run_main(csvPath):
     main_end_time = time.time()
     print(f"run.py took {main_end_time - main_start_time} seconds to run")
 
-    return HR, HR_ND
+    return HR, HR_ND, RR
 
 
 def write_header_value_to_csv(header, value1, value2, filename):
@@ -282,23 +288,35 @@ def write_header_value_to_csv(header, value1, value2, filename):
         writer.writerow([header, value1, value2])  # Writing the value
 
 
-def process(inputDir, outputDir, calcHR = False):
+def process(inputDir, outputDir, calcHR = False, calcRR = False):
 
-  
-    
-    fileName = input("Please input a HeartRateFilename (please include .csv): ")
+ 
+    HRFileName = input("Please input a HeartRateFilename (please include .csv): ")
     for file in os.listdir(outputDir):
-        if file == fileName:
+        if file == HRFileName:
+            raise Exception("File already Exists, please use a different name")
+            
+    
+    RRFileName = input("Please input a Respitory Rate Filename (please include .csv): ")
+    for file in os.listdir(outputDir):
+        if file == RRFileName:
             raise Exception("File already Exists, please use a different name")
         
 
 
     resetSkvs()
-    outputFile = None
+    RROutputFile = None
+    HROutputFile = None
     if calcHR:
-        outputFile = os.path.join(outputDir, fileName)
-        with open(outputFile, 'w'):
+        HROutputFile = os.path.join(outputDir, HRFileName)
+        with open(HROutputFile, 'w'):
             pass
+
+    if calcRR:
+        RROutputFile = os.path.join(outputDir, RRFileName)
+        with open(RROutputFile, 'w'):
+            pass
+
     for directory in os.listdir(inputDir):
         for individualTest in os.listdir(os.path.join(inputDir, directory)):
             for file in os.listdir(os.path.join(inputDir, directory, individualTest)):
@@ -310,13 +328,19 @@ def process(inputDir, outputDir, calcHR = False):
                     shutil.copy(fullFilePath, destination)
 
                 csvPath = os.path.join(outputDir, individualTest + ".csv")
-                HR, HR_ND = run_main(csvPath)
+                HR, HR_ND, RR = run_main(csvPath)
                 if calcHR:
                     outputImg = os.path.join(outputDir, individualTest + ".png")
-                    write_header_value_to_csv(individualTest, HR, HR_ND, outputFile)
+                    write_header_value_to_csv(individualTest, HR, HR_ND, HROutputFile)
+
+                if calcRR:
+                    outputImg = os.path.join(outputDir, individualTest + "RR info" + ".png")
+                    plt.savefig(outputImg)
+                    write_header_value_to_csv(individualTest, RR, " ", RROutputFile)
+
                 resetSkvs()
             
 
 if __name__ == '__main__':
-    process("7-6-23", "Data_7_6", calcHR = True)
+    process("7-6-23", "HR_Data_7_6", calcHR = True, calcRR=True)
 

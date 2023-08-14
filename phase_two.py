@@ -446,7 +446,7 @@ class PhaseTwo():
             plt.savefig(outputFile)
 
         else:
-            plt.show()
+            pass
 
         return RR
     
