@@ -153,7 +153,7 @@ def skv_to_bin(skvs_dir: str):
 
     # Convert all .skv video files in ./skvs/ into .mat files using imx520_sample.exe and save to ./skvs/mat/
     # Get absolute path to imx520_sample.exe
-    imx520_sample_exe_path = os.path.join(os.getcwd(), "skv_to_mat/compiled_releases/r2_3/imx520_sample.exe")
+    imx520_sample_exe_path = os.path.join(os.getcwd(), "skv_to_mat/compiled_releases/r2_3_1/imx520_sample.exe")
     # Get absolute path to dir to save output .mat files to
     output_mat_dir = os.path.join(skvs_dir, "mat")
     # Run imx520_sample.exe
