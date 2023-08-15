@@ -79,9 +79,9 @@ class PhaseTwo():
 
         # Define which ROIs we want to visualize
         self.ROIs_to_visualize = [
-            'nose',
+            # 'nose',
             # 'forehead',
-            # 'cheek_n_nose',
+            'cheek_n_nose',
             # 'left_cheek',
             # 'right_cheek',
             # 'low_forehead',
@@ -221,7 +221,7 @@ class PhaseTwo():
     def _process_file(self, file_num: int, num_files_to_process: int, filename: str, num_ROIs: int,
                   face_mesh_detector: FaceMeshDetector) -> None:
         """
-        Processes a single file.
+        Processes a single file.proces
         
         Extracts intensity, depth, and eye aspect ratio signals for each region of interest (ROI)
         and updates the corresponding arrays.
@@ -461,7 +461,7 @@ class PhaseTwo():
             plt.savefig(outputFile)
 
         else:
-            plt.show()
+            pass
 
         return RR
     

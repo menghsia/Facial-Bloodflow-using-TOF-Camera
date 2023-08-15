@@ -5,9 +5,12 @@ import shutil
 import argparse
 import time
 from typing import Optional
+import csv
 
 from phase_two import PhaseTwo
 from processHR import ProcessHR
+
+import matplotlib.pyplot as plt
 
 # Steps:
 # - Use Automotive Suite to record a video clip (.skv file)
@@ -153,7 +156,7 @@ def skv_to_bin(skvs_dir: str):
 
     # Convert all .skv video files in ./skvs/ into .mat files using imx520_sample.exe and save to ./skvs/mat/
     # Get absolute path to imx520_sample.exe
-    imx520_sample_exe_path = os.path.join(os.getcwd(), "skv_to_mat/compiled_releases/r2_3_1/imx520_sample.exe")
+    imx520_sample_exe_path = os.path.join(os.getcwd(), "skv_to_mat/compiled_releases/r2_3/imx520_sample.exe")
     # Get absolute path to dir to save output .mat files to
     output_mat_dir = os.path.join(skvs_dir, "mat")
     # Run imx520_sample.exe
@@ -175,19 +178,20 @@ def bin_to_bfsig(skvs_dir: str):
     """
     # Tag regions in face and generate bloodflow signature .mat file
     # myFaceMeshDetector = PhaseTwo(input_mats_dir="./skvs/mat/", output_bfsig_name="auto_bfsig")
-    myPhaseTwo = PhaseTwo(input_dir=os.path.join(skvs_dir, "mat"), output_filename="auto_bfsig", visualize_FaceMesh=False, visualize_ROIs=False, doRR=False)
+    myPhaseTwo = PhaseTwo(input_dir=os.path.join(skvs_dir, "mat"), output_filename="auto_bfsig", visualize_FaceMesh=False, visualize_ROIs=False, doRR=True)
     myPhaseTwo.run()
+    RR = myPhaseTwo.RR
     myPhaseTwo.clean_up()
 
-    return
+    return RR
 
 
 def bfsig_to_plot(skvs_dir):
     # Run plotting matlab script
     # Create path to matlab script
     processHR = ProcessHR(input_file=os.path.join(skvs_dir, "mat", "auto_bfsig"))
-    processHR.run()
-    return processHR.time
+    HR, HR_ND = processHR.run()
+    return processHR.time, HR, HR_ND
 
   
 def process_args() -> argparse.Namespace:
@@ -214,9 +218,32 @@ def process_args() -> argparse.Namespace:
     
     return args
 
-if __name__ == '__main__':
+def clear_directory(directory):
+
+    for filename in os.listdir(directory):
+        file_path = os.path.join(directory, filename)
+
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+        elif os.path.isdir(file_path):
+            clear_directory(file_path)
+            os.rmdir(file_path)
+
+def resetSkvs():
+    skv = 'skvs'
+    mat = os.path.join(skv, "mat")
+    clear_directory(mat)
+    for filename in os.listdir(skv):
+        file_path = os.path.join(skv, filename)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+
+
+
+def run_main(csvPath):
     # TODO: Add checks to ensure that /skvs/ and /skvs/mat/ exist. If not, create them.
     
+    print("beginning of main")
     main_start_time = time.time()
     
     args = process_args()
@@ -228,30 +255,92 @@ if __name__ == '__main__':
 
     check_for_skvs(skvs_dir)
 
-
     if args.skv_to_bin:
-        start_time = time.time()
+        print("SKV TO BIN")
         skv_to_bin(skvs_dir)
-        end_time = time.time()
-        print("skv_to_bin() took " + str(end_time - start_time) + " seconds to run")
     
+    RR = None
     if args.bin_to_bfsig:
+        print("BIN TO BFSIG")
         start_time = time.time()
-        bin_to_bfsig(skvs_dir)
+        RR = bin_to_bfsig(skvs_dir)
         end_time = time.time()
-        print("bin_to_bfsig() took " + str(end_time - start_time) + " seconds to run")
-        
-
-    main_end_time = time.time()
-
-    plotting_time = 0
+        print("mat_to_bfsig() took " + str(end_time - start_time) + " seconds to run")
     
+    HR = None
+    HR_ND = None
     if args.bfsig_to_plot:
-        plotting_time = bfsig_to_plot(skvs_dir)
+        print("BFSIG TO PLOT")
+        run_time, HR, HR_ND = bfsig_to_plot(skvs_dir)
 
     print('Done!')
 
-    # comment for commit
 
-    print(f"run.py took {main_end_time - main_start_time + plotting_time} seconds to run")
+    main_end_time = time.time()
+    print(f"run.py took {main_end_time - main_start_time} seconds to run")
+
+    return HR, HR_ND, RR
+
+
+def write_header_value_to_csv(header, testFilename, value1, value2, outputFilename):
+    with open(outputFilename, 'a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow([header, testFilename, value1, value2])  # Writing the value
+
+
+def process(inputDir, outputDir, calcHR = False, calcRR = False):
+
+            
+    
+
+
+    resetSkvs()
+    RROutputFile = None
+    HROutputFile = None
+    if calcHR:
+        HRFileName = input("Please input a HeartRateFilename (please include .csv): ")
+        for file in os.listdir(outputDir):
+            if file == HRFileName:
+                raise Exception("File already Exists, please use a different name")
+
+        HROutputFile = os.path.join(outputDir, HRFileName)
+        with open(HROutputFile, 'w'):
+            pass
+
+    if calcRR:
+        RRFileName = input("Please input a Respitory Rate Filename (please include .csv): ")
+        for file in os.listdir(outputDir):
+            if file == RRFileName:
+                raise Exception("File already Exists, please use a different name")
+
+        RROutputFile = os.path.join(outputDir, RRFileName)
+        with open(RROutputFile, 'w'):
+            pass
+
+    for directory in os.listdir(inputDir):
+        for individualTest in os.listdir(os.path.join(inputDir, directory)):
+            for file in os.listdir(os.path.join(inputDir, directory, individualTest)):
+                fullFilePath = os.path.join(inputDir, directory, individualTest, file)
+                extension = os.path.splitext(file)[1]
+                destination = 'skvs'
+               
+                if extension == ".skv":
+                    shutil.copy(fullFilePath, destination)
+
+                csvPath = os.path.join(outputDir, individualTest + ".csv")
+                HR, HR_ND, RR = run_main(csvPath)
+                if calcHR:
+                    outputImg = os.path.join(outputDir, individualTest + ".png")
+                    write_header_value_to_csv(individualTest, file, HR, HR_ND, HROutputFile)
+
+                if calcRR:
+                    outputImg = os.path.join(outputDir, individualTest + "RR info" + ".png")
+                    plt.savefig(outputImg)
+                    write_header_value_to_csv(individualTest, file, RR, " ", RROutputFile)
+
+                resetSkvs()
+            
+
+if __name__ == '__main__':
+    process("Entron Testing", "HR_Data_8_11", calcHR = True, calcRR=False)
 
