@@ -2,6 +2,8 @@ import cv2
 import mediapipe as mp
 import time
 import numpy as np
+from typing import Tuple, Union
+import math
 
 
 class FaceMeshDetector():
@@ -30,8 +32,13 @@ class FaceMeshDetector():
         """
         self.mp_draw = mp.solutions.drawing_utils # type: ignore
         self.mp_face_mesh = mp.solutions.face_mesh # type: ignore
+        # self.face_mesh = self.mp_face_mesh.FaceMesh(static_image_mode=static_image_mode,
+        #                                             max_num_faces=max_num_faces,
+        #                                             min_detection_confidence=min_detection_confidence,
+        #                                             min_tracking_confidence=min_tracking_confidence)
         self.face_mesh = self.mp_face_mesh.FaceMesh(static_image_mode=static_image_mode,
                                                     max_num_faces=max_num_faces,
+                                                    refine_landmarks=True,
                                                     min_detection_confidence=min_detection_confidence,
                                                     min_tracking_confidence=min_tracking_confidence)
         self.drawing_spec_landmark = self.mp_draw.DrawingSpec(color=(0, 255, 0), thickness=1, circle_radius=2)
@@ -48,8 +55,8 @@ class FaceMeshDetector():
         Returns:
             tuple[bool, np.ndarray]: A tuple containing:
                 - face_detected (bool): Indicates whether a face was detected in the image.
-                - landmarks_pixels (np.ndarray): An array of shape (468, 2) representing the pixel coordinates (x, y)
-                  for each of the 468 total face landmarks detected. The i-th row corresponds to the i-th landmark
+                - landmarks_pixels (np.ndarray): An array of shape (478, 2) representing the pixel coordinates (x, y)
+                  for each of the 478 total face landmarks detected. The i-th row corresponds to the i-th landmark
                   (zero-indexed, so row 0 is landmark 1).
 
         Note:
@@ -68,8 +75,9 @@ class FaceMeshDetector():
         results = self.face_mesh.process(image_rgb)
         # print(results)
 
-        # landmarks_pixels is an array of shape (468, 2) with x, y coordinates (as pixels) for each landmark
-        landmarks_pixels = np.zeros((468, 2), dtype="int")
+        # landmarks_pixels is an array of shape (478, 2) with x, y coordinates (as pixels) for each landmark
+        # landmarks_pixels = np.zeros((478, 2), dtype="int")
+        landmarks_pixels = np.zeros((478, 2), dtype="int")
 
         face_detected = False
 
@@ -88,17 +96,39 @@ class FaceMeshDetector():
 
                 # Loop through each landmark
                 for id, landmark in enumerate(face_landmarks.landmark):
-                    # There are 468 landmarks in total, with x, y, z normalized coordinates
+                    # There are 478 landmarks in total, with x, y, z normalized coordinates
                     # print(id, landmark)
 
                     # Convert normalized coordinates to pixel coordinates (NOTE: z is currently unused)
                     x, y = int(landmark.x * image_width), int(landmark.y * image_height)
+                    # x, y = self._normalized_to_pixel_coordinates(landmark.x, landmark.y, image_width, image_height)
                     # print(id, x, y)
 
                     # Store pixel coordinates in array
                     landmarks_pixels[id] = (x, y)
 
         return face_detected, landmarks_pixels
+    
+
+    def _normalized_to_pixel_coordinates(self, normalized_x: float, normalized_y: float, image_width: int, image_height: int) -> Tuple[int, int]:
+        """
+        Converts normalized value pair to pixel coordinates.
+        """
+
+        # Checks if the float value is between 0 and 1.
+        def is_valid_normalized_value(value: float) -> bool:
+            return (value > 0 or math.isclose(0, value)) and (value < 1 or math.isclose(1, value))
+
+        if not (is_valid_normalized_value(normalized_x) and is_valid_normalized_value(normalized_y)):
+            # TODO: Draw coordinates even if it's outside of the image bounds.
+            print(f"WARNING: Normalized value pair ({normalized_x}, {normalized_y}) is not in valid range!")
+
+            return -1, -1
+        
+        x_px = min(math.floor(normalized_x * image_width), image_width - 1)
+        y_px = min(math.floor(normalized_y * image_height), image_height - 1)
+
+        return x_px, y_px
 
 
 def main():
