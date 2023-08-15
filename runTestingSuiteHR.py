@@ -290,29 +290,29 @@ def write_header_value_to_csv(header, testFilename, value1, value2, outputFilena
 
 def process(inputDir, outputDir, calcHR = False, calcRR = False):
 
- 
-    HRFileName = input("Please input a HeartRateFilename (please include .csv): ")
-    for file in os.listdir(outputDir):
-        if file == HRFileName:
-            raise Exception("File already Exists, please use a different name")
             
     
-    RRFileName = input("Please input a Respitory Rate Filename (please include .csv): ")
-    for file in os.listdir(outputDir):
-        if file == RRFileName:
-            raise Exception("File already Exists, please use a different name")
-        
 
 
     resetSkvs()
     RROutputFile = None
     HROutputFile = None
     if calcHR:
+        HRFileName = input("Please input a HeartRateFilename (please include .csv): ")
+        for file in os.listdir(outputDir):
+            if file == HRFileName:
+                raise Exception("File already Exists, please use a different name")
+
         HROutputFile = os.path.join(outputDir, HRFileName)
         with open(HROutputFile, 'w'):
             pass
 
     if calcRR:
+        RRFileName = input("Please input a Respitory Rate Filename (please include .csv): ")
+        for file in os.listdir(outputDir):
+            if file == RRFileName:
+                raise Exception("File already Exists, please use a different name")
+
         RROutputFile = os.path.join(outputDir, RRFileName)
         with open(RROutputFile, 'w'):
             pass
