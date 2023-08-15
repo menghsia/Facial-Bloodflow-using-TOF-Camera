@@ -85,7 +85,9 @@ int main(int argc, char* argv[]) {
 		FindClose(hFind);
 	}
 
-	std::cout << "Found " << skvs.size() << " .skv files" << std::endl;
+	int num_files = skvs.size();
+
+	std::cout << "Found " << num_files << " .skv files" << std::endl;
 
 	// Fill list of output file names
 	if (path_mode == file) {
@@ -105,6 +107,9 @@ int main(int argc, char* argv[]) {
 
 	// Loop through all .skv files and process them
 	for (size_t skv_i = 0; skv_i < skvs.size(); ++skv_i) {
+		// Print progress as we get through each file
+		std::cout << "Processing file " << skv_i + 1 << "/" << num_files << ": " << skvs[skv_i] << "..." << std::endl;
+
 		// Set output file name (in directory mode this is "file_name.skv.mat")
 		char* matfile_name_c = const_cast<char*>(mats[skv_i].c_str());
 
@@ -171,30 +176,30 @@ int main(int argc, char* argv[]) {
 		int num_frames = skv_reader->get_frame_count();
 
 		// Print skv file info
-		std::cout << "**** skv file info:" << std::endl;
-		std::cout << "path			: " << movie_path << std::endl;
-		std::cout << "frames count		: " << skv_reader->get_frame_count() << std::endl;
-		std::cout << "frames dimensions	: width=" << camera_parameters.width <<
-			" height=" << camera_parameters.height << std::endl;
-
-		std::cout << "intrinsics		: fx=" << camera_parameters.focal_x <<
-			" fy=" << camera_parameters.focal_y <<
-			" cx=" << camera_parameters.central_x <<
-			" cy=" << camera_parameters.central_y << std::endl;
-
-		std::cout << "Lens			: k1=" << camera_parameters.k1 <<
-			" k2=" << camera_parameters.k2 <<
-			" k3=" << camera_parameters.k3 <<
-			" p1=" << camera_parameters.p1 <<
-			" p2=" << camera_parameters.p2 << std::endl;
-
-		std::cout << "****************" << std::endl << std::endl << std::endl;
+		// std::cout << "**** skv file info:" << std::endl;
+		// std::cout << "path			: " << movie_path << std::endl;
+		// std::cout << "frames count		: " << skv_reader->get_frame_count() << std::endl;
+		// std::cout << "frames dimensions	: width=" << camera_parameters.width <<
+		// 	" height=" << camera_parameters.height << std::endl;
+		// 
+		// std::cout << "intrinsics		: fx=" << camera_parameters.focal_x <<
+		// 	" fy=" << camera_parameters.focal_y <<
+		// 	" cx=" << camera_parameters.central_x <<
+		// 	" cy=" << camera_parameters.central_y << std::endl;
+		// 
+		// std::cout << "Lens			: k1=" << camera_parameters.k1 <<
+		// 	" k2=" << camera_parameters.k2 <<
+		// 	" k3=" << camera_parameters.k3 <<
+		// 	" p1=" << camera_parameters.p1 <<
+		// 	" p2=" << camera_parameters.p2 << std::endl;
+		// 
+		// std::cout << "****************" << std::endl << std::endl << std::endl;
 
 		// Initialize Cloudify library(?)
-		cloudify_error_details error_details;
-		const char* version;
-		cloudify_get_version(&version, &error_details);
-		std::cout << "[CLOUDIFY_SAMPLE] cloudify version : " << version << std::endl;
+		// cloudify_error_details error_details;
+		// const char* version;
+		// cloudify_get_version(&version, &error_details);
+		// std::cout << "[CLOUDIFY_SAMPLE] cloudify version : " << version << std::endl;
 
 		// Load the intrinsics from the skv files
 
@@ -259,7 +264,7 @@ int main(int argc, char* argv[]) {
 			return -1;
 		}
 
-		std::cout << "[CLOUDIFY_SAMPLE] library intialized" << std::endl;
+		// std::cout << "[CLOUDIFY_SAMPLE] library intialized" << std::endl;
 
 		// example_intrinsics.width * example_intrinsics.height = 307200
 		// 640 * 480 = 307200 pixels per frame
@@ -308,10 +313,10 @@ int main(int argc, char* argv[]) {
 			std::cout << err.message << std::endl;
 			return -1;
 		}
-		std::cout << "[CLOUDIFY_SAMPLE] Library released" << std::endl;
+		// std::cout << "[CLOUDIFY_SAMPLE] Library released" << std::endl;
 
 		skv_reader->close();
-		std::cout << "[CLOUDIFY_SAMPLE] SKV closed" << std::endl;
+		// std::cout << "[CLOUDIFY_SAMPLE] SKV closed" << std::endl;
 
 		//// Save data to matlab .mat file
 		//
@@ -372,20 +377,5 @@ int main(int argc, char* argv[]) {
 		// HDF5
 		// Experiment with using HDF5 to save data instead, to save space
 		// https://github.com/ess-dmsc/h5cpp
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-		std::cout << "Finished" << std::endl;
 	}
 }
