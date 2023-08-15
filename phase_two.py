@@ -5,6 +5,7 @@ import numpy as np
 from scipy.io import savemat, loadmat
 from scipy.spatial import distance as dist
 import concurrent.futures
+from PIL import Image, ImageDraw
 
 from face_mesh_module import FaceMeshDetector
 from chestROIReverseEngineering import ChestROI
@@ -21,7 +22,7 @@ class PhaseTwo():
     PhaseTwo is a class that performs face detection and landmark tracking using MediaPipe FaceMesh.
     """
 
-    def __init__(self, input_dir: str, output_filename: str, image_width: int = 640, image_height: int = 480, visualize_FaceMesh=False, visualize_ROIs=False, doRR = True):
+    def __init__(self, input_dir: str, output_filename: str, image_width: int = 640, image_height: int = 480, visualize_FaceMesh=False, visualize_ROIs=False, doRR = False):
         """
         Initialize class variables.
 
@@ -108,6 +109,9 @@ class PhaseTwo():
         self.intensity_signals = np.array([])
         self.depth_signals = np.array([])
         self.ear_signal = np.array([])
+
+        # Initialize the array containing all 600 cheek_n_nose masks
+        # self.cheek_n_nose_masks = np.zeros((600, 480, 640), dtype=np.uint8)
     
     def run(self) -> None:
         """
@@ -155,6 +159,11 @@ class PhaseTwo():
             
             # Process the file
             self._process_file(file_num, num_files_to_process, filename, num_ROIs, face_mesh_detector)
+        
+        # # Load Alex data from alex_outputdata.mat
+        # alex_outputdata = loadmat("alex_outputdata.mat")
+        # self.intensity_signals = alex_outputdata['I_signal']
+        # self.depth_signals = alex_outputdata['D_signal']
                     
         self.intensity_signals = np.delete(self.intensity_signals, 0, 1)
         self.depth_signals = np.delete(self.depth_signals, 0, 1)
@@ -203,6 +212,9 @@ class PhaseTwo():
 
         mdic = {"Depth": self.depth_signals, 'I_raw': self.intensity_signals, 'EAR': self.ear_signal} # EAR: eye aspect ratio
         savemat(os.path.join(self.input_dir, self.output_filename + '.mat'), mdic)
+
+        # Save self.cheek_n_nose_masks to a .mat file
+        # savemat('main_mask_cheek_n_nose_all_600.mat', {'masks': self.cheek_n_nose_masks})
 
         return
     
@@ -328,6 +340,9 @@ class PhaseTwo():
         self.intensity_signals = np.concatenate((self.intensity_signals, intensity_signal_current_file), axis=1)
         self.depth_signals = np.concatenate((self.depth_signals, depth_signal_current_file), axis=1)
         self.ear_signal = np.concatenate((self.ear_signal, ear_signal_current_file),axis=0)
+
+        # Save average intensities for each frame for cheek_n_nose to a .mat file. This is row idx 2 of the intensity_signals array.
+        # savemat("intensity_signals.mat", {"intensity_signals": self.intensity_signals[2, :]})
 
         return
     
@@ -532,9 +547,13 @@ class PhaseTwo():
                 # Get pixels contained within ROI bounding box
                 pixels_in_ROI = self._get_pixels_within_ROI_bounding_box(roi_bounding_box_pixels)
 
-                if roi_name == "cheek_n_nose" and frame_idx == 0:
-                    # Save the mask of pixels contained within the ROI bounding box to a .mat file
-                    savemat("main_mask_cheek_n_nose_1.mat", {"main_mask_cheek_n_nose1": pixels_in_ROI})
+                # if roi_name == "cheek_n_nose" and frame_idx == 42:
+                #     # Save the mask of pixels contained within the ROI bounding box to a .mat file
+                #     savemat("main_mask_cheek_n_nose_43.mat", {"mask_cheek_n_nose_43": pixels_in_ROI})
+
+                # if roi_name == "cheek_n_nose":
+                #     # Save the mask of pixels contained within the ROI bounding box to self.cheek_n_nose_masks
+                #     self.cheek_n_nose_masks[frame_idx] = pixels_in_ROI
                 
                 # Calculate and save averaged intensity for the ROI
                 intensity_signal_current_file[roi_idx, frame_idx] = np.average(frame_confidence[np.where(pixels_in_ROI > 0)])
@@ -584,15 +603,15 @@ class PhaseTwo():
         except KeyError:
             raise KeyError(f"ERROR: The provided roi_name \"{roi_name}\" does not match any of the predefined ROIs.")
 
-        if roi_name == 'cheek_n_nose':
-            bounding_box_pixels[2][1] = bounding_box_pixels[2][1] - 2
-            bounding_box_pixels[3][1] = bounding_box_pixels[3][1] - 2
-            bounding_box_pixels[1][1] = bounding_box_pixels[1][1] + 2
-            bounding_box_pixels[0][1] = bounding_box_pixels[0][1] + 2
-            # bounding_box_pixels[0][0] = bounding_box_pixels[0][0] + 3
-            # bounding_box_pixels[1][0] = bounding_box_pixels[1][0] - 3
-            # bounding_box_pixels[2][0] = bounding_box_pixels[2][0] - 3
-            # bounding_box_pixels[3][0] = bounding_box_pixels[3][0] + 3
+        # if roi_name == 'cheek_n_nose':
+        #     bounding_box_pixels[2][1] = bounding_box_pixels[2][1] - 2
+        #     bounding_box_pixels[3][1] = bounding_box_pixels[3][1] - 2
+        #     bounding_box_pixels[1][1] = bounding_box_pixels[1][1] + 2
+        #     bounding_box_pixels[0][1] = bounding_box_pixels[0][1] + 2
+        #     # bounding_box_pixels[0][0] = bounding_box_pixels[0][0] + 3
+        #     # bounding_box_pixels[1][0] = bounding_box_pixels[1][0] - 3
+        #     # bounding_box_pixels[2][0] = bounding_box_pixels[2][0] - 3
+        #     # bounding_box_pixels[3][0] = bounding_box_pixels[3][0] + 3
 
         return bounding_box_pixels
     
@@ -613,20 +632,43 @@ class PhaseTwo():
                 as the frame image.
         """
 
-        # Create an empty binary mask with the same shape as the frame image
-        mask = np.zeros((self.image_height, self.image_width), dtype=np.uint8)
+        # Create a black (0) grayscale image with the same dimensions as the frame
+        # TODO: Try using mode='1' instead of mode='L' to save memory
+        # (https://pillow.readthedocs.io/en/stable/handbook/concepts.html#concept-modes)
+        mask_canvas = Image.new('L', (self.image_width, self.image_height), 0)
 
-        # Draw a filled polygon on the mask using the ROI bounding box pixel coordinates
-        cv2.fillPoly(mask, [bounding_box_pixels], color=1)
+        # Reformat to a list of 2-tuples
+        pixels_passed_in = list(map(tuple, bounding_box_pixels.tolist()))
 
-        # Convert the mask to a binary array
-        pixels_in_ROI = mask.astype(np.uint8)
+        # Draw a polygon on the mask_canvas using the ROI bounding box pixel coordinates
+        # The polygon will be filled in with pixels with value 1, and the outline will
+        # be 1 pixel wide with a value of 1 as well.
+        ImageDraw.Draw(mask_canvas).polygon(pixels_passed_in, fill=1, outline=1, width=1)
+
+        # Convert the mask_canvas image, with the filled-in polygon on it, to a numpy array
+        # The array will have a shape of (self.image_height, self.image_width)
+        pixels_in_ROI = np.array(mask_canvas)
 
         # # Display the image using matplotlib
-        # plt.imshow(mask, cmap='gray')
+        # plt.imshow(mask_canvas, cmap='gray')
         # plt.show()
 
         return pixels_in_ROI
+
+        # # Create an empty binary mask with the same shape as the frame image
+        # mask = np.zeros((self.image_height, self.image_width), dtype=np.uint8)
+
+        # # Draw a filled polygon on the mask using the ROI bounding box pixel coordinates
+        # cv2.fillPoly(mask, [bounding_box_pixels], color=1)
+
+        # # Convert the mask to a binary array
+        # pixels_in_ROI = mask.astype(np.uint8)
+
+        # # # Display the image using matplotlib
+        # # plt.imshow(mask, cmap='gray')
+        # # plt.show()
+
+        # return pixels_in_ROI
 
     def _get_eye_aspect_ratio(self, eye_bounding_box_pixels: np.ndarray) -> float:
         """
