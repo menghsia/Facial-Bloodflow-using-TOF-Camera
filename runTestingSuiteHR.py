@@ -282,10 +282,10 @@ def run_main(csvPath):
     return HR, HR_ND, RR
 
 
-def write_header_value_to_csv(header, value1, value2, filename):
-    with open(filename, 'a', newline='') as file:
+def write_header_value_to_csv(header, testFilename, value1, value2, outputFilename):
+    with open(outputFilename, 'a', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow([header, value1, value2])  # Writing the value
+        writer.writerow([header, testFilename, value1, value2])  # Writing the value
 
 
 def process(inputDir, outputDir, calcHR = False, calcRR = False):
@@ -331,16 +331,16 @@ def process(inputDir, outputDir, calcHR = False, calcRR = False):
                 HR, HR_ND, RR = run_main(csvPath)
                 if calcHR:
                     outputImg = os.path.join(outputDir, individualTest + ".png")
-                    write_header_value_to_csv(individualTest, HR, HR_ND, HROutputFile)
+                    write_header_value_to_csv(individualTest, file, HR, HR_ND, HROutputFile)
 
                 if calcRR:
                     outputImg = os.path.join(outputDir, individualTest + "RR info" + ".png")
                     plt.savefig(outputImg)
-                    write_header_value_to_csv(individualTest, RR, " ", RROutputFile)
+                    write_header_value_to_csv(individualTest, file, RR, " ", RROutputFile)
 
                 resetSkvs()
             
 
 if __name__ == '__main__':
-    process("7-6-23", "HR_Data_7_6", calcHR = True, calcRR=True)
+    process("Entron Testing", "HR_Data_8_11", calcHR = True, calcRR=False)
 
