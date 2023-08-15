@@ -68,8 +68,8 @@ class ProcessHR():
 
         ## getHR() NEEDS FIXING ##
         # Get HR Data
-        HR_comp = self.getHR(HRsig, 600, Window=True)
-        HR_ND = self.getHR(HRsigRaw, 600, Window=True)
+        HR_comp = self.getHR(HRsig, 600, Window=False)
+        HR_ND = self.getHR(HRsigRaw, 600, Window=False)
 
         print(f'Main HR: {HR_comp}')
         print(f'Main HR_ND: {HR_ND}')
