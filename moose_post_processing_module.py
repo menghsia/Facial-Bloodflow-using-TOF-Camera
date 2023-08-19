@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import stft, welch, cwt, morlet
+import pywt
 
 class HeartRateAnalyzer:
     def interpolate_peak(self, freqs, magnitudes, peak_index):
@@ -40,6 +41,21 @@ class HeartRateAnalyzer:
         dominant_frequency = fs / dominant_width
         
         return dominant_frequency
+    
+    def wavelet_denoising(self, signal):
+        # Decompose the signal into wavelet coefficients
+        coeffs = pywt.wavedec(signal, 'db1', level=4)
+
+        # Set a threshold to remove noise. Universal threshold is a common choice.
+        threshold = np.median(np.abs(coeffs[-1])) / 0.6745
+
+        # Threshold the coefficients
+        coeffs_thresholded = [pywt.threshold(coeff, threshold, mode='soft') for coeff in coeffs]
+
+        # Reconstruct the signal from the thresholded coefficients
+        denoised_signal = pywt.waverec(coeffs_thresholded, 'db1')
+        
+        return denoised_signal
 
     def plot_signal_and_spectrum(self, intensity_compensated, signal, fft_freqs, fft_vals, bpm_values):
         # Single Figure with Three Subplots
@@ -72,6 +88,9 @@ class HeartRateAnalyzer:
         plt.show()
 
     def calculate_HR(self, intensity_compensated, plot=False, sampling_rate=30):
+        # Apply wavelet denoising
+        intensity_compensated = self.wavelet_denoising(intensity_compensated)
+
         # Detrend the data
         signal = intensity_compensated - np.poly1d(np.polyfit(np.linspace(0, len(intensity_compensated), len(intensity_compensated)), intensity_compensated, 1))(np.linspace(0, len(intensity_compensated), len(intensity_compensated)))
         
@@ -158,20 +177,30 @@ def test_HR(actual_bpm, noise_modifier, plot=False):
 if __name__ == '__main__':
     np.random.seed(42)  # Set the random seed for reproducibility
 
-    # Test 1: 0.07% error
+    # 0.08% error
+    print("Test 1")
     test_HR(actual_bpm=100, noise_modifier=0.2, plot=False)
 
-    # Test 2: 0.01% error
+    # 0.01% error
+    print("Test 2")
     test_HR(actual_bpm=100, noise_modifier=0.3, plot=False)
 
-    # Test 3: 0.08% error
+    # 0.04% error
+    print("Test 3")
     test_HR(actual_bpm=100, noise_modifier=0.5, plot=False)
 
-    # Test 4: 0.01% error
+    # 0.22% error
+    print("Test 4")
     test_HR(actual_bpm=100, noise_modifier=4, plot=False)
 
-    # Test 5: 0.98% error
+    # 1.19% error
+    print("Test 5")
     test_HR(actual_bpm=100, noise_modifier=5, plot=False)
 
-    # Test 6: 70.76% error
-    test_HR(actual_bpm=100, noise_modifier=6, plot=False)
+    # 14.82% error
+    print("Test 6")
+    test_HR(actual_bpm=100, noise_modifier=6, plot=True)
+
+    # 79.21% error
+    print("Test 7")
+    test_HR(actual_bpm=100, noise_modifier=10, plot=False)
