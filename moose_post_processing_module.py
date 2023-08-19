@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.signal import stft, welch, cwt, morlet, butter, filtfilt, find_peaks
+from scipy.signal import stft, welch, cwt, morlet, butter, filtfilt, find_peaks, medfilt
 import pywt
 
 class HeartRateAnalyzer:
@@ -136,6 +136,49 @@ class HeartRateAnalyzer:
             thresholded_signal[start:end] = np.where(window > threshold, window, 0)
             
         return thresholded_signal
+    
+    def moving_average_filter(self, signal, window_size=5):
+        """
+        Apply moving average filter to the signal.
+        """
+        cumsum_vec = np.cumsum(np.insert(signal, 0, 0))
+        ma_values = (cumsum_vec[window_size:] - cumsum_vec[:-window_size]) / window_size
+        return ma_values
+
+    def median_filter(self, signal, kernel_size=3):
+        """
+        Apply median filter to the signal.
+        """
+        return medfilt(signal, kernel_size)
+    
+    def harmonic_check(self, fft_freqs, fft_vals, dominant_frequency, tolerance=0.1):
+        """
+        Check for significant energy at harmonics of the dominant frequency.
+        
+        Parameters:
+            fft_freqs: The frequencies of the FFT.
+            fft_vals: The FFT values.
+            dominant_frequency: The detected dominant frequency.
+            tolerance: A factor to decide if harmonic energy is significant.
+        
+        Returns:
+            The corrected dominant frequency if a harmonic is found to have significant energy. 
+            Else, it returns the original dominant frequency.
+        """
+        # Calculate magnitude at dominant frequency
+        dominant_magnitude = np.interp(dominant_frequency, fft_freqs, np.abs(fft_vals))
+
+        for harmonic in range(2, 5):  # Checking up to 4th harmonic
+            harmonic_freq = dominant_frequency / harmonic
+            harmonic_magnitude = np.interp(harmonic_freq, fft_freqs, np.abs(fft_vals))
+            
+            # If the harmonic magnitude is significant (e.g., more than `tolerance` times the dominant magnitude)
+            if harmonic_magnitude > dominant_magnitude * tolerance:
+                print(f"Detected significant energy at {harmonic}th harmonic. Adjusting dominant frequency.")
+                return harmonic_freq  # Adjust the dominant frequency to the harmonic
+        
+        # If no significant harmonic energy is detected, return the original dominant frequency
+        return dominant_frequency
 
     def calculate_HR(self, intensity_compensated, plot=False, sampling_rate=30):
         # Only consider BPMs in the range of 30-250 BPM by applying a bandpass filter
@@ -146,6 +189,12 @@ class HeartRateAnalyzer:
 
         # Apply wavelet denoising
         intensity_compensated = self.wavelet_denoising(intensity_compensated)
+
+        # Apply moving average filter
+        intensity_compensated = self.moving_average_filter(intensity_compensated, window_size=5)
+
+        # Apply median filter
+        intensity_compensated = self.median_filter(intensity_compensated, kernel_size=5)
 
         # # Apply adaptive thresholding
         # intensity_compensated = self.adaptive_thresholding(intensity_compensated)
@@ -159,7 +208,7 @@ class HeartRateAnalyzer:
 
         # Compute the FFT
         fft_vals = np.fft.rfft(signal_windowed)
-        fft_freqs = np.fft.rfftfreq(signal.size, d=1/30)  # Assuming constant sample interval
+        fft_freqs = np.fft.rfftfreq(signal.size, d=1/sampling_rate)  # Assuming constant sample interval
 
         # Zero-padding to improve FFT resolution
         # zero_padded_signal = np.pad(signal_windowed, (0, len(signal_windowed)), 'constant')
@@ -177,6 +226,9 @@ class HeartRateAnalyzer:
         peak_index = np.argmax(np.abs(fft_vals))
         # Interpolate to find a more accurate frequency
         dominant_frequency = self.interpolate_peak(fft_freqs, np.abs(fft_vals), peak_index)
+
+        # After identifying the dominant frequency, check for harmonics
+        # dominant_frequency = self.harmonic_check(fft_freqs, fft_vals, dominant_frequency)
 
         # # Use power spectrum for peak detection
         # power_spectrum = np.abs(fft_vals)**2
@@ -251,42 +303,42 @@ def test_HR(actual_bpm, noise_modifier, plot=False):
 if __name__ == '__main__':
     np.random.seed(42)  # Set the random seed for reproducibility
 
-    # 0.08% error
+    # 0.03% error
     print("Test 1")
     test_HR(actual_bpm=100, noise_modifier=0.2, plot=False)
 
-    # 0.01% error
+    # 0.04% error
     print("Test 2")
     test_HR(actual_bpm=100, noise_modifier=0.3, plot=False)
 
-    # 0.07% error
+    # 0.02% error
     print("Test 3")
     test_HR(actual_bpm=100, noise_modifier=0.5, plot=False)
 
-    # 0.00% error
+    # 0.01% error
     print("Test 4")
     test_HR(actual_bpm=100, noise_modifier=4, plot=False)
 
-    # 0.99% error
+    # 0.85% error
     print("Test 5")
     test_HR(actual_bpm=100, noise_modifier=5, plot=False)
 
-    # 14.16% error
+    # 0.48% error
     print("Test 6")
     test_HR(actual_bpm=100, noise_modifier=6, plot=False)
 
-    # 16.43% error
+    # 16.51% error
     print("Test 7")
     test_HR(actual_bpm=100, noise_modifier=10, plot=False)
 
-    # 30.22% error
+    # 30.52% error
     print("Test 8")
     test_HR(actual_bpm=74, noise_modifier=8, plot=False)
 
-    # 33.20% error
+    # 33.65% error
     print("Test 9")
     test_HR(actual_bpm=82, noise_modifier=8, plot=False)
 
-    # 18.15% error
+    # 17.98% error
     print("Test 10")
     test_HR(actual_bpm=100, noise_modifier=8, plot=False)
