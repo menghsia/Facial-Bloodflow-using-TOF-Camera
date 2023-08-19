@@ -61,14 +61,18 @@ class PhaseTwo():
         # Define the landmarks that represent the vertices of the bounding box for each ROI
         # (used in _get_ROI_bounding_box_pixels())
         self.face_roi_definitions = {
-            'nose': np.array([197, 420, 456, 236]),
-            'forehead': np.array([110, 339, 10]),
-            'cheek_n_nose': np.array([118, 347, 412, 188]),
-            'left_cheek': np.array([132, 166, 215, 51]),
-            'right_cheek': np.array([373, 434, 359]),
-            'low_forehead': np.array([109, 338, 9]),
-            'left_eye': np.array([34, 161, 160, 159, 134, 154, 146, 145]),
-            'right_eye': np.array([264, 388, 387, 386, 363, 381, 375, 374])
+            'nose': np.array([196, 419, 455, 235]),
+            'forehead': np.array([109, 338, 9]),
+            # 'cheek_n_nose': np.array([117, 346, 411, 187]), # Gets 51.17 HR
+            'cheek_n_nose': np.array([116, 340, 433, 213]), # Gets 102.34 HR
+            # 'cheek_n_nose': np.array([31, 228, 229, 230, 231, 232, 233, 245, 465, 453, 452, 451, 450, 449, 448, 340, 345, 352, 376, 411, 427, 426, 294, 278, 360, 363, 281, 5, 51, 134, 131, 102, 203, 206, 207, 187, 147, 123, 116, 111]), # Gets 105.35 HR
+            'left_cheek': np.array([131, 165, 214, 50]),
+            'right_cheek': np.array([372, 433, 358]),
+            # 'low_forehead': np.array([109,338,336,107]),
+            'low_forehead': np.array([108, 337, 8]),
+            # 'low_forehead': np.array([109, 338, 9]),
+            'left_eye': np.array([33, 160, 159, 158, 133, 153, 145, 144]),
+            'right_eye': np.array([263, 387, 386, 385, 362, 380, 374, 373])
         }
 
         # These were some other ROIs that were defined, but unused:
@@ -598,8 +602,7 @@ class PhaseTwo():
         
         try:
             landmark_indices = self.face_roi_definitions[roi_name]
-            # landmarks_pixels is zero-indexed, but the landmark indices are 1-indexed
-            bounding_box_pixels = landmarks_pixels[landmark_indices - 1]
+            bounding_box_pixels = landmarks_pixels[landmark_indices]
         except KeyError:
             raise KeyError(f"ERROR: The provided roi_name \"{roi_name}\" does not match any of the predefined ROIs.")
 
