@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.signal import stft, welch, cwt, morlet
+from scipy.signal import stft, welch, cwt, morlet, butter, filtfilt
 import pywt
 
 class HeartRateAnalyzer:
@@ -87,9 +87,23 @@ class HeartRateAnalyzer:
         plt.tight_layout()
         plt.show()
 
+    def bandpass_filter(self, signal, lowcut, highcut, fs, order=5):
+        nyq = 0.5 * fs
+        low = lowcut / nyq
+        high = highcut / nyq
+        b, a = butter(order, [low, high], btype='band')
+        filtered_signal = filtfilt(b, a, signal)
+        return filtered_signal
+
     def calculate_HR(self, intensity_compensated, plot=False, sampling_rate=30):
         # Apply wavelet denoising
         intensity_compensated = self.wavelet_denoising(intensity_compensated)
+
+        # Only consider BPMs in the range of 30-250 BPM by applying a bandpass filter
+        # Convert the valid BPM range to frequency (Hz)
+        min_valid_freq = 30 / 60  # 30 BPM in Hz
+        max_valid_freq = 250 / 60  # 250 BPM in Hz
+        intensity_compensated = self.bandpass_filter(intensity_compensated, min_valid_freq, max_valid_freq, sampling_rate)
 
         # Detrend the data
         signal = intensity_compensated - np.poly1d(np.polyfit(np.linspace(0, len(intensity_compensated), len(intensity_compensated)), intensity_compensated, 1))(np.linspace(0, len(intensity_compensated), len(intensity_compensated)))
@@ -102,31 +116,15 @@ class HeartRateAnalyzer:
         fft_vals = np.fft.rfft(signal_windowed)
         fft_freqs = np.fft.rfftfreq(signal.size, d=1/30)  # Assuming constant sample interval
 
-        # Only consider BPMs in the range of 30-250 BPM
-        # Convert the valid BPM range to frequency (Hz)
-        min_valid_freq = 30 / 60  # 30 BPM in Hz
-        max_valid_freq = 250 / 60  # 250 BPM in Hz
-
-        # Create a mask for valid frequency range
-        valid_range_mask = (fft_freqs >= min_valid_freq) & (fft_freqs <= max_valid_freq)
-        
-        # Apply the mask to the FFT values
-        masked_fft_vals = fft_vals * valid_range_mask
-
-        # Find the dominant frequency bin
-        peak_index = np.argmax(np.abs(masked_fft_vals))
-        # Interpolate to find a more accurate frequency
-        dominant_frequency = self.interpolate_peak(fft_freqs, np.abs(masked_fft_vals), peak_index)
-
         # 1% error
         # # Find the dominant frequency
         # dominant_frequency = fft_freqs[np.argmax(np.abs(fft_vals))]
 
         # 0.07% error
-        # # Find the dominant frequency bin
-        # peak_index = np.argmax(np.abs(fft_vals))
-        # # Interpolate to find a more accurate frequency
-        # dominant_frequency = self.interpolate_peak(fft_freqs, np.abs(fft_vals), peak_index)
+        # Find the dominant frequency bin
+        peak_index = np.argmax(np.abs(fft_vals))
+        # Interpolate to find a more accurate frequency
+        dominant_frequency = self.interpolate_peak(fft_freqs, np.abs(fft_vals), peak_index)
         
         # 1.71% error
         # dominant_frequency = self.find_dominant_frequency(signal, sampling_rate)
@@ -189,7 +187,7 @@ if __name__ == '__main__':
     print("Test 3")
     test_HR(actual_bpm=100, noise_modifier=0.5, plot=False)
 
-    # 0.22% error
+    # 0.19% error
     print("Test 4")
     test_HR(actual_bpm=100, noise_modifier=4, plot=False)
 
@@ -197,10 +195,10 @@ if __name__ == '__main__':
     print("Test 5")
     test_HR(actual_bpm=100, noise_modifier=5, plot=False)
 
-    # 14.82% error
+    # 14.79% error
     print("Test 6")
-    test_HR(actual_bpm=100, noise_modifier=6, plot=True)
+    test_HR(actual_bpm=100, noise_modifier=6, plot=False)
 
-    # 79.21% error
+    # 79.22% error
     print("Test 7")
     test_HR(actual_bpm=100, noise_modifier=10, plot=False)
