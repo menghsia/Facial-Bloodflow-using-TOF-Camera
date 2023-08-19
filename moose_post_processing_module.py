@@ -74,7 +74,7 @@ class HeartRateAnalyzer:
         plt.title('Frequency Spectrum (Hz)')
         plt.xlabel('Frequency (Hz)')
         plt.ylabel('Magnitude')
-        plt.xlim([0, 5])  # Limiting x-axis to show only frequencies up to 5 Hz for clarity
+        plt.xlim([0, 4.2])  # Limiting x-axis to show only frequencies up to 250bpm/60s=4.2 Hz for clarity
 
         # Frequency Spectrum (displaying BPM)
         plt.subplot(3, 1, 3)
@@ -82,7 +82,7 @@ class HeartRateAnalyzer:
         plt.title('Frequency Spectrum (Heart Rate)')
         plt.xlabel('Heart Rate (BPM)')
         plt.ylabel('Magnitude')
-        plt.xlim([0, 300])  # Limiting x-axis to show only BPM values up to 300 bpm for clarity
+        plt.xlim([0, 250])  # Limiting x-axis to show only BPM values up to 250 bpm for clarity
 
         plt.tight_layout()
         plt.show()
