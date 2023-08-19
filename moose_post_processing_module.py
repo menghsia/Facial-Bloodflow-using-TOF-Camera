@@ -190,11 +190,11 @@ class HeartRateAnalyzer:
         # Apply wavelet denoising
         intensity_compensated = self.wavelet_denoising(intensity_compensated)
 
-        # Apply moving average filter
-        intensity_compensated = self.moving_average_filter(intensity_compensated, window_size=5)
+        # # Apply moving average filter
+        # intensity_compensated = self.moving_average_filter(intensity_compensated, window_size=5)
 
-        # Apply median filter
-        intensity_compensated = self.median_filter(intensity_compensated, kernel_size=5)
+        # # Apply median filter
+        # intensity_compensated = self.median_filter(intensity_compensated, kernel_size=5)
 
         # # Apply adaptive thresholding
         # intensity_compensated = self.adaptive_thresholding(intensity_compensated)
