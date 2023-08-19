@@ -8,3 +8,4 @@ matplotlib
 #matlabengine
 hdf5storage
 dill
+PyWavelets
