@@ -96,14 +96,14 @@ class HeartRateAnalyzer:
         return filtered_signal
 
     def calculate_HR(self, intensity_compensated, plot=False, sampling_rate=30):
-        # Apply wavelet denoising
-        intensity_compensated = self.wavelet_denoising(intensity_compensated)
-
         # Only consider BPMs in the range of 30-250 BPM by applying a bandpass filter
         # Convert the valid BPM range to frequency (Hz)
         min_valid_freq = 30 / 60  # 30 BPM in Hz
         max_valid_freq = 250 / 60  # 250 BPM in Hz
         intensity_compensated = self.bandpass_filter(intensity_compensated, min_valid_freq, max_valid_freq, sampling_rate)
+
+        # Apply wavelet denoising
+        intensity_compensated = self.wavelet_denoising(intensity_compensated)
 
         # Detrend the data
         signal = intensity_compensated - np.poly1d(np.polyfit(np.linspace(0, len(intensity_compensated), len(intensity_compensated)), intensity_compensated, 1))(np.linspace(0, len(intensity_compensated), len(intensity_compensated)))
@@ -175,30 +175,30 @@ def test_HR(actual_bpm, noise_modifier, plot=False):
 if __name__ == '__main__':
     np.random.seed(42)  # Set the random seed for reproducibility
 
-    # 0.08% error
+    # 0.07% error
     print("Test 1")
     test_HR(actual_bpm=100, noise_modifier=0.2, plot=False)
 
-    # 0.01% error
+    # 0.02% error
     print("Test 2")
     test_HR(actual_bpm=100, noise_modifier=0.3, plot=False)
 
-    # 0.04% error
+    # 0.07% error
     print("Test 3")
     test_HR(actual_bpm=100, noise_modifier=0.5, plot=False)
 
-    # 0.19% error
+    # 0.06% error
     print("Test 4")
     test_HR(actual_bpm=100, noise_modifier=4, plot=False)
 
-    # 1.19% error
+    # 0.98% error
     print("Test 5")
     test_HR(actual_bpm=100, noise_modifier=5, plot=False)
 
-    # 14.79% error
+    # 14.16% error
     print("Test 6")
     test_HR(actual_bpm=100, noise_modifier=6, plot=False)
 
-    # 79.22% error
+    # 16.41% error
     print("Test 7")
-    test_HR(actual_bpm=100, noise_modifier=10, plot=False)
+    test_HR(actual_bpm=100, noise_modifier=10, plot=True)
