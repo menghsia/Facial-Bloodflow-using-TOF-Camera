@@ -63,8 +63,8 @@ class PhaseTwo():
         self.face_roi_definitions = {
             'nose': np.array([196, 419, 455, 235]),
             'forehead': np.array([109, 338, 9]),
-            # 'cheek_n_nose': np.array([117, 346, 411, 187]), # CNN ROI 1: Gets 51.17 HR
-            'cheek_n_nose': np.array([116, 340, 433, 213]), # CNN ROI 2: Gets 102.34 HR
+            'cheek_n_nose': np.array([117, 346, 411, 187]), # CNN ROI 1: Gets 51.17 HR
+            # 'cheek_n_nose': np.array([116, 340, 433, 213]), # CNN ROI 2: Gets 102.34 HR
             # 'cheek_n_nose': np.array([31, 228, 229, 230, 231, 232, 233, 245, 465, 453, 452, 451, 450, 449, 448, 340, 345, 352, 376, 411, 427, 426, 294, 278, 360, 363, 281, 5, 51, 134, 131, 102, 203, 206, 207, 187, 147, 123, 116, 111]), # CNN ROI 3: Gets 105.35 HR
             'left_cheek': np.array([131, 165, 214, 50]),
             'right_cheek': np.array([372, 433, 358]),
