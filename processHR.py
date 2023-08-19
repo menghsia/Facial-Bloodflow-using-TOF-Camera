@@ -8,6 +8,7 @@ from scipy.fftpack import fft
 import math
 
 from depth_compensation import DepthCompensator
+from moose_post_processing_module import HeartRateAnalyzer
 
 
 class ProcessHR():
@@ -70,6 +71,10 @@ class ProcessHR():
         # Get HR Data
         HR_comp = self.getHR(HRsig, 600, Window=False)
         HR_ND = self.getHR(HRsigRaw, 600, Window=False)
+
+        # analyzer = HeartRateAnalyzer()
+        # HR_comp = analyzer.calculate_HR(HRsig, plot=False, sampling_rate=30)
+        # HR_ND = analyzer.calculate_HR(HRsigRaw, plot=False, sampling_rate=30)
 
         print(f'Main HR: {HR_comp}')
         print(f'Main HR_ND: {HR_ND}')
