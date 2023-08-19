@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.signal import stft, welch, cwt, morlet, butter, filtfilt
+from scipy.signal import stft, welch, cwt, morlet, butter, filtfilt, find_peaks
 import pywt
 
 class HeartRateAnalyzer:
@@ -94,16 +94,61 @@ class HeartRateAnalyzer:
         b, a = butter(order, [low, high], btype='band')
         filtered_signal = filtfilt(b, a, signal)
         return filtered_signal
+    
+    def find_dominant_frequency_weighted(self, fft_freqs, fft_vals, num_peaks=3):
+        # Finding peaks in the magnitude spectrum
+        peaks, _ = find_peaks(np.abs(fft_vals), distance=1)
+        
+        # Sorting the peaks based on their magnitudes (descending)
+        sorted_peaks = sorted(peaks, key=lambda x: np.abs(fft_vals[x]), reverse=True)
+        
+        # Taking only top 'num_peaks' peaks
+        prominent_peaks = sorted_peaks[:num_peaks]
+        
+        # Calculating the weighted frequency
+        total_weight = sum([np.abs(fft_vals[p]) for p in prominent_peaks])
+        weighted_freqs = sum([fft_freqs[p] * np.abs(fft_vals[p]) for p in prominent_peaks])
+        
+        dominant_frequency_weighted = weighted_freqs / total_weight
+        
+        return dominant_frequency_weighted
+    
+    def adaptive_thresholding(self, signal, window_length=150, factor=1.5):
+        """
+        Apply adaptive thresholding to the signal.
+        """
+        # Length of the signal
+        N = len(signal)
+
+        # Output signal after thresholding
+        thresholded_signal = np.zeros(N)
+        
+        # Calculate threshold for each window and apply it
+        for start in range(0, N, window_length):
+            end = min(start + window_length, N)
+            window = signal[start:end]
+            
+            # Median-based threshold
+            med = np.median(window)
+            # Compute the threshold for this window
+            threshold = med + factor * np.std(window)
+            
+            thresholded_signal[start:end] = np.where(window > threshold, window, 0)
+            
+        return thresholded_signal
 
     def calculate_HR(self, intensity_compensated, plot=False, sampling_rate=30):
         # Only consider BPMs in the range of 30-250 BPM by applying a bandpass filter
         # Convert the valid BPM range to frequency (Hz)
         min_valid_freq = 30 / 60  # 30 BPM in Hz
         max_valid_freq = 250 / 60  # 250 BPM in Hz
-        intensity_compensated = self.bandpass_filter(intensity_compensated, min_valid_freq, max_valid_freq, sampling_rate)
+        intensity_compensated = self.bandpass_filter(intensity_compensated, min_valid_freq, max_valid_freq, sampling_rate, order=1)
 
         # Apply wavelet denoising
         intensity_compensated = self.wavelet_denoising(intensity_compensated)
+
+        # # Apply adaptive thresholding
+        # intensity_compensated = self.adaptive_thresholding(intensity_compensated)
 
         # Detrend the data
         signal = intensity_compensated - np.poly1d(np.polyfit(np.linspace(0, len(intensity_compensated), len(intensity_compensated)), intensity_compensated, 1))(np.linspace(0, len(intensity_compensated), len(intensity_compensated)))
@@ -116,6 +161,13 @@ class HeartRateAnalyzer:
         fft_vals = np.fft.rfft(signal_windowed)
         fft_freqs = np.fft.rfftfreq(signal.size, d=1/30)  # Assuming constant sample interval
 
+        # Zero-padding to improve FFT resolution
+        # zero_padded_signal = np.pad(signal_windowed, (0, len(signal_windowed)), 'constant')
+
+        # # Compute the FFT
+        # fft_vals = np.fft.rfft(zero_padded_signal)
+        # fft_freqs = np.fft.rfftfreq(len(zero_padded_signal), d=1/30)  # Assuming constant sample interval
+
         # 1% error
         # # Find the dominant frequency
         # dominant_frequency = fft_freqs[np.argmax(np.abs(fft_vals))]
@@ -125,6 +177,16 @@ class HeartRateAnalyzer:
         peak_index = np.argmax(np.abs(fft_vals))
         # Interpolate to find a more accurate frequency
         dominant_frequency = self.interpolate_peak(fft_freqs, np.abs(fft_vals), peak_index)
+
+        # # Use power spectrum for peak detection
+        # power_spectrum = np.abs(fft_vals)**2
+        # peak_index = np.argmax(power_spectrum)
+
+        # # Interpolate to find a more accurate frequency
+        # dominant_frequency = self.interpolate_peak(fft_freqs, power_spectrum, peak_index)
+
+        # To compute the weighted dominant frequency
+        # dominant_frequency = self.find_dominant_frequency_weighted(fft_freqs, fft_vals)
         
         # 1.71% error
         # dominant_frequency = self.find_dominant_frequency(signal, sampling_rate)
@@ -189,11 +251,11 @@ def test_HR(actual_bpm, noise_modifier, plot=False):
 if __name__ == '__main__':
     np.random.seed(42)  # Set the random seed for reproducibility
 
-    # 0.07% error
+    # 0.08% error
     print("Test 1")
     test_HR(actual_bpm=100, noise_modifier=0.2, plot=False)
 
-    # 0.02% error
+    # 0.01% error
     print("Test 2")
     test_HR(actual_bpm=100, noise_modifier=0.3, plot=False)
 
@@ -201,11 +263,11 @@ if __name__ == '__main__':
     print("Test 3")
     test_HR(actual_bpm=100, noise_modifier=0.5, plot=False)
 
-    # 0.06% error
+    # 0.00% error
     print("Test 4")
     test_HR(actual_bpm=100, noise_modifier=4, plot=False)
 
-    # 0.98% error
+    # 0.99% error
     print("Test 5")
     test_HR(actual_bpm=100, noise_modifier=5, plot=False)
 
@@ -213,6 +275,18 @@ if __name__ == '__main__':
     print("Test 6")
     test_HR(actual_bpm=100, noise_modifier=6, plot=False)
 
-    # 16.41% error
+    # 16.43% error
     print("Test 7")
     test_HR(actual_bpm=100, noise_modifier=10, plot=False)
+
+    # 30.22% error
+    print("Test 8")
+    test_HR(actual_bpm=74, noise_modifier=8, plot=False)
+
+    # 33.20% error
+    print("Test 9")
+    test_HR(actual_bpm=82, noise_modifier=8, plot=False)
+
+    # 18.15% error
+    print("Test 10")
+    test_HR(actual_bpm=100, noise_modifier=8, plot=False)
