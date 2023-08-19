@@ -144,7 +144,21 @@ class HeartRateAnalyzer:
         if plot:
             self.plot_signal_and_spectrum(np.linspace(0, len(intensity_compensated), len(intensity_compensated)), signal, fft_freqs, np.abs(fft_vals), bpm_values)
         
-        return calculated_bpm, dominant_frequency
+        return calculated_bpm
+    
+    def calculate_HR_chunks(self, intensity_compensated, chunk_duration, plot=False, sampling_rate=30):
+        num_samples = len(intensity_compensated)
+        chunk_samples = int(chunk_duration * sampling_rate)
+        
+        bpm_results = []
+        for i in range(0, num_samples, chunk_samples):
+            chunk = intensity_compensated[i:i + chunk_samples]
+            if len(chunk) == chunk_samples:  # Exclude any leftover chunk
+                bpm = self.calculate_HR(chunk, plot=plot, sampling_rate=sampling_rate)
+                bpm_results.append(bpm)
+        
+        # Return the average BPM over all chunks
+        return np.mean(bpm_results)
 
 
 def test_HR(actual_bpm, noise_modifier, plot=False):
@@ -162,12 +176,12 @@ def test_HR(actual_bpm, noise_modifier, plot=False):
 
     # Calculate the BPM
     analyzer = HeartRateAnalyzer()
-    calculated_bpm, dominant_frequency = analyzer.calculate_HR(intensity_compensated, plot=plot, sampling_rate=sampling_rate)
+    calculated_bpm = analyzer.calculate_HR(intensity_compensated, plot=plot, sampling_rate=sampling_rate)
+    # calculated_bpm = analyzer.calculate_HR_chunks(intensity_compensated, chunk_duration=5, plot=plot, sampling_rate=sampling_rate)
 
     # Calculate % error BPM
     percent_error_bpm = np.abs(actual_bpm - calculated_bpm) / actual_bpm * 100
 
-    print(f"Dominant Frequency: {dominant_frequency:.2f} Hz (Actual: {freq:.2f} Hz)")
     print(f"Equivalent Heart Rate: {calculated_bpm:.2f} bpm (Actual: {actual_bpm:.2f} bpm)")
     print(f"Percent Error BPM: {percent_error_bpm:.2f}%")
 
@@ -201,4 +215,4 @@ if __name__ == '__main__':
 
     # 16.41% error
     print("Test 7")
-    test_HR(actual_bpm=100, noise_modifier=10, plot=True)
+    test_HR(actual_bpm=100, noise_modifier=10, plot=False)
