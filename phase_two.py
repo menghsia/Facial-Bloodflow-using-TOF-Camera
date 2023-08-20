@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 import scipy
 
 import csv
+import math
 
 
 class PhaseTwo():
@@ -559,12 +560,18 @@ class PhaseTwo():
                 intensity_signal_current_file[roi_idx, frame_idx] = np.average(frame_confidence[np.where(pixels_in_ROI > 0)])
                 
                 # Calculate and save averaged depth for the ROI
-                depth_signal_current_file[roi_idx, frame_idx] = np.sqrt(
-                    np.average(frame_x[np.where(pixels_in_ROI > 0)]) ** 2 +
-                    np.average(frame_y[np.where(pixels_in_ROI > 0)]) ** 2 +
-                    np.average(frame_z[np.where(pixels_in_ROI > 0)]) ** 2
-                )
-        
+                x_in_ROI = np.float64(frame_x[np.where(pixels_in_ROI > 0)])
+                y_in_ROI = np.float64(frame_y[np.where(pixels_in_ROI > 0)])
+                z_in_ROI = np.float64(frame_z[np.where(pixels_in_ROI > 0)])
+
+                depth_signal_current_file[roi_idx, frame_idx] = np.average(np.sqrt(x_in_ROI**2 + y_in_ROI**2 + z_in_ROI**2))
+
+                # depth_signal_current_file[roi_idx, frame_idx] = np.sqrt(
+                #     np.average(frame_x[np.where(pixels_in_ROI > 0)]) ** 2 +
+                #     np.average(frame_y[np.where(pixels_in_ROI > 0)]) ** 2 +
+                #     np.average(frame_z[np.where(pixels_in_ROI > 0)]) ** 2)
+
+                #print(depth_signal_current_file)
         # Calculate and save eye aspect ratio for the ROI
         ear_signal_current_file[frame_idx] = (left_eye_aspect_ratio + right_eye_aspect_ratio) / 2
         

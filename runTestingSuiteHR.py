@@ -343,5 +343,5 @@ def process(inputDir, outputDir, calcHR = False, calcRR = False):
             
 
 if __name__ == '__main__':
-    process("Entron Testing", "HR_Data_8_11", calcHR = True, calcRR=False)
+    process("7-6-23", "HR_Data_7_6", calcHR = True, calcRR=False)
 
