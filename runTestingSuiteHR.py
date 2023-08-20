@@ -178,7 +178,7 @@ def bin_to_bfsig(skvs_dir: str):
     """
     # Tag regions in face and generate bloodflow signature .mat file
     # myFaceMeshDetector = PhaseTwo(input_mats_dir="./skvs/mat/", output_bfsig_name="auto_bfsig")
-    myPhaseTwo = PhaseTwo(input_dir=os.path.join(skvs_dir, "mat"), output_filename="auto_bfsig", visualize_FaceMesh=False, visualize_ROIs=False, doRR=True)
+    myPhaseTwo = PhaseTwo(input_dir=os.path.join(skvs_dir, "mat"), output_filename="auto_bfsig", visualize_FaceMesh=False, visualize_ROIs=False, doRR=False)
     myPhaseTwo.run()
     RR = myPhaseTwo.RR
     myPhaseTwo.clean_up()
@@ -343,5 +343,5 @@ def process(inputDir, outputDir, calcHR = False, calcRR = False):
             
 
 if __name__ == '__main__':
-    process("7-6-23", "HR_Data_7_6", calcHR = True, calcRR=False)
+    process("lab_test_clips/7-6-23", "moose_HR_Data_7_6", calcHR=True, calcRR=False)
 

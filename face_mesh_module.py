@@ -107,6 +107,10 @@ class FaceMeshDetector():
                     # Store pixel coordinates in array
                     landmarks_pixels[id] = (x, y)
 
+                    # if draw:
+                    #     # Display the landmark index on the visualization
+                    #     cv2.putText(image, str(id), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 255), 1, cv2.LINE_AA)
+
         return face_detected, landmarks_pixels
     
 
@@ -129,10 +133,77 @@ class FaceMeshDetector():
         y_px = min(math.floor(normalized_y * image_height), image_height - 1)
 
         return x_px, y_px
+    
+
+    def _draw_ROI_bounding_box(self, bounding_box_pixels: np.ndarray, frame_grayscale_rgb: np.ndarray, roi_name: str) -> None:
+        """
+        Draws the bounding box for an ROI on the frame image along with the ROI name.
+
+        Args:
+            bounding_box_pixels (np.ndarray): An array of shape (n, 2), where n is the number of landmarks
+                that form the bounding box for the requested ROI. Each row represents the (x, y)
+                coordinates of a landmark pixel.
+            frame_grayscale_rgb (np.ndarray): The frame image in grayscale RGB format.
+            roi_name (str): The name of the requested ROI. This is the text that will be displayed
+                above the bounding box.
+
+        Returns:
+            None
+        
+        NOTE: After drawing the bounding box and displaying the image, the function will wait for
+        the user to press any key before continuing.
+
+        NOTE: The usage of this function requires multi-threading to be disabled (aka num_threads=1).
+        """
+
+        # Draw the bounding box on the frame image
+        cv2.polylines(frame_grayscale_rgb, [bounding_box_pixels], isClosed=True, color=(0, 0, 255), thickness=2)
+
+        # Add roi_name as text above the bounding box
+        text_position = (bounding_box_pixels[0, 0], bounding_box_pixels[0, 1] - 10)
+        cv2.putText(frame_grayscale_rgb, roi_name, text_position, cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+
+        # Display the image
+        cv2.imshow("ROI Bounding Boxes", frame_grayscale_rgb)
+        cv2.waitKey(0)
+    
+        return
+    
+
+    def _get_ROI_bounding_box_pixels(self, landmarks_pixels: np.ndarray, roi_name: str, landmark_indices) -> np.ndarray:
+        """
+        Takes in the pixel coordinates of all face landmarks and returns the pixel coordinates
+        of the face landmarks that represent the bounding box for the requested ROI.
+
+        Args:
+            landmarks_pixels (np.ndarray): An array of shape (468, 2) representing the pixel coordinates (x, y)
+                for each of the 468 total face landmarks detected. The i-th row corresponds to the i-th landmark
+                (zero-indexed, so row 0 is landmark 1).
+            roi_name (str): The name of the requested ROI. Must be one of the predefined ROIs in
+                `self.face_roi_definitions`.
+
+        Returns:
+            np.ndarray: An array of shape (n, 2), where n is the number of landmarks
+                that form the bounding box for the requested ROI. Each row represents the (x, y)
+                coordinates of a landmark pixel.
+
+        Raises:
+            KeyError: If the provided roi_name does not match any of the predefined ROIs.
+
+        Note:
+            The returned bounding_box_pixels is in the same format as the input landmarks_pixels,
+            with each array of shape (2,) representing the (x, y) coordinates of a landmark pixel.
+        """
+        bounding_box_pixels = np.array([])
+        
+        bounding_box_pixels = landmarks_pixels[landmark_indices]
+
+        return bounding_box_pixels
 
 
 def main():
     input_video = "learning_mediapipe/videos/test_video.mp4"
+    # input_video = "learning_mediapipe/videos/test_video_2.mp4"
     video = cv2.VideoCapture(input_video)
     if not video.isOpened():
         print("Error opening video file:", input_video)
@@ -155,6 +226,7 @@ def main():
         
         # if face_detected:
         #     # Do something with the landmarks
+        #     roi_cheek_n_nose_landmarks = np.array([31, 228, 229, 230, 231, 232, 233, 245, 465, 453, 452, 451, 450, 449, 448, 340, 345, 352, 376, 411, 427, 426, 294, 278, 360, 363, 281, 5, 51, 134, 131, 102, 203, 206, 207, 187, 147, 123, 116, 111])
 
         # Calculate and overlay FPS
 
