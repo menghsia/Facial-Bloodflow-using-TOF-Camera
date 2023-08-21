@@ -69,8 +69,8 @@ class ProcessHR():
 
         ## getHR() NEEDS FIXING ##
         # Get HR Data
-        HR_comp = self.getHR(HRsig, 600, Window=False)
-        HR_ND = self.getHR(HRsigRaw, 600, Window=False)
+        HR_comp = self.getHR(HRsig, 600, Window=True)
+        HR_ND = self.getHR(HRsigRaw, 600, Window=True)
 
         # analyzer = HeartRateAnalyzer()
         # HR_comp = analyzer.calculate_HR(HRsig, plot=False, sampling_rate=30)
