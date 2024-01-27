@@ -257,10 +257,42 @@ class PhaseTwo():
 
         
         chest_detector = ChestROI()
+        ############################# using tablet code section #########################################
+        # # Load the current .ply file 
+        # keyDict = {'x_value', 'y_value', 'distance', 'grayscale'}
+        # mat_data = dict([(key, []) for key in keyDict])
 
-        # Load the current .ply file 
+        # f = open("PLY/data.ply", "r")
+
+        # # Read header -- get rid of header data
+        # for x in range(0,11):
+        #     f.readline()
+
+        # for line in f:
+        #     #print(line)
+        #     nums = line.split(" ")
+        #     mat_data['x_value'].append(nums[0])
+        #     mat_data['y_value'].append(nums[1])
+        #     mat_data['distance'].append(nums[2])
+        #     mat_data['grayscale'].append(nums[3])
+
+        # print("Data loading complete\n")
+        # #Issue here
+        # #print("mat_data", mat_data['grayscale'].shape)
+        # frame_num = int(len(mat_data['grayscale'])/(224*171))
+
+        # x_all=np.reshape(mat_data['x_value'],(frame_num,171,224)).astype('float')
+        # y_all=np.reshape(mat_data['y_value'],(frame_num,171,224)).astype('float')
+        # z_all=np.reshape(mat_data['distance'],(frame_num,171,224)).astype('float')
+        # confidence_all=np.reshape(mat_data['grayscale'],(frame_num,171,224)).astype('int')
         
+        # num_frames = np.shape(confidence_all)[1]
+        # intensity_signal_current_file = np.zeros((num_ROIs, num_frames))
+        # depth_signal_current_file = np.zeros((num_ROIs, num_frames))
+        # ear_signal_current_file = np.zeros(num_frames)
+        ############################# END of tablet code section #########################################
         
+        ############################# using plyfile section #########################################
 
         plydata = PlyData.read(os.path.join(self.input_dir, filename))
         # read in all 600 frames of .ply data
@@ -324,7 +356,7 @@ class PhaseTwo():
         y_all = y_all.reshape([self.image_height, self.image_width, num_frames])
         z_all = z_all.reshape([self.image_height, self.image_width, num_frames])
         confidence_all = confidence_all.reshape([self.image_height, self.image_width, num_frames])
-        
+        ############################# using plyfile section #########################################
         print(f'shape of x_all: {x_all.shape}')
         print(f'shape of y_all: {y_all.shape}')
         print(f'shape of z_all: {z_all.shape}')
