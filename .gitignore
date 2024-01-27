@@ -12,6 +12,8 @@ skvs/mat/20221003-Sparsh_Fex_bfsig.mat
 .idea/
 other_skvs/
 build/
+PLY/
+PLY_archive/
 # This is a sample .gitignore file that's useful for C++ projects.
 #
 # Add this file to the root of your git repo.  Name it .gitignore

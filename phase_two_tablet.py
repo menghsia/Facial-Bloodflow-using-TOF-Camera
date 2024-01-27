@@ -357,7 +357,7 @@ class PhaseTwo():
 
             # Convert grayscale image to "RGB" (n,d,3)
             frame_grayscale_rgb = cv2.cvtColor(frame_grayscale, cv2.COLOR_GRAY2RGB)
-
+            
             # Get pixel locations of all face landmarks
             #TODO: no face detected 
             face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=self.visualize_FaceMesh)
@@ -367,6 +367,7 @@ class PhaseTwo():
                 self.chestCalculations(chest_ROIs, frame_x, frame_y, frame_z, frame_confidence)
 
             if face_detected:
+                print(f'face detected for frame {frame_idx}')
                 multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb))
 
             if self.visualize_FaceMesh or self.visualize_ROIs:
