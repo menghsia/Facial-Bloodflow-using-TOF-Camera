@@ -8,8 +8,9 @@ from typing import Optional
 import numpy
 from plyfile import PlyData, PlyElement
 
-from phase_two_tablet import PhaseTwo  
+from phase_two_tablet import PhaseTwo
 from processHR import ProcessHR
+# from phase_two_tablet import PhaseTwo
 
 # Steps:
 # - Use Automotive Suite to record a video clip (.skv file)
@@ -206,7 +207,7 @@ def bin_to_bfsig(skv_dir: str):
     return
 
 
-def ply_to_bfsig(ply_dir: str):
+def ply_to_bfsig(ply_dir: str, i: int):
     """
     Take all .ply files in ./PLY/ and convert to bloodflow signatures .mat using phase_two_tablet.py and save output to ./PLY/mat/
     
@@ -217,8 +218,8 @@ def ply_to_bfsig(ply_dir: str):
     """
     # Tag regions in face and generate bloodflow signature .mat file
     # myFaceMeshDetector = PhaseTwo(input_mats_dir="./skvs/mat/", output_bfsig_name="auto_bfsig")
-    myPhaseTwo = PhaseTwo(input_dir=os.path.join(ply_dir), output_filename="auto_bfsig", visualize_FaceMesh=False, visualize_ROIs=False, doRR=False)
-    myPhaseTwo.run()
+    myPhaseTwo = PhaseTwo(input_dir=os.path.join(ply_dir), output_filename="auto_bfsig", visualize_FaceMesh=False, visualize_ROIs=False, doRR=False, file_dir=ply_dir)
+    myPhaseTwo.run(i)
     myPhaseTwo.clean_up()
 
     return
@@ -235,7 +236,7 @@ def bfsig_to_plot(skvs_dir):
 def ply_bfsig_plot(ply_dir):
     # Run plotting matlab script
     # Create path to matlab script
-    processHR = ProcessHR(input_file=os.path.join(ply_dir, "mat", "auto_bfsig"))
+    processHR = ProcessHR(input_file=ply_dir)
     processHR.run()
     return processHR.time
 
@@ -276,29 +277,33 @@ if __name__ == '__main__':
 
     ply_dir = os.path.join(os.getcwd(), 'PLY') # get path to the PLY directory
 
-    check_for_plys(ply_dir)
     
 
 
     
     
 
-    if args.bin_to_bfsig:
+    # if args.bin_to_bfsig:
+    #     start_time = time.time()
+    #     for i in range (1, 13):
+    #         print(f'Processing {i}.ply')
+    #         file_dir = ply_dir + f"/{i}.ply"
+    #         ply_to_bfsig(file_dir, i)
+    #         end_time = time.time()
+    #         print("ply_to_bfsig() took " + str(end_time - start_time) + " seconds to run")
+    #         main_end_time = time.time()
+    #         plotting_time = 0
+    #         # if args.bfsig_to_plot:
+    #         #     plotting_time = ply_bfsig_plot(ply_dir)
+    #         # print(f"run.py took {main_end_time - main_start_time + plotting_time} seconds to run")
+    
+    mat_dir = os.path.join(os.getcwd(), 'PLY/mat')
+    if args.bfsig_to_plot:
         start_time = time.time()
-        ply_to_bfsig(ply_dir)
-        end_time = time.time()
-        print("ply_to_bfsig() took " + str(end_time - start_time) + " seconds to run")
         
-
-    main_end_time = time.time()
-
-    plotting_time = 0
-    # if args.bfsig_to_plot:
-    #     plotting_time = ply_bfsig_plot(ply_dir)
-
-    print('Done!')
-
-    # comment for commit
-
-    print(f"run.py took {main_end_time - main_start_time + plotting_time} seconds to run")
-
+        for i in range (1, 13):
+            print(f'Processing {i}.mat')
+            file_dir = mat_dir + f"/{i}"
+            print(file_dir)
+            plotting_time = ply_bfsig_plot(file_dir)
+            end_time = time.time()

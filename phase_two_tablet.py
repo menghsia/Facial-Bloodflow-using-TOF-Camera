@@ -25,7 +25,7 @@ class PhaseTwo():
     This Phase two version integrates .ply files as input
     """
 
-    def __init__(self, input_dir: str, output_filename: str, image_width: int = 224, image_height: int = 171, visualize_FaceMesh=False, visualize_ROIs=False, doRR = False):
+    def __init__(self, input_dir: str, output_filename: str, image_width: int = 224, image_height: int = 171, visualize_FaceMesh=False, visualize_ROIs=False, doRR = False, file_dir = ""):
         """
         Initialize class variables.
 
@@ -60,6 +60,7 @@ class PhaseTwo():
         self.RR = None
         self.doRR = doRR
 
+        self.file_dir = file_dir
 
         # TODO: we might not need this for the .ply file processing
         # Define the landmarks that represent the vertices of the bounding box for each ROI
@@ -121,7 +122,7 @@ class PhaseTwo():
         # Initialize the array containing all 600 cheek_n_nose masks
         # self.cheek_n_nose_masks = np.zeros((600, 480, 640), dtype=np.uint8)
     
-    def run(self) -> None:
+    def run(self, i: int) -> None:
         """
         Run the face mesh detection and intensity signal extraction.
         """
@@ -141,15 +142,15 @@ class PhaseTwo():
         self.ear_signal = np.zeros((1))
 
         # Get list of all input files in input_mats_dir (./PLY/)
-        filelist = []
-        for filename in os.listdir(self.input_dir):
-            # load .ply files only
-            filelist.append(filename)
+        # filelist = []
+        # for filename in os.listdir(self.input_dir):
+        #     # load .ply files only
+        #     filelist.append(filename)
 
         # Load and process every input video file. Track and map face using MediaPipe.
 
-        file_num = 0
-        num_files_to_process = len(filelist)
+        file_num = 1
+        num_files_to_process = 1
         
         # Define MediaPipe detectors
         face_mesh_detector = FaceMeshDetector(static_image_mode=False, max_num_faces=1, min_detection_confidence=0.5, min_tracking_confidence=0.5)
@@ -157,11 +158,16 @@ class PhaseTwo():
         # Loop through each file
         # TODO:  I think each file is a video clip? But why is there multiple clips? 20s each? 
         # TODO: ply files are 10fps and we have 600frames recorded 
-        for filename in filelist:
-            file_num = file_num + 1
+        # for filename in filelist:
+        #     file_num = file_num + 1
             
-            # Process the file
-            self._process_file(file_num, num_files_to_process, filename, num_ROIs, face_mesh_detector)
+        #     # Process the file
+        
+        # get directory of self.filename
+        
+        
+        
+        self._process_file(file_num, num_files_to_process, self.file_dir, num_ROIs, face_mesh_detector)
         
         # # Load Alex data from alex_outputdata.mat
         # alex_outputdata = loadmat("alex_outputdata.mat")
@@ -216,12 +222,12 @@ class PhaseTwo():
         mdic = {"Depth": self.depth_signals, 'I_raw': self.intensity_signals, 'EAR': self.ear_signal} # EAR: eye aspect ratio
         
         # check if there's a mat directory, if not, create one and store the .mat file there
-        mat_dir = os.path.join(self.input_dir, 'mat')
+        mat_dir = os.path.join("/Users/thatblue340/Documents/GitHub/facial-bloodflow-tof/PLY", 'mat')
         
         if not os.path.exists(mat_dir):
             os.makedirs(mat_dir)
         
-        mat_dir = os.path.join(mat_dir, self.output_filename + '.mat')
+        mat_dir = os.path.join(mat_dir, str(i) + '.mat')
         
         print(f'saved .math file to {mat_dir}')
         savemat(mat_dir, mdic)
@@ -258,113 +264,118 @@ class PhaseTwo():
         
         chest_detector = ChestROI()
         ############################# using tablet code section #########################################
-        # # Load the current .ply file 
-        # keyDict = {'x_value', 'y_value', 'distance', 'grayscale'}
-        # mat_data = dict([(key, []) for key in keyDict])
+        # Load the current .ply file 
+        keyDict = {'x_value', 'y_value', 'distance', 'grayscale'}
+        mat_data = dict([(key, []) for key in keyDict])
 
-        # f = open("PLY/data.ply", "r")
+        f = open(filename, "r")
 
-        # # Read header -- get rid of header data
-        # for x in range(0,11):
-        #     f.readline()
+        # Read header -- get rid of header data
+        for x in range(0,11):
+            f.readline()
 
-        # for line in f:
-        #     #print(line)
-        #     nums = line.split(" ")
-        #     mat_data['x_value'].append(nums[0])
-        #     mat_data['y_value'].append(nums[1])
-        #     mat_data['distance'].append(nums[2])
-        #     mat_data['grayscale'].append(nums[3])
-
-        # print("Data loading complete\n")
-        # #Issue here
-        # #print("mat_data", mat_data['grayscale'].shape)
-        # frame_num = int(len(mat_data['grayscale'])/(224*171))
-
-        # x_all=np.reshape(mat_data['x_value'],(frame_num,171,224)).astype('float')
-        # y_all=np.reshape(mat_data['y_value'],(frame_num,171,224)).astype('float')
-        # z_all=np.reshape(mat_data['distance'],(frame_num,171,224)).astype('float')
-        # confidence_all=np.reshape(mat_data['grayscale'],(frame_num,171,224)).astype('int')
+        for line in f:
+            #print(line)
+            nums = line.split(" ")
+            mat_data['x_value'].append(nums[0])
+            mat_data['y_value'].append(nums[1])
+            mat_data['distance'].append(nums[2])
+            mat_data['grayscale'].append(nums[3])
         
-        # num_frames = np.shape(confidence_all)[1]
-        # intensity_signal_current_file = np.zeros((num_ROIs, num_frames))
-        # depth_signal_current_file = np.zeros((num_ROIs, num_frames))
-        # ear_signal_current_file = np.zeros(num_frames)
+        print("Data loading complete\n")
+        #Issue here
+        #print("mat_data", mat_data['grayscale'].shape)
+        frame_num = int(len(mat_data['grayscale'])/(224*171))
+
+        x_all=np.reshape(mat_data['x_value'],(frame_num,171,224)).astype('float')
+        y_all=np.reshape(mat_data['y_value'],(frame_num,171,224)).astype('float')
+        z_all=np.reshape(mat_data['distance'],(frame_num,171,224)).astype('float')
+        confidence_all=np.reshape(mat_data['grayscale'],(frame_num,171,224)).astype('int')
+        
+        x_all = np.transpose(x_all, (1, 2, 0))
+        y_all = np.transpose(y_all, (1, 2, 0))
+        z_all = np.transpose(z_all, (1, 2, 0))
+        confidence_all = np.transpose(confidence_all, (1, 2, 0))
+        
+        num_frames = np.shape(confidence_all)[2]
+        intensity_signal_current_file = np.zeros((num_ROIs, num_frames))
+        depth_signal_current_file = np.zeros((num_ROIs, num_frames))
+        ear_signal_current_file = np.zeros(num_frames)
         ############################# END of tablet code section #########################################
         
         ############################# using plyfile section #########################################
 
-        plydata = PlyData.read(os.path.join(self.input_dir, filename))
-        # read in all 600 frames of .ply data
-        frame_num = 300
-        x_all = []
-        y_all = []
-        z_all = []
-        confidence_all = []
+    #     plydata = PlyData.read(os.path.join(self.input_dir, filename))
+    #     # read in all 600 frames of .ply data
+    #     frame_num = 300
+    #     x_all = []
+    #     y_all = []
+    #     z_all = []
+    #     confidence_all = []
         
-    # mat_data['x_value'].append(nums[0])
-    # mat_data['y_value'].append(nums[1])
-    # mat_data['distance'].append(nums[2])
-    # mat_data['grayscale'].append(nums[3])
-        for element in plydata.elements[0].data:
-            x_all.append(element[0])
-            y_all.append(element[1])
-            z_all.append(element[2])
-            confidence_all.append(element[3])
+    # # mat_data['x_value'].append(nums[0])
+    # # mat_data['y_value'].append(nums[1])
+    # # mat_data['distance'].append(nums[2])
+    # # mat_data['grayscale'].append(nums[3])
+    #     for element in plydata.elements[0].data:
+    #         x_all.append(element[0]*100)
+    #         y_all.append(element[1]*100)
+    #         z_all.append(element[2]*100)
+    #         confidence_all.append(element[3])
 
-        # print lengths of x, y, z, confidence
-        print(f"Length of x_all: {len(x_all)}")
+    #     # print lengths of x, y, z, confidence
+    #     print(f"Length of x_all: {len(x_all)}")
         
-        #reshape x y z confidence into arrays 
-        x_all=np.reshape(x_all,(38304, frame_num)).astype('float')
-        y_all=np.reshape(y_all,(38304, frame_num)).astype('float')
-        z_all=np.reshape(z_all,(38304, frame_num)).astype('float')
-        confidence_all=np.reshape(confidence_all,(38304, frame_num)).astype('int')
+    #     #reshape x y z confidence into arrays 
+    #     x_all=np.reshape(x_all,(38304, frame_num)).astype('float')
+    #     y_all=np.reshape(y_all,(38304, frame_num)).astype('float')
+    #     z_all=np.reshape(z_all,(38304, frame_num)).astype('float')
+    #     confidence_all=np.reshape(confidence_all,(38304, frame_num)).astype('int')
         
         
-        # print first 10 of x,y,z,confidence
-        # Sony camera is (307200, 600), which is (480*640, 600) for each shape
-        # we need to make x,y,z,confidence into (600, 307200) too, from ply file
-        print(x_all[:10])
-        print(y_all[:10])
-        print(z_all[:10])
-        print(confidence_all[:10])
+    #     # print first 10 of x,y,z,confidence
+    #     # Sony camera is (307200, 600), which is (480*640, 600) for each shape
+    #     # we need to make x,y,z,confidence into (600, 307200) too, from ply file
+    #     print(x_all[:10])
+    #     print(y_all[:10])
+    #     print(z_all[:10])
+    #     print(confidence_all[:10])
         
 
-        # Get number of frames (columns) in this video clip
-        # num_frames = np.size(gray_all, 1)
-        num_frames = np.shape(confidence_all)[1]
+    #     # Get number of frames (columns) in this video clip
+    #     # num_frames = np.size(gray_all, 1)
+    #     num_frames = np.shape(confidence_all)[1]
 
-        # ROI indices:
-        # 0: nose
-        # 1: forehead
-        # 2: cheek_and_nose
-        # 3: left_cheek
-        # 4: right_cheek
-        # 5: low_forehead
-        # 6: palm
+    #     # ROI indices:
+    #     # 0: nose
+    #     # 1: forehead
+    #     # 2: cheek_and_nose
+    #     # 3: left_cheek
+    #     # 4: right_cheek
+    #     # 5: low_forehead
+    #     # 6: palm
 
-        # Create arrays to store intensity and depth signals for all ROIs in this video clip (num_ROIs, num_frames) = (7, 600)
+    #     # Create arrays to store intensity and depth signals for all ROIs in this video clip (num_ROIs, num_frames) = (7, 600)
         
-        intensity_signal_current_file = np.zeros((num_ROIs, num_frames))
-        depth_signal_current_file = np.zeros((num_ROIs, num_frames))
-        ear_signal_current_file = np.zeros(num_frames)
-        # 224*117
-        # Each array is currently (height*width, num_frames) = (224*117, num_frames) = (26208, num_frames)
-        # Reshape to (height, width, num_frames) = (224, 117, num_frames)
-        x_all = x_all.reshape([self.image_height, self.image_width, num_frames])
-        y_all = y_all.reshape([self.image_height, self.image_width, num_frames])
-        z_all = z_all.reshape([self.image_height, self.image_width, num_frames])
-        confidence_all = confidence_all.reshape([self.image_height, self.image_width, num_frames])
+    #     intensity_signal_current_file = np.zeros((num_ROIs, num_frames))
+    #     depth_signal_current_file = np.zeros((num_ROIs, num_frames))
+    #     ear_signal_current_file = np.zeros(num_frames)
+    #     # 224*117
+    #     # Each array is currently (height*width, num_frames) = (224*117, num_frames) = (26208, num_frames)
+    #     # Reshape to (height, width, num_frames) = (224, 117, num_frames)
+    #     x_all = x_all.reshape([self.image_height, self.image_width, num_frames])
+    #     y_all = y_all.reshape([self.image_height, self.image_width, num_frames])
+    #     z_all = z_all.reshape([self.image_height, self.image_width, num_frames])
+    #     confidence_all = confidence_all.reshape([self.image_height, self.image_width, num_frames])
         ############################# using plyfile section #########################################
         print(f'shape of x_all: {x_all.shape}')
         print(f'shape of y_all: {y_all.shape}')
         print(f'shape of z_all: {z_all.shape}')
         print(f'shape of confidence_all: {confidence_all.shape}')
-        print(x_all[:10])
-        print(y_all[:10])
-        print(z_all[:10])
-        print(confidence_all[:10])
+        # print(x_all[:10])
+        # print(y_all[:10])
+        # print(z_all[:10])
+        # print(confidence_all[:10])
         # Used to calculate FPS
         previous_time = 0
         start_time = time.time()
@@ -373,11 +384,17 @@ class PhaseTwo():
         
         # Loop through all frames
         for frame_idx in range(num_frames):
+            # frame_x = x_all[frame_idx, :, :]
+            # frame_y = y_all[frame_idx, :, :]
+            # frame_z = z_all[frame_idx, :, :]
+            # frame_confidence = confidence_all[frame_idx, :, :]
+            
             frame_x = x_all[:, :, frame_idx]
             frame_y = y_all[:, :, frame_idx]
             frame_z = z_all[:, :, frame_idx]
             frame_confidence = confidence_all[:, :, frame_idx]
-
+            
+            
             # Track face and extract intensity and depth for all ROIs in this frame
 
             # Convert the frame's confidence values to a grayscale image (n,d)
@@ -399,9 +416,8 @@ class PhaseTwo():
                 self.chestCalculations(chest_ROIs, frame_x, frame_y, frame_z, frame_confidence)
 
             if face_detected:
-                print(f'face detected for frame {frame_idx}')
                 multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb))
-
+            
             if self.visualize_FaceMesh or self.visualize_ROIs:
                 # Calculate and overlay FPS
 
@@ -423,7 +439,7 @@ class PhaseTwo():
                 # Display frame
 
                 cv2.imshow("Image", frame_grayscale_rgb)
-                cv2.waitKey(1)
+                # cv2.waitKey(1)
         
         # Calculate and print average FPS
         end_time = time.time()
@@ -433,6 +449,8 @@ class PhaseTwo():
         # Wait for all multithreading tasks to finish
         concurrent.futures.wait(multithreading_tasks)
 
+        print(f'shape of intensity_signal_current_file: {intensity_signal_current_file.shape}')
+        
         self.intensity_signals = np.concatenate((self.intensity_signals, intensity_signal_current_file), axis=1)
         self.depth_signals = np.concatenate((self.depth_signals, depth_signal_current_file), axis=1)
         self.ear_signal = np.concatenate((self.ear_signal, ear_signal_current_file),axis=0)
@@ -1099,8 +1117,8 @@ class PhaseTwo():
         return num_threads
 
 if __name__ == "__main__":
-    skvs_dir = os.path.join(os.getcwd(), 'skvs')
-
-    myFaceMeshDetector = PhaseTwo(input_dir=os.path.join(skvs_dir, "mat"), output_filename="auto_bfsig", visualize_FaceMesh=False, visualize_ROIs=False)
+    skvs_dir = os.path.join(os.getcwd(), 'PLY')
+    
+    myFaceMeshDetector = PhaseTwo(skvs_dir, output_filename="auto_bfsig", visualize_FaceMesh=False, visualize_ROIs=True)
     myFaceMeshDetector.run()
     myFaceMeshDetector.clean_up()
