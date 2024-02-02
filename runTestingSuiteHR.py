@@ -343,5 +343,5 @@ def process(inputDir, outputDir, calcHR = False, calcRR = False):
             
 
 if __name__ == '__main__':
-    process("lab_test_clips/7-6-23", "moose_HR_Data_7_6", calcHR=True, calcRR=False)
+    process("1_15_24", "menghsia1_15_24", calcHR=True, calcRR=False)
 
