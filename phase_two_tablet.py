@@ -1118,7 +1118,9 @@ class PhaseTwo():
 
 if __name__ == "__main__":
     skvs_dir = os.path.join(os.getcwd(), 'PLY')
-    
-    myFaceMeshDetector = PhaseTwo(skvs_dir, output_filename="auto_bfsig", visualize_FaceMesh=False, visualize_ROIs=True)
-    myFaceMeshDetector.run()
-    myFaceMeshDetector.clean_up()
+    print(skvs_dir)
+    # skvs_dir = '/Users/thatblue340/Documents/GitHub/facial-bloodflow-tof/PLY/1.ply'
+    skvs_dir = os.path.join(skvs_dir, '1.ply')
+    myFaceMeshDetector = PhaseTwo(skvs_dir, output_filename="auto_bfsig", visualize_FaceMesh=False, visualize_ROIs=True, file_dir=skvs_dir)
+    myFaceMeshDetector.run(1)
+    # myFaceMeshDetector.clean_up()
