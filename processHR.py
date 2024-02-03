@@ -69,8 +69,9 @@ class ProcessHR():
 
         ## getHR() NEEDS FIXING ##
         # Get HR Data
-        HR_comp = self.getHR(HRsig, 600, Window=True)
-        HR_ND = self.getHR(HRsigRaw, 600, Window=True)
+        HR_comp = self.getHR(HRsig, 300, Window=False)
+        HR_ND = self.getHR(HRsigRaw, 300, Window=False)
+
 
         # analyzer = HeartRateAnalyzer()
         # HR_comp = analyzer.calculate_HR(HRsig, plot=False, sampling_rate=30)
@@ -80,18 +81,18 @@ class ProcessHR():
         print(f'Main HR_ND: {HR_ND}')
 
 
-        I_comp_tab = self.tablet_depthComp(I_raw[2,:], Depth[2,:])
-        HR_comp_tab = self.tablet_getHR(I_comp_tab, 600)
-        HR_ND_tab = self.tablet_getHR(HRsigRaw, 600)
+        # I_comp_tab = self.tablet_depthComp(I_raw[2,:], Depth[2,:])
+        # HR_comp_tab = self.tablet_getHR(I_comp_tab, 600)
+        # HR_ND_tab = self.tablet_getHR(HRsigRaw, 600)
 
-        print()
-        print(f'Tablet HR: {HR_comp_tab}')
-        print(f'Tablet HR_ND: {HR_ND_tab}')
+        # print()
+        # print(f'Tablet HR: {HR_comp_tab}')
+        # print(f'Tablet HR_ND: {HR_ND_tab}')
 
-        # Calculate Heart Rate (Motion Score)
-        #self.motionComp(HRsig, Depth)
-        end_HRtime = time.time()
-        self.time = end_HRtime - start_HRtime
+        # # Calculate Heart Rate (Motion Score)
+        # #self.motionComp(HRsig, Depth)
+        # end_HRtime = time.time()
+        # self.time = end_HRtime - start_HRtime
         #plt.show()
         return HR_comp, HR_ND
 
@@ -116,6 +117,7 @@ class ProcessHR():
         """
 
         # Load in raw depth and intensities
+        print(f'self input_file {self.input_file}')
         data = scipy.io.loadmat(self.input_file)
         # Depth: 2D array of depths (7x1800 for a 1 minute clip)
         # I_raw: 2D array of raw intensities (7x1800 for a 1 minute clip)
@@ -154,7 +156,7 @@ class ProcessHR():
         #plt.show()
         
         # Process waveforms into the different regions
-        Fs = 30 # Frames/Second
+        Fs = 10 # Frames/Second
         T = 1 / Fs
 
         # Cheek and nose ROI is set aside for Heart Rate Signal calculation
@@ -189,7 +191,7 @@ class ProcessHR():
         else:
             axs[0].set_title('Cheek and Nose Signal Intensity')
 
-        #plt.show()
+        # plt.show()
 
         return HRsig, HRsigRaw, I_comp, Depth, I_raw
     
@@ -362,11 +364,11 @@ class ProcessHR():
             max_val = np.max(HRsig)
             HRsig = (HRsig - min_val) / (max_val - min_val)
 
-            window = np.hanning(600)
+            window = np.hanning(300)
             HRsig = HRsig * window
 
         # Prepare Parameters
-        Fs = 30
+        Fs = 10
         T = 1/Fs
 
         # Get HR
@@ -381,10 +383,10 @@ class ProcessHR():
         maxindex = np.argmax(spectrum[pks])
         HR = f[pks[maxindex]]
 
-        plt.figure()
-        plt.plot(f, spectrum)
-        plt.xlim((40, 150))
-        plt.title("main hr power spectrum")
+        # plt.figure()
+        # plt.plot(f, spectrum)
+        # plt.xlim((40, 150))
+        # plt.title("main hr power spectrum")
         #plt.show()
 
         return HR
