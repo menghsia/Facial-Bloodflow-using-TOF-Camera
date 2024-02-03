@@ -15,6 +15,7 @@ from scipy.signal import savgol_filter
 
 import os
 import serial
+import csv
 
 def _normalized_to_pixel_coordinates(
     normalized_x: float, normalized_y: float, image_width: int,
@@ -246,7 +247,7 @@ def Chest_ROI_extract(image, chin_location, plot=False):
 
 
 
-for i in range(5,6):
+for i in range(1,2):
     start = time.time()
 
     #raw_data_name = 'recorded_data.mat'
@@ -257,7 +258,7 @@ for i in range(5,6):
     keyDict = {'x_value', 'y_value', 'distance', 'grayscale'}
     mat_data = dict([(key, []) for key in keyDict])
 
-    f = open(f"PLY/{i}.ply", "r")
+    f = open(f"datas/{i}.ply", "r")
 
     # Read header -- get rid of header data
     for x in range(0,11):
@@ -419,6 +420,22 @@ for i in range(5,6):
 
     cv2.destroyAllWindows()
 
+    # export D_signal and I_signal to csv files
+    # if file doesn't exist create it, otherwise append
+    # path = '/datas/csv/'
+    # os.chmod(path, 0o777)
+    # if not os.path.exists(path):
+    #     os.makedirs(path)
+    
+    # give write permission to the file
+    print(f'shape of I_signal: {I_signal.shape}, length: {len(I_signal)}')
+    print(f'shape of D_signal: {D_signal.shape}, length: {len(D_signal)}')
+    with open('datas/csv/intensity.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerows(I_signal.reshape(-1,1))
+    with open('datas/csv/depth.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerows(D_signal.reshape(-1,1))
 
     D_signal_smooth=scipy.signal.savgol_filter(D_signal,9,2,mode='nearest')
     I_signal_smooth=scipy.signal.savgol_filter(I_signal,5,2,mode='nearest')

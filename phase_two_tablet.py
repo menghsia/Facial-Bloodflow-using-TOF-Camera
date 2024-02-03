@@ -127,7 +127,7 @@ class PhaseTwo():
         Run the face mesh detection and intensity signal extraction.
         """
 
-        num_ROIs = 7
+        num_ROIs = 1
 
         # Array of intensity signal arrays
         # Each element is (7, num_frames) = (7, 600) for 7 ROIs (regions of interest) and (likely) 600 frames per input video file
@@ -177,6 +177,55 @@ class PhaseTwo():
         self.intensity_signals = np.delete(self.intensity_signals, 0, 1)
         self.depth_signals = np.delete(self.depth_signals, 0, 1)
         self.ear_signal = np.delete(self.ear_signal,0,0)
+
+        # export  intensity and depth signals to csv files
+        # if not os.path.exists('/PLY/csv/'):
+        #     os.makedirs('/PLY/csv/')
+        print(f'shape of intensity_signals: {self.intensity_signals.shape}')
+        print(f'shape of depth_signals: {self.depth_signals.shape}')
+        
+        
+        
+        # average_intensity_per_frame = np.mean(self.intensity_signals, axis=0)
+        # average_depth_per_frame = np.mean(self.depth_signals, axis=0)
+        
+        # # Save average intensities and depths for cheek_n_nose ROI as .csv files
+        # with open('PLY/csv/average_intensity_per_frame.csv', 'w', newline='') as csvfile:
+        #     writer = csv.writer(csvfile)
+        #     writer.writerow(average_intensity_per_frame.reshape(-1,1))
+        # with open('PLY/csv/average_depth_per_frame.csv', 'w', newline='') as csvfile:
+        #     writer = csv.writer(csvfile)
+        #     writer.writerow(average_depth_per_frame.reshape(-1,1))
+        
+        # right now the shape is (7,300) I want to make it (300,7)
+        trans_intensity_signals = np.transpose(self.intensity_signals)
+        trans_depth_signals = np.transpose(self.depth_signals)
+        
+        # separate the 7 ROIs into 7 different csv files
+        intensity_1 = trans_intensity_signals[:,0]
+        # intensity_2 = trans_intensity_signals[:,1]
+        
+        depth_1 = trans_depth_signals[:,0]
+        # depth_2 = trans_depth_signals[:,1]
+        
+        
+        with open('PLY/csv/intensity1.csv', 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerows(intensity_1.reshape(-1,1))
+
+        with open('PLY/csv/depth1.csv', 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerows(depth_1.reshape(-1,1))
+
+        # with open('PLY/csv/intensity2.csv', 'w', newline='') as csvfile:
+        #     writer = csv.writer(csvfile)
+        #     writer.writerows(intensity_2.reshape(-1,1))
+
+        # with open('PLY/csv/depth2.csv', 'w', newline='') as csvfile:
+        #     writer = csv.writer(csvfile)
+        #     writer.writerows(depth_2.reshape(-1,1))
+
+
 
         with open("depth.csv", 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
@@ -1123,4 +1172,4 @@ if __name__ == "__main__":
     skvs_dir = os.path.join(skvs_dir, '1.ply')
     myFaceMeshDetector = PhaseTwo(skvs_dir, output_filename="auto_bfsig", visualize_FaceMesh=False, visualize_ROIs=True, file_dir=skvs_dir)
     myFaceMeshDetector.run(1)
-    # myFaceMeshDetector.clean_up()
+    myFaceMeshDetector.clean_up()
