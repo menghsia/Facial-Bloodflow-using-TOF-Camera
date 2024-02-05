@@ -751,7 +751,8 @@ class PhaseTwo():
         cv2.waitKey(0)
     
         return
-
+    def read_binary_file (self, filepath: str) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        return self._read_binary_file(filepath)
     def _read_binary_file(self, filepath: str) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
         Read a binary file containing x, y, z coordinates, and confidence values.
