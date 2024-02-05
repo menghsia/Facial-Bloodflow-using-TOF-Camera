@@ -21,7 +21,39 @@ import csv
 import run_tablet
 import run 
 import phase_two
+def read_binary_file (filepath: str) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Read a binary file containing x, y, z coordinates, and confidence values.
 
+    Args:
+        filepath: The path to the binary file to be read.
+
+    Returns:
+        A tuple containing four NumPy arrays: x_all, y_all, z_all, and confidence_all.
+        - x_all: An (n,d) array of x-coordinates.
+        - y_all: An (n,d) array of y-coordinates.
+        - z_all: An (n,d) array of z-coordinates.
+        - confidence_all: An (n,d) array of confidence values.
+
+    This method reads a binary file and extracts x, y, z coordinates, and confidence values.
+    The binary file is assumed to have a specific structure where each array is stored sequentially.
+
+    Note: This method assumes that the binary file is properly formatted and contains valid data.
+
+    Example usage:
+        x, y, z, confidence = _read_binary_file('data.bin')
+    """
+    x_all, y_all, z_all, confidence_all = np.array([]), np.array([]), np.array([]), np.array([])
+
+    NUM_FRAMES_PER_FILE = 600
+    print(f'Bin file path: {filepath}')
+    with open(filepath, 'rb') as binary_file:
+        x_all = np.frombuffer(binary_file.read(NUM_FRAMES_PER_FILE * 307200 * 2), dtype=np.int16).reshape((NUM_FRAMES_PER_FILE, 307200)).transpose()
+        y_all = np.frombuffer(binary_file.read(NUM_FRAMES_PER_FILE * 307200 * 2), dtype=np.int16).reshape((NUM_FRAMES_PER_FILE, 307200)).transpose()
+        z_all = np.frombuffer(binary_file.read(NUM_FRAMES_PER_FILE * 307200 * 2), dtype=np.int16).reshape((NUM_FRAMES_PER_FILE, 307200)).transpose()
+        confidence_all = np.frombuffer(binary_file.read(NUM_FRAMES_PER_FILE * 307200 * 2), dtype=np.int16).reshape((NUM_FRAMES_PER_FILE, 307200)).transpose()
+
+    return x_all, y_all, z_all, confidence_all
 def _normalized_to_pixel_coordinates(
     normalized_x: float, normalized_y: float, image_width: int,
     image_height: int) -> Union[None, Tuple[int, int]]:
@@ -45,11 +77,14 @@ def ROI_coord_extract(image, ROIwhich, img_plt = False):
     image_rows, image_cols = image.shape
     if ROIwhich == 'full_face':
         ROI_vertex = [54, 284, 365, 136]
+        # for sony camera it's times 8 
+        ROI_vertex = [54*8, 284*8, 365*8, 136*8]
+        
     elif ROIwhich == 'left_face':
         ROI_vertex = [70, 135, 200, 8]
     elif ROIwhich == 'cheek_n_nose':
         ROI_vertex = [117, 346, 411, 187]
-        #ROI_vertex = [116, 340, 433, 213]
+        ROI_vertex = [117*8, 340*8, 433*8, 213*8]
     elif ROIwhich == 'left_cheek':
         ROI_vertex = [131, 165,214, 50]
     elif ROIwhich == 'right_cheek':
@@ -256,15 +291,21 @@ def bin_to_numpy(bin_file_path):
     """
     print(f'Processing {bin_file_path}')
     filepath = bin_file_path
-    #myphasetwo actually doesnt matter 
-    myPhaseTwo = phase_two.PhaseTwo(input_dir=os.path.join(filepath, "mat"), output_filename="auto_bfsig", visualize_FaceMesh=False, visualize_ROIs=False, doRR=False)
-    x_all, y_all, z_all, confidence_all = myPhaseTwo.read_binary_file(filepath)
+
+    x_all, y_all, z_all, confidence_all = read_binary_file(filepath)
     
-    frame_num = int(len(mat_data['grayscale'])/(640*480))
+    frame_num = 600
     x_value=np.reshape(x_all,(frame_num,640,480)).astype('float')
     y_value=np.reshape(y_all,(frame_num,640,480)).astype('float')
     depth=np.reshape(z_all,(frame_num,640,480)).astype('float')
     intensity=np.reshape(x_all,(frame_num,640,480)).astype('float')
+
+    # I want to transpose so it's in the form (frame_num, 640, 480)
+
+    print(f'shape of x_value: {x_value.shape}')
+    print(f'shape of y_value: {y_value.shape}')
+    print(f'shape of depth: {depth.shape}')
+    print(f'shape of intensity: {intensity.shape}')
 
     return x_value, y_value, depth, intensity, frame_num
 
@@ -278,10 +319,12 @@ for i in range(1,2):
     #mat_data = pickle.load(open('rt.pkl', 'rb'))
     
     skv_dir = os.path.join(os.getcwd(), 'skvs')
+    print(skv_dir)
     run.check_for_skvs(skv_dir)
     run.skv_to_bin(skv_dir)
-    
-    x_value, y_value, depth, intensity, frame_num = bin_to_numpy(skv_dir)
+    print('converted skv to bin')
+    bin_dir = os.path.join(os.getcwd(), 'skvs/mat/sk_automotive_20240115_170319.skv.bin')
+    x_value, y_value, depth, intensity, frame_num = bin_to_numpy(bin_dir)
 
     I_signal = np.zeros(frame_num)
     D_signal = np.zeros(frame_num)

@@ -752,7 +752,38 @@ class PhaseTwo():
     
         return
     def read_binary_file (self, filepath: str) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-        return self._read_binary_file(filepath)
+        """
+        Read a binary file containing x, y, z coordinates, and confidence values.
+
+        Args:
+            filepath: The path to the binary file to be read.
+
+        Returns:
+            A tuple containing four NumPy arrays: x_all, y_all, z_all, and confidence_all.
+            - x_all: An (n,d) array of x-coordinates.
+            - y_all: An (n,d) array of y-coordinates.
+            - z_all: An (n,d) array of z-coordinates.
+            - confidence_all: An (n,d) array of confidence values.
+
+        This method reads a binary file and extracts x, y, z coordinates, and confidence values.
+        The binary file is assumed to have a specific structure where each array is stored sequentially.
+
+        Note: This method assumes that the binary file is properly formatted and contains valid data.
+
+        Example usage:
+            x, y, z, confidence = _read_binary_file('data.bin')
+        """
+        x_all, y_all, z_all, confidence_all = np.array([]), np.array([]), np.array([]), np.array([])
+
+        NUM_FRAMES_PER_FILE = 600
+
+        with open(filepath, 'rb') as binary_file:
+            x_all = np.frombuffer(binary_file.read(NUM_FRAMES_PER_FILE * 307200 * 2), dtype=np.int16).reshape((NUM_FRAMES_PER_FILE, 307200)).transpose()
+            y_all = np.frombuffer(binary_file.read(NUM_FRAMES_PER_FILE * 307200 * 2), dtype=np.int16).reshape((NUM_FRAMES_PER_FILE, 307200)).transpose()
+            z_all = np.frombuffer(binary_file.read(NUM_FRAMES_PER_FILE * 307200 * 2), dtype=np.int16).reshape((NUM_FRAMES_PER_FILE, 307200)).transpose()
+            confidence_all = np.frombuffer(binary_file.read(NUM_FRAMES_PER_FILE * 307200 * 2), dtype=np.int16).reshape((NUM_FRAMES_PER_FILE, 307200)).transpose()
+
+        return x_all, y_all, z_all, confidence_all
     def _read_binary_file(self, filepath: str) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
         Read a binary file containing x, y, z coordinates, and confidence values.
