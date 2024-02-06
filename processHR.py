@@ -176,21 +176,21 @@ class ProcessHR():
         # tb = np.arange(0, I_raw.shape[1]) * T
 
 
-        # Plots Raw and Compensated cheek and nose intensities
-        fig, axs = plt.subplots(2, 1, figsize=(8, 6))
-        axs[0].plot(I_raw[2, :])
-        axs[0].set_ylabel('Raw Intensity')
+        # # Plots Raw and Compensated cheek and nose intensities
+        # fig, axs = plt.subplots(2, 1, figsize=(8, 6))
+        # axs[0].plot(I_raw[2, :])
+        # axs[0].set_ylabel('Raw Intensity')
 
 
-        axs[1].plot(I_comp[2, :])
-        axs[1].set_ylabel('Compensated Intensity')
+        # axs[1].plot(I_comp[2, :])
+        # axs[1].set_ylabel('Compensated Intensity')
 
 
-        axs[0].set_xticks([])
-        if dataTitle is not None:
-            axs[0].set_title('Cheek and Nose Signal Intensity: ' + dataTitle)
-        else:
-            axs[0].set_title('Cheek and Nose Signal Intensity')
+        # axs[0].set_xticks([])
+        # if dataTitle is not None:
+        #     axs[0].set_title('Cheek and Nose Signal Intensity: ' + dataTitle)
+        # else:
+        #     axs[0].set_title('Cheek and Nose Signal Intensity')
 
         # plt.show()
 
@@ -384,11 +384,11 @@ class ProcessHR():
         maxindex = np.argmax(spectrum[pks])
         HR = f[pks[maxindex]]
 
-        plt.figure()
-        plt.plot(f, spectrum)
-        plt.xlim((40, 150))
-        plt.title("main hr power spectrum")
-        plt.show()
+        # plt.figure()
+        # plt.plot(f, spectrum)
+        # plt.xlim((40, 150))
+        # plt.title("main hr power spectrum")
+        # plt.show()
 
         return HR
     
