@@ -13,6 +13,8 @@ from chestROIReverseEngineering import ChestROI
 
 from scipy.signal import butter, filtfilt
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+
 import scipy
 
 import csv
@@ -222,7 +224,9 @@ class PhaseTwo():
         mdic = {"Depth": self.depth_signals, 'I_raw': self.intensity_signals, 'EAR': self.ear_signal} # EAR: eye aspect ratio
         
         # check if there's a mat directory, if not, create one and store the .mat file there
-        mat_dir = os.path.join("/Users/thatblue340/Documents/GitHub/facial-bloodflow-tof/PLY", 'mat')
+        mat_dir = os.path.join(os.getcwd(), 'PLY')
+
+        mat_dir = os.path.join(mat_dir, 'mat')
         
         if not os.path.exists(mat_dir):
             os.makedirs(mat_dir)
@@ -416,8 +420,8 @@ class PhaseTwo():
                 self.chestCalculations(chest_ROIs, frame_x, frame_y, frame_z, frame_confidence)
 
             if face_detected:
-                multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb))
-            
+                # multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb))
+                self._process_face_landmarks(landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb)
             if self.visualize_FaceMesh or self.visualize_ROIs:
                 # Calculate and overlay FPS
 
@@ -447,7 +451,7 @@ class PhaseTwo():
         print(f"Average FPS: {average_fps}")
 
         # Wait for all multithreading tasks to finish
-        concurrent.futures.wait(multithreading_tasks)
+        # concurrent.futures.wait(multithreading_tasks)
 
         print(f'shape of intensity_signal_current_file: {intensity_signal_current_file.shape}')
         
@@ -648,7 +652,39 @@ class PhaseTwo():
             # Get bounding box of ROI in pixels
             roi_bounding_box_pixels = self._get_ROI_bounding_box_pixels(landmarks_pixels, roi_name)
             
-            print(f'roi_bounding_box_pixels: {roi_bounding_box_pixels}')
+            if roi_name == 'cheek_n_nose':
+                # get path to the PLY/csv folder
+                csv_path = os.path.join(os.getcwd(), 'PLY/csv/roi_cheek_n_nose.csv')
+                with open(csv_path, 'a', newline='') as csvfile:
+                    csvwriter = csv.writer(csvfile)
+                    # I want roi_bounding_box_pixels to be a 1D array
+                    OneD = roi_bounding_box_pixels.flatten().tolist()
+                    # print(roi_bounding_box_pixels)
+                    # print(f'OneD: {OneD}')
+                    csvwriter.writerow(OneD)                
+                corners = roi_bounding_box_pixels
+                if True:
+                    # Convert corners to a format suitable for matplotlib (starting corner and width/height)
+                    top_left_corner = corners[0]
+                    width = corners[1][0] - corners[0][0]
+                    height = corners[2][1] - corners[1][1]
+
+                    # Create a figure and axis for plotting
+                    fig, ax = plt.subplots()
+
+                    # Create a rectangle patch
+                    rect = patches.Rectangle(top_left_corner, width, height, linewidth=1, edgecolor='r', facecolor='none')
+
+                    # Add the rectangle to the Axes
+                    ax.add_patch(rect)
+
+                    ax.imshow(frame_grayscale_rgb, cmap='gray', aspect='auto')
+                    plt.title(f'frame: {frame_idx}')
+                    plt.show(block=True)
+                # roi_bounding_box_pixels.tofile(csv_path, sep = ',')
+
+                # np.savetxt(csv_path, roi_bounding_box_pixels, delimiter=',', fmt='%d')
+
             
             if self.visualize_ROIs and roi_name in self.ROIs_to_visualize:
                 # Draw bounding box of ROI
