@@ -147,7 +147,8 @@ class ProcessHR():
 
         # Compensate for movement
         # I_comp: 2D array of compensated intensities
-        I_comp = self.depthComp(I_raw, Depth, 2, 30)
+        #TODO: I changed 30fps to 10fps 
+        I_comp = self.depthComp(I_raw, Depth, 2, 10)
 
         depth_compensator = DepthCompensator()
         # moose_I_comp = depth_compensator.run(I_raw, Depth, window_length=2, fps=30)

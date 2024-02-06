@@ -132,7 +132,7 @@ class PhaseTwo():
         num_ROIs = 7
 
         # Array of intensity signal arrays
-        # Each element is (7, num_frames) = (7, 600) for 7 ROIs (regions of interest) and (likely) 600 frames per input video file
+        # Each element is (7, num_frames) = (7, 300) for 7 ROIs (regions of interest) and (likely) 300 frames per input video file
         # For Infineon camera (.ply), we have 300 frames with 10fps, so 30 seconds of data
     
         self.intensity_signals = np.zeros((num_ROIs, 1))
@@ -663,7 +663,7 @@ class PhaseTwo():
                     # print(f'OneD: {OneD}')
                     csvwriter.writerow(OneD)                
                 corners = roi_bounding_box_pixels
-                if True:
+                if False:
                     # Convert corners to a format suitable for matplotlib (starting corner and width/height)
                     top_left_corner = corners[0]
                     width = corners[1][0] - corners[0][0]
@@ -698,6 +698,7 @@ class PhaseTwo():
                 right_eye_aspect_ratio = self._get_eye_aspect_ratio(roi_bounding_box_pixels)
             else:
                 # Get pixels contained within ROI bounding box
+                # print(f'showing ROI: {roi_name}')
                 pixels_in_ROI = self._get_pixels_within_ROI_bounding_box(roi_bounding_box_pixels)
 
                 # if roi_name == "cheek_n_nose" and frame_idx == 42:
@@ -807,8 +808,8 @@ class PhaseTwo():
         # The array will have a shape of (self.image_height, self.image_width)
         pixels_in_ROI = np.array(mask_canvas)
 
-        # # Display the image using matplotlib
-        # plt.imshow(mask_canvas, cmap='gray')
+        # Display the image using matplotlib
+        plt.imshow(mask_canvas, cmap='gray')
         # plt.show()
 
         return pixels_in_ROI
