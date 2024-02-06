@@ -247,7 +247,7 @@ def Chest_ROI_extract(image, chin_location, plot=False):
 
 
 
-for i in range(1,2):
+for i in range(6,7):
     start = time.time()
 
     #raw_data_name = 'recorded_data.mat'
@@ -258,7 +258,7 @@ for i in range(1,2):
     keyDict = {'x_value', 'y_value', 'distance', 'grayscale'}
     mat_data = dict([(key, []) for key in keyDict])
 
-    f = open(f"datas/{i}.ply", "r")
+    f = open(f"PLY/{i}.ply", "r")
 
     # Read header -- get rid of header data
     for x in range(0,11):
@@ -282,6 +282,13 @@ for i in range(1,2):
     depth=np.reshape(mat_data['distance'],(frame_num,171,224)).astype('float')
     intensity=np.reshape(mat_data['grayscale'],(frame_num,171,224)).astype('int')
 
+    print(f'confidence all 1st frame: {intensity[0][10]}')
+    # print shape of x y z i
+    print(f'x_value shape: {x_value.shape}')
+    print(f'y_value shape: {y_value.shape}')
+    print(f'depth shape: {depth.shape}')
+    print(f'intensity shape: {intensity.shape}')
+    
 
     I_signal = np.zeros(frame_num)
     D_signal = np.zeros(frame_num)
@@ -295,7 +302,7 @@ for i in range(1,2):
     frameTrk[np.where(frameTrk>255)] = 255
     frameTrk = np.uint8(frameTrk)
 
-
+    # print(f'confidence all 1st frame: {frameSig[10]}')
 
 
     ROIcoords_full  = ROI_coord_extract(frameTrk,'full_face',img_plt = True)
@@ -361,7 +368,6 @@ for i in range(1,2):
         frame_new = np.uint8(frame_new)
 
 
-
         # calculate optical flow
         p1, st, err = cv2.calcOpticalFlowPyrLK(frameTrk, frame_new, p0, None, **lk_params)
         # Select good points
@@ -403,7 +409,9 @@ for i in range(1,2):
         I_signal[i+1] = np.average(frameSig[np.where(ROImask>0)])
         D_signal[i+1] = np.average(np.sqrt(xframe[np.where(ROImask>0)]**2 +
             yframe[np.where(ROImask>0)]**2 + zframe[np.where(ROImask>0)]**2))
-
+        if i > 50 and i < 60:
+            print(f'frame {i} I_signal: {I_signal[i+1]}')
+            print(f'frame {i} D_signal: {D_signal[i+1]}') 
         # show tracking performance
 
         ROIpts = np.transpose(new_ROIcoords)
@@ -428,14 +436,14 @@ for i in range(1,2):
     #     os.makedirs(path)
     
     # give write permission to the file
-    print(f'shape of I_signal: {I_signal.shape}, length: {len(I_signal)}')
-    print(f'shape of D_signal: {D_signal.shape}, length: {len(D_signal)}')
-    with open('datas/csv/intensity.csv', 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerows(I_signal.reshape(-1,1))
-    with open('datas/csv/depth.csv', 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerows(D_signal.reshape(-1,1))
+    # print(f'shape of I_signal: {I_signal.shape}, length: {len(I_signal)}')
+    # print(f'shape of D_signal: {D_signal.shape}, length: {len(D_signal)}')
+    # with open('datas/csv/intensity.csv', 'w', newline='') as csvfile:
+    #     writer = csv.writer(csvfile)
+    #     writer.writerows(I_signal.reshape(-1,1))
+    # with open('datas/csv/depth.csv', 'w', newline='') as csvfile:
+    #     writer = csv.writer(csvfile)
+    #     writer.writerows(D_signal.reshape(-1,1))
 
     D_signal_smooth=scipy.signal.savgol_filter(D_signal,9,2,mode='nearest')
     I_signal_smooth=scipy.signal.savgol_filter(I_signal,5,2,mode='nearest')

@@ -271,7 +271,7 @@ class PhaseTwo():
         # Load the current .ply file 
         keyDict = {'x_value', 'y_value', 'distance', 'grayscale'}
         mat_data = dict([(key, []) for key in keyDict])
-
+        print(f'filename: {filename}')
         f = open(filename, "r")
 
         # Read header -- get rid of header data
@@ -295,6 +295,8 @@ class PhaseTwo():
         y_all=np.reshape(mat_data['y_value'],(frame_num,171,224)).astype('float')
         z_all=np.reshape(mat_data['distance'],(frame_num,171,224)).astype('float')
         confidence_all=np.reshape(mat_data['grayscale'],(frame_num,171,224)).astype('int')
+        
+        print(f'confidence all 1st frame: {confidence_all[0][10]}')
         
         x_all = np.transpose(x_all, (1, 2, 0))
         y_all = np.transpose(y_all, (1, 2, 0))
@@ -398,7 +400,6 @@ class PhaseTwo():
             frame_z = z_all[:, :, frame_idx]
             frame_confidence = confidence_all[:, :, frame_idx]
             
-            
             # Track face and extract intensity and depth for all ROIs in this frame
 
             # Convert the frame's confidence values to a grayscale image (n,d)
@@ -454,7 +455,6 @@ class PhaseTwo():
         # concurrent.futures.wait(multithreading_tasks)
 
         print(f'shape of intensity_signal_current_file: {intensity_signal_current_file.shape}')
-        
         self.intensity_signals = np.concatenate((self.intensity_signals, intensity_signal_current_file), axis=1)
         self.depth_signals = np.concatenate((self.depth_signals, depth_signal_current_file), axis=1)
         self.ear_signal = np.concatenate((self.ear_signal, ear_signal_current_file),axis=0)
@@ -678,9 +678,9 @@ class PhaseTwo():
                     # Add the rectangle to the Axes
                     ax.add_patch(rect)
 
-                    ax.imshow(frame_grayscale_rgb, cmap='gray', aspect='auto')
-                    plt.title(f'frame: {frame_idx}')
-                    plt.show(block=True)
+                    # ax.imshow(frame_grayscale_rgb, cmap='gray', aspect='auto')
+                    # plt.title(f'frame: {frame_idx}')
+                    # plt.show(block=True)
                 # roi_bounding_box_pixels.tofile(csv_path, sep = ',')
 
                 # np.savetxt(csv_path, roi_bounding_box_pixels, delimiter=',', fmt='%d')
@@ -723,7 +723,9 @@ class PhaseTwo():
                     np.average(frame_x[np.where(pixels_in_ROI > 0)]) ** 2 +
                     np.average(frame_y[np.where(pixels_in_ROI > 0)]) ** 2 +
                     np.average(frame_z[np.where(pixels_in_ROI > 0)]) ** 2)
-
+                if frame_idx > 51 and frame_idx < 61 and roi_name == 'cheek_n_nose':
+                    print(f'frame {frame_idx} I_signal: {intensity_signal_current_file[roi_idx][frame_idx]}') 
+                    print(f'frame {frame_idx} D_signal: {depth_signal_current_file[roi_idx][frame_idx]}')
                 #print(depth_signal_current_file)
         # Calculate and save eye aspect ratio for the ROI
         ear_signal_current_file[frame_idx] = (left_eye_aspect_ratio + right_eye_aspect_ratio) / 2
@@ -809,7 +811,7 @@ class PhaseTwo():
         pixels_in_ROI = np.array(mask_canvas)
 
         # Display the image using matplotlib
-        plt.imshow(mask_canvas, cmap='gray')
+        # plt.imshow(mask_canvas, cmap='gray')
         # plt.show()
 
         return pixels_in_ROI
@@ -896,8 +898,8 @@ class PhaseTwo():
         cv2.putText(frame_grayscale_rgb, roi_name, text_position, cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 
         # Display the image
-        cv2.imshow("ROI Bounding Boxes", frame_grayscale_rgb)
-        cv2.waitKey(0)
+        # cv2.imshow("ROI Bounding Boxes", frame_grayscale_rgb)
+        # cv2.waitKey(0)
     
         return
 
