@@ -383,11 +383,11 @@ class ProcessHR():
         maxindex = np.argmax(spectrum[pks])
         HR = f[pks[maxindex]]
 
-        # plt.figure()
-        # plt.plot(f, spectrum)
-        # plt.xlim((40, 150))
-        # plt.title("main hr power spectrum")
-        #plt.show()
+        plt.figure()
+        plt.plot(f, spectrum)
+        plt.xlim((40, 150))
+        plt.title("main hr power spectrum")
+        plt.show()
 
         return HR
     

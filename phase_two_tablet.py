@@ -648,6 +648,8 @@ class PhaseTwo():
             # Get bounding box of ROI in pixels
             roi_bounding_box_pixels = self._get_ROI_bounding_box_pixels(landmarks_pixels, roi_name)
             
+            print(f'roi_bounding_box_pixels: {roi_bounding_box_pixels}')
+            
             if self.visualize_ROIs and roi_name in self.ROIs_to_visualize:
                 # Draw bounding box of ROI
                 self._draw_ROI_bounding_box(roi_bounding_box_pixels, frame_with_ROIs_drawn, roi_name)
@@ -1120,7 +1122,7 @@ if __name__ == "__main__":
     skvs_dir = os.path.join(os.getcwd(), 'PLY')
     print(skvs_dir)
     # skvs_dir = '/Users/thatblue340/Documents/GitHub/facial-bloodflow-tof/PLY/1.ply'
-    skvs_dir = os.path.join(skvs_dir, '1.ply')
+    skvs_dir = os.path.join(skvs_dir, '5.ply')
     myFaceMeshDetector = PhaseTwo(skvs_dir, output_filename="auto_bfsig", visualize_FaceMesh=False, visualize_ROIs=True, file_dir=skvs_dir)
-    myFaceMeshDetector.run(1)
+    myFaceMeshDetector.run(5)
     # myFaceMeshDetector.clean_up()
