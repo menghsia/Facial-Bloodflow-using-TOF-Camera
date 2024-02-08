@@ -8,9 +8,9 @@ from typing import Optional
 import numpy
 from plyfile import PlyData, PlyElement
 
-from phase_two_tablet import PhaseTwo
+# from phase_two_tablet import PhaseTwo
 from processHR import ProcessHR
-
+from tablet_main_hybrid import PhaseTwo
 # Steps:
 # - Use Automotive Suite to record a video clip (.skv file)
 # - Copy skv file(s) to /skvs/
@@ -288,7 +288,7 @@ if __name__ == '__main__':
     else:
         if args.bin_to_bfsig:
             start_time = time.time()
-            for i in range (6,7):
+            for i in range (3,4):
                 print(f'Processing {i}.ply')
                 file_dir = ply_dir + f"/{i}.ply"
                 ply_to_bfsig(file_dir, i)

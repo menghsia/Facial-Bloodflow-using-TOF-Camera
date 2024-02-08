@@ -121,7 +121,7 @@ class ProcessHR():
         data = scipy.io.loadmat(self.input_file)
         # Depth: 2D array of depths (7x1800 for a 1 minute clip)
         # I_raw: 2D array of raw intensities (7x1800 for a 1 minute clip)
-        Depth = data['Depth'] 
+        Depth = data['Depth']
         I_raw = data['I_raw']
 
         # Remove extraneous zeros
@@ -176,7 +176,7 @@ class ProcessHR():
         # tb = np.arange(0, I_raw.shape[1]) * T
 
 
-        # # Plots Raw and Compensated cheek and nose intensities
+        # Plots Raw and Compensated cheek and nose intensities
         # fig, axs = plt.subplots(2, 1, figsize=(8, 6))
         # axs[0].plot(I_raw[2, :])
         # axs[0].set_ylabel('Raw Intensity')
