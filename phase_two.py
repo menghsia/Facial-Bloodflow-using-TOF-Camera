@@ -12,6 +12,7 @@ from chestROIReverseEngineering import ChestROI
 
 from scipy.signal import butter, filtfilt
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 import scipy
 
 import csv
@@ -65,7 +66,8 @@ class PhaseTwo():
             'nose': np.array([196, 419, 455, 235]),
             'forehead': np.array([109, 338, 9]),
             # 'cheek_n_nose': np.array([117, 346, 411, 187]), # CNN ROI 1: Gets 51.17 HR
-            'cheek_n_nose': np.array([116, 340, 433, 213]), # CNN ROI 2: Gets 102.34 HR
+            # 'cheek_n_nose': np.array([116, 340, 433, 213]), # CNN ROI 2: Gets 102.34 HR
+            'cheek_n_nose': np.array([117,346, 205, 165]),
             # 'cheek_n_nose': np.array([31, 228, 229, 230, 231, 232, 233, 245, 465, 453, 452, 451, 450, 449, 448, 340, 345, 352, 376, 411, 427, 426, 294, 278, 360, 363, 281, 5, 51, 134, 131, 102, 203, 206, 207, 187, 147, 123, 116, 111]), # CNN ROI 3: Gets 105.35 HR
             'left_cheek': np.array([131, 165, 214, 50]),
             'right_cheek': np.array([372, 433, 358]),
@@ -537,7 +539,44 @@ class PhaseTwo():
         for roi_idx, roi_name in enumerate(self.face_roi_definitions.keys()):
             # Get bounding box of ROI in pixels
             roi_bounding_box_pixels = self._get_ROI_bounding_box_pixels(landmarks_pixels, roi_name)
-            
+            def get_info(custom_bounding_box, color):
+                corners = custom_bounding_box
+                top_left_corner = corners[0]
+                width = corners[1][0] - corners[0][0]
+                height = corners[2][1] - corners[1][1]
+                rect = patches.Rectangle(top_left_corner, width, height, linewidth=1, edgecolor=color, facecolor='none')
+                return rect
+
+            if roi_name == 'cheek_n_nose' and frame_idx == 0:
+                if False:
+                    # create fig and ax for subplots
+                    fig, ax = plt.subplots()
+                    # create rectangles
+                    # print(f'roi_bounding_box: {roi_bounding_box_pixels}')
+                    # print('landmark pixels:')
+                    # print(landmarks_pixels)
+                    rect = get_info(roi_bounding_box_pixels, 'r')
+                    ax.add_patch(rect)
+                    i = 0
+                    for coord in landmarks_pixels:
+                        print(f'({coord[0]}, {coord[1]}) i = {i}')
+                        if coord[0] >= 335 and coord[0] <= 360 and coord[1] >= 155 and coord[1] <= 150:
+                            print(f'found {coord[0]}, {coord[1]} at {i}')
+                        # if coord[0] >= 290 and coord[0] <= 296 and coord[1] == 155:
+                        #     print(f'found {coord[0]}, {coord[1]} at {i}')                       
+                        i += 1   
+
+                    # roi_bounding_box_pixels = self._custom_ROI_bounding_box_pixels(landmarks_pixels, [117,346, 205, 165])
+                    # print(f'roi_bounding_box 1: {roi_bounding_box_pixels}')
+                    # rect = get_info(roi_bounding_box_pixels, 'g')
+                    # ax.add_patch(rect)
+                    
+
+                    ax.imshow(frame_grayscale_rgb, cmap='gray', aspect='auto')
+                    plt.title(f'frame: {frame_idx}')
+                    plt.show(block=True)
+
+
             if self.visualize_ROIs and roi_name in self.ROIs_to_visualize:
                 # Draw bounding box of ROI
                 self._draw_ROI_bounding_box(roi_bounding_box_pixels, frame_with_ROIs_drawn, roi_name)
@@ -581,6 +620,17 @@ class PhaseTwo():
         
         return
     
+
+    def _custom_ROI_bounding_box_pixels(self, landmarks_pixels: np.ndarray, custom_roi):
+        """
+        get custom roi
+        input your custom roi and landmark pixels
+        """
+        bounding_box_pixels = np.array([])
+        landmark_indices = custom_roi
+        bounding_box_pixels = landmarks_pixels[landmark_indices]
+        return bounding_box_pixels
+
     def _get_ROI_bounding_box_pixels(self, landmarks_pixels: np.ndarray, roi_name: str) -> np.ndarray:
         """
         Takes in the pixel coordinates of all face landmarks and returns the pixel coordinates
