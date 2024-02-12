@@ -155,7 +155,7 @@ class PhaseTwo():
         num_files_to_process = 1
         
         # Define MediaPipe detectors
-        face_mesh_detector = FaceMeshDetector(static_image_mode=False, max_num_faces=1, min_detection_confidence=0.5, min_tracking_confidence=0.5)
+        face_mesh_detector = FaceMeshDetector(static_image_mode=True, max_num_faces=1, min_detection_confidence=0.5, min_tracking_confidence=0.5)
 
         # Loop through each file
         # TODO:  I think each file is a video clip? But why is there multiple clips? 20s each? 
@@ -314,7 +314,7 @@ class PhaseTwo():
         z_all=np.reshape(mat_data['distance'],(frame_num,171,224)).astype('float')
         confidence_all=np.reshape(mat_data['grayscale'],(frame_num,171,224)).astype('int')
         
-        print(f'confidence all 1st frame: {confidence_all[0][10]}')
+        # print(f'confidence all 1st frame: {confidence_all[0][10]}')
         
         x_all = np.transpose(x_all, (1, 2, 0))
         y_all = np.transpose(y_all, (1, 2, 0))
@@ -604,7 +604,7 @@ class PhaseTwo():
             # Get bounding box of ROI in pixels
             roi_bounding_box_pixels = self._get_ROI_bounding_box_pixels(landmarks_pixels, roi_name)
             
-            if roi_name == 'cheek_n_nose' and frame_idx == 0:
+            if roi_name == 'cheek_n_nose':
                 # get path to the PLY/csv folder
                 csv_path = os.path.join(os.getcwd(), 'PLY/csv/roi_cheek_n_nose.csv')
                 with open(csv_path, 'a', newline='') as csvfile:
@@ -615,7 +615,7 @@ class PhaseTwo():
                     # print(f'OneD: {OneD}')
                     csvwriter.writerow(OneD)                
                 corners = roi_bounding_box_pixels
-                if True:
+                if False:
                     # Convert corners to a format suitable for matplotlib (starting corner and width/height)
                     top_left_corner = corners[0]
                     width = corners[1][0] - corners[0][0]
@@ -628,8 +628,13 @@ class PhaseTwo():
                     rect = patches.Rectangle(top_left_corner, width, height, linewidth=1, edgecolor='r', facecolor='none')
 
                     # Add the rectangle to the Axes
-                    ax.add_patch(rect)
+                    # ax.add_patch(rect)
+                    
+                    coord = [top_left_corner, corners[1], corners[2], corners[3], top_left_corner]
 
+                    xs, ys = zip(*coord) #create lists of x and y values
+
+                    ax.plot(xs,ys) 
                     ax.imshow(frame_grayscale_rgb, cmap='gray', aspect='auto')
                     plt.title(f'frame: {frame_idx}')
                     plt.show(block=True)
@@ -675,9 +680,9 @@ class PhaseTwo():
                     np.average(frame_x[np.where(pixels_in_ROI > 0)]) ** 2 +
                     np.average(frame_y[np.where(pixels_in_ROI > 0)]) ** 2 +
                     np.average(frame_z[np.where(pixels_in_ROI > 0)]) ** 2)
-                if frame_idx > 51 and frame_idx < 61 and roi_name == 'cheek_n_nose':
-                    print(f'frame {frame_idx} I_signal: {intensity_signal_current_file[roi_idx][frame_idx]}') 
-                    print(f'frame {frame_idx} D_signal: {depth_signal_current_file[roi_idx][frame_idx]}')
+                # if frame_idx > 51 and frame_idx < 61 and roi_name == 'cheek_n_nose':
+                    # print(f'frame {frame_idx} I_signal: {intensity_signal_current_file[roi_idx][frame_idx]}') 
+                    # print(f'frame {frame_idx} D_signal: {depth_signal_current_file[roi_idx][frame_idx]}')
                 #print(depth_signal_current_file)
         # Calculate and save eye aspect ratio for the ROI
         ear_signal_current_file[frame_idx] = (left_eye_aspect_ratio + right_eye_aspect_ratio) / 2

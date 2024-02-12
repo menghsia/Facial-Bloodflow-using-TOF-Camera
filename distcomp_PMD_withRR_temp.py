@@ -17,6 +17,7 @@ import os
 import serial
 import csv
 
+from processHR import ProcessHR
 def _normalized_to_pixel_coordinates(
     normalized_x: float, normalized_y: float, image_width: int,
     image_height: int) -> Union[None, Tuple[int, int]]:
@@ -116,7 +117,7 @@ def distcomp (roimean1, distmean1, power_range=np.arange(0.3,4.1,0.1), lco_range
     #distmean1= moving_average(distmean1, 9);
     timewindow=int(time_window*Fs);  #number of points in 2s
     L=len(roimean1)
-    num_window=math.floor(L/timewindow);
+    num_window=math.floor(L/timewindow)
     neutralized_pre=np.zeros(len(roimean1))
     neutralized=np.zeros(len(roimean1))
 
@@ -247,7 +248,7 @@ def Chest_ROI_extract(image, chin_location, plot=False):
 
 if __name__ == "__main__":
 
-    for i in range(1,2):
+    for i in range(1,12):
         start = time.time()
 
         #raw_data_name = 'recorded_data.mat'
@@ -282,7 +283,7 @@ if __name__ == "__main__":
         depth=np.reshape(mat_data['distance'],(frame_num,171,224)).astype('float')
         intensity=np.reshape(mat_data['grayscale'],(frame_num,171,224)).astype('int')
 
-        print(f'confidence all 1st frame: {intensity[0][10]}')
+        # print(f'confidence all 1st frame: {intensity[0][10]}')
         # print shape of x y z i
         print(f'x_value shape: {x_value.shape}')
         print(f'y_value shape: {y_value.shape}')
@@ -439,8 +440,8 @@ if __name__ == "__main__":
         #     os.makedirs(path)
         
         # give write permission to the file
-        print(f'shape of I_signal: {I_signal.shape}, length: {len(I_signal)}')
-        print(f'shape of D_signal: {D_signal.shape}, length: {len(D_signal)}')
+        # print(f'shape of I_signal: {I_signal.shape}, length: {len(I_signal)}')
+        # print(f'shape of D_signal: {D_signal.shape}, length: {len(D_signal)}')
         with open('PLY/tablet_csv/intensity.csv', 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerows(I_signal.reshape(-1,1))
@@ -454,15 +455,15 @@ if __name__ == "__main__":
         print(f'D signal shape after smoothing: {D_signal_smooth.shape}')
         print(f'I signal shape after smoothing: {I_signal_smooth.shape}')
         
-        I_compensated = distcomp(I_signal_smooth/200, D_signal_smooth,time_window=1, Fs = 30)
-
+        I_compensated = distcomp(I_signal_smooth/200, D_signal_smooth,time_window=1, Fs = 10)
+        print(f'I_compensated shape: {I_compensated.shape}')
         fps = 10
         T = 1.0 / fps
-        yf_hr = abs(fft(I_compensated))
-        yf_hr=2.0 / frame_num * yf_hr[:frame_num // 2]
-        xf_hr = np.linspace(0.0, 1.0 / (2.0 * T), frame_num // 2)
+        yf_hr = abs(fft(I_compensated)) # this is spectrum
+        yf_hr=2.0 / frame_num * yf_hr[:frame_num // 2] # frame_num=L
+        xf_hr = np.linspace(0.0, 1.0 / (2.0 * T), frame_num // 2) # xf_hr = f
         xf_hr = xf_hr * 60
-        yf_hr[np.where(xf_hr<=40 )]=0
+        yf_hr[np.where(xf_hr<=40 )]=0 
         yf_hr[np.where(xf_hr>=200)]=0
 
         #isiah uncompensated hr BEGIN
@@ -487,33 +488,37 @@ if __name__ == "__main__":
         # success_label=error_rate<11
         # success_index=np.where(error_rate<10)
         # success_rate=np.shape(success_index)[1]/len(HR_comp)   
-        plt.figure()
-        plt.plot(D_signal)
-        plt.show()
-        f1 = plt.figure()
-        ax1 = f1.add_subplot(221)
-        ax1.plot(I_signal_smooth)
-        plt.figure() 
-        plt.plot(D_signal_smooth)
-        plt.show()
+        # plt.figure()
+        # plt.plot(D_signal)
+        # plt.show()
+        # f1 = plt.figure()
+        # ax1 = f1.add_subplot(221)
+        # ax1.plot(I_signal_smooth)
+        # plt.figure() 
+        # plt.plot(D_signal_smooth)
+        # plt.show()
 
-        #please work - isiah
-        np.savetxt('test.out',D_signal, delimiter = ',')
+        # #please work - isiah
+        # np.savetxt('test.out',D_signal, delimiter = ',')
 
 
 
-        ax2 = f1.add_subplot(222)
-        ax2.plot(D_signal_smooth)
-        ax3 = f1.add_subplot(223)
-        ax3.plot(I_compensated)
-        ax4 = f1.add_subplot(224)
-        ax4.plot(xf, yf)
-        plt.xlim(0, 200)
-        plt.ylim(0,0.5)
+        # ax2 = f1.add_subplot(222)
+        # ax2.plot(D_signal_smooth)
+        # ax3 = f1.add_subplot(223)
+        # ax3.plot(I_compensated)
+        # ax4 = f1.add_subplot(224)
+        # ax4.plot(xf, yf)
+        # plt.xlim(0, 200)
+        # plt.ylim(0,0.5)
 
         print("COMPENSATED Heart Rate Measured", HR_comp)
         print("UNCOMPENSATED Heart Rate Measured", HR_UNCOMP)
 
+        with open('PLY/tablet_csv/tablet_code_results.csv', 'a', newline='') as csvfile:
+            write = csv.writer(csvfile)
+            write.writerow(['HR_comp', HR_comp])
+            write.writerow(['HR_UNCOMP', HR_UNCOMP])
         # print(D_signal_RR.shape)
         # plt.figure()
         # plt.plot(D_signal_RR[0,:])
@@ -522,9 +527,9 @@ if __name__ == "__main__":
 
 
 
-        plt.figure()
-        plt.plot(I_signal)
-        plt.show()
+        # plt.figure()
+        # plt.plot(I_signal)
+        # plt.show()
 
 
         # transformer = FastICA(n_components=2, max_iter=500, whiten=True, tol=5e-3)
@@ -575,3 +580,35 @@ if __name__ == "__main__":
         # plt.plot(xf_rr, yf_rr)
         # plt.show()
 
+        # run phase 3 main code
+        print(f'processing main code for file {i}')
+        processHR = ProcessHR(input_file=f"PLY/{i}.ply")
+        Depth = D_signal
+        I_raw = I_signal        
+        print('I_raw shape', I_raw.shape)
+        print('Depth shape', Depth.shape)
+        
+        # for i in range(Depth.shape[1]-1, -1, -1):
+        #     if Depth[0, i] == 0:
+        #         Depth = np.delete(Depth, i, axis=1)
+        #         I_raw = np.delete(I_raw, i, axis=1)
+        #     else:
+        #         break
+        # Depth = np.delete(Depth, 6, axis=0)
+        # I_raw = np.delete(I_raw, 6, axis=0)
+        # Depth = scipy.signal.savgol_filter(Depth, 9, 2, mode='nearest')    
+        # I_raw = scipy.signal.savgol_filter(I_raw, 5, 2, mode='nearest')
+        # print('I_raw shape', I_raw.shape)
+        # print('Depth shape', Depth.shape)
+        # # I want 7 times of the I_raw
+        # I_raw = np.repeat(I_raw, 7, axis=0)
+        # Depth = np.repeat(Depth, 7, axis=0)
+        # I_comp = processHR.depthComp(I_raw, Depth, 2, 10) # depthComp is good
+        # print('I_comp shape', I_comp.shape)
+        # HRsig = I_comp[2,:]
+        HRsig = distcomp(I_raw/200, Depth, time_window=1, Fs=30)
+        HRsigRaw = I_raw
+        HR_comp = processHR.getHR(HRsig, 300, Window=False)
+        HR_ND = processHR.getHR(HRsigRaw, 300, Window=False)
+        print(f'Main HR: {HR_comp}')
+        print(f'Main HR_ND: {HR_ND}')

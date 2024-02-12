@@ -9,8 +9,8 @@ import math
 
 from depth_compensation import DepthCompensator
 from moose_post_processing_module import HeartRateAnalyzer
-
-
+# import distcomp_PMD_withRR_temp 
+import csv
 class ProcessHR():
     """
     ProcessHR is a class that uses depths and intensities to output a calculated heartrate.
@@ -80,6 +80,10 @@ class ProcessHR():
         print(f'Main HR: {HR_comp}')
         print(f'Main HR_ND: {HR_ND}')
 
+        with open('PLY/csv/main_code_results.csv', 'a', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(['HR_comp', HR_comp])
+            writer.writerow(['HR_ND', HR_ND])
 
         # I_comp_tab = self.tablet_depthComp(I_raw[2,:], Depth[2,:])
         # HR_comp_tab = self.tablet_getHR(I_comp_tab, 600)
@@ -131,29 +135,34 @@ class ProcessHR():
                 I_raw = np.delete(I_raw, i, axis=1)
             else:
                 break
-
+        print('Depth shape', Depth.shape)
+        print('I_raw shape', I_raw.shape)
+        
         Depth = np.delete(Depth, 6, axis=0)
         I_raw = np.delete(I_raw, 6, axis=0)
-
+        print('Depth shape', Depth.shape)
+        print('I_raw shape', I_raw.shape)
+        
         # Smooth each ROI in the 2D arrays of depths and intensities
-        for i in range(6):
-            Depth[i,:] = scipy.signal.savgol_filter(Depth[i,:], 9, 2, mode='nearest')
-            I_raw[i,:] = scipy.signal.savgol_filter(I_raw[i,:], 5, 2, mode='nearest')
+        # for i in range(6):
+        #     Depth[i,:] = scipy.signal.savgol_filter(Depth[i,:], 9, 2, mode='nearest')
+        #     I_raw[i,:] = scipy.signal.savgol_filter(I_raw[i,:], 5, 2, mode='nearest')
         
         # scipy.io.savemat('main_intensity_smooth.mat', {'main_intensity_smooth': I_raw[2,:]})
-
-        # Depth = scipy.signal.savgol_filter(Depth, 9, 2, mode='nearest', axis=0)
-        # I_raw = scipy.signal.savgol_filter(I_raw, 5, 2, mode='nearest', axis=0)
-
+        Depth = scipy.signal.savgol_filter(Depth, 9, 2, mode='nearest')    
+        I_raw = scipy.signal.savgol_filter(I_raw, 5, 2, mode='nearest')
+        
         # Compensate for movement
         # I_comp: 2D array of compensated intensities
         #TODO: I changed 30fps to 10fps 
-        I_comp = self.depthComp(I_raw, Depth, 2, 10)
-
+        print('I_raw shape', I_raw.shape)
+        print('Depth shape', Depth.shape)
+        I_comp = self.depthComp(I_raw, Depth, 2, 10) # depthComp is good
+        print('I_comp shape', I_comp.shape)
         depth_compensator = DepthCompensator()
         # moose_I_comp = depth_compensator.run(I_raw, Depth, window_length=2, fps=30)
 
-        plt.plot(I_raw[2,:])
+        # plt.plot(I_raw[2,:])
         #plt.show()
         
         # Process waveforms into the different regions
@@ -161,7 +170,8 @@ class ProcessHR():
         T = 1 / Fs
 
         # Cheek and nose ROI is set aside for Heart Rate Signal calculation
-        HRsig = I_comp[2, :] 
+        # HRsig_tablet = distcomp_PMD_withRR_temp.distcomp(I_raw[2, :]/200, Depth[2,:],time_window=1,Fs=30)
+        HRsig = I_comp[2, :]
         HRsigRaw = I_raw[2, :]
 
         # Smoothed blood concentrations for nose, forehead, left cheek, and right cheek ROIs
@@ -232,6 +242,7 @@ class ProcessHR():
 
                 # For each clip, iterate through different b values with a = 1
                 for bi in np.arange(0.2, 5.01, 0.01):
+                # for bi in np.arange(0.3, 4.1, 0.1):
                     bI_comp = I_raw[ROI, ((i - 1) * (timeWindow * Fs)) : ((i * (timeWindow * Fs)))] / ((Depth[ROI, ((i - 1) * (timeWindow * Fs)) : ((i * (timeWindow * Fs)))]) ** (-bi))
                     # Find correlation between bI_comp and Depth
                     corr_v = np.corrcoef(bI_comp, Depth[ROI, ((i - 1) * (timeWindow * Fs)) : ((i * (timeWindow * Fs)))])
@@ -250,6 +261,7 @@ class ProcessHR():
             # For the remainder of the clip if it is 
             cor = 2
             for bii in np.arange(0.2, 5.1, 0.1):
+            # for bii in np.arange(0.3, 4.1, 0.1):
                 bI_comp = I_raw[ROI, (((i - 1) * (timeWindow * Fs))) :] / (Depth[ROI, (((i - 1) * (timeWindow * Fs))) :]) ** (-bii)
                 # Find correlation between bI_comp and Depth
                 corr_v = np.corrcoef(bI_comp, Depth[ROI, (((i - 1) * (timeWindow * Fs)) ) :])

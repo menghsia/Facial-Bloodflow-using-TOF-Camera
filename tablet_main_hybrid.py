@@ -188,9 +188,11 @@ class PhaseTwo():
         D_signal_smooth=scipy.signal.savgol_filter(cheek_n_nose_depth,9,2,mode='nearest')
         I_signal_smooth=scipy.signal.savgol_filter(cheek_n_nose_intensity,5,2,mode='nearest')
 
-
+        print(f'shape of d signal smooth: {D_signal_smooth.shape}')
+        print(f'shape of i signal smooth: {I_signal_smooth.shape}')
+        
         I_compensated = distcomp_PMD_withRR_temp.distcomp(I_signal_smooth/200, D_signal_smooth,time_window=1, Fs = 30)
-
+        print(f'shape of I_compensated: {I_compensated.shape}')
         fps = 10
         T = 1.0 / fps
         yf_hr = abs(distcomp_PMD_withRR_temp.fft(I_compensated))
@@ -216,11 +218,14 @@ class PhaseTwo():
         peaks, properties = scipy.signal.find_peaks(yf_hr)
         max_index=np.argmax(yf_hr[peaks])
         HR_comp = xf_hr[peaks[max_index]]
-
+        print('Tablet code results: ')
         print("HR_comp", HR_comp)
         print("HR_UNCOMP", HR_UNCOMP)
         
-        
+        with open('PLY/tablet_csv/tablet_code_results.csv', 'a', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(['HR_comp', HR_comp])
+            writer.writerow(['HR_UNCOMP', HR_UNCOMP])
         
         with open("depth.csv", 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
@@ -263,20 +268,20 @@ class PhaseTwo():
         # for idx in tablet_intensity_diff_indx:
         #     self.intensity_signals[2][idx-1] = tablet_intensity_signals[idx-1] 
 
-        # mdic = {"Depth": self.depth_signals, 'I_raw': self.intensity_signals, 'EAR': self.ear_signal} # EAR: eye aspect ratio
+        mdic = {"Depth": self.depth_signals, 'I_raw': self.intensity_signals, 'EAR': self.ear_signal} # EAR: eye aspect ratio
         
-        # # check if there's a mat directory, if not, create one and store the .mat file there
-        # mat_dir = os.path.join(os.getcwd(), 'PLY')
+        # check if there's a mat directory, if not, create one and store the .mat file there
+        mat_dir = os.path.join(os.getcwd(), 'PLY')
 
-        # mat_dir = os.path.join(mat_dir, 'mat')
+        mat_dir = os.path.join(mat_dir, 'mat')
         
-        # if not os.path.exists(mat_dir):
-        #     os.makedirs(mat_dir)
+        if not os.path.exists(mat_dir):
+            os.makedirs(mat_dir)
         
-        # mat_dir = os.path.join(mat_dir, str(i) + '.mat')
+        mat_dir = os.path.join(mat_dir, str(i) + '.mat')
         
-        # print(f'saved .math file to {mat_dir}')
-        # savemat(mat_dir, mdic)
+        print(f'saved .math file to {mat_dir}')
+        savemat(mat_dir, mdic)
 
         # Save self.cheek_n_nose_masks to a .mat file
         # savemat('main_mask_cheek_n_nose_all_600.mat', {'masks': self.cheek_n_nose_masks})
@@ -328,7 +333,7 @@ class PhaseTwo():
             mat_data['distance'].append(nums[2])
             mat_data['grayscale'].append(nums[3])
         
-        print("Data loading complete\n")
+        # print("Data loading complete\n")
         #Issue here
         #print("mat_data", mat_data['grayscale'].shape)
         frame_num = int(len(mat_data['grayscale'])/(224*171))
@@ -416,10 +421,10 @@ class PhaseTwo():
     #     z_all = z_all.reshape([self.image_height, self.image_width, num_frames])
     #     confidence_all = confidence_all.reshape([self.image_height, self.image_width, num_frames])
         ############################# using plyfile section #########################################
-        print(f'shape of x_all: {x_all.shape}')
-        print(f'shape of y_all: {y_all.shape}')
-        print(f'shape of z_all: {z_all.shape}')
-        print(f'shape of confidence_all: {confidence_all.shape}')
+        # print(f'shape of x_all: {x_all.shape}')
+        # print(f'shape of y_all: {y_all.shape}')
+        # print(f'shape of z_all: {z_all.shape}')
+        # print(f'shape of confidence_all: {confidence_all.shape}')
         # print(x_all[:10])
         # print(y_all[:10])
         # print(z_all[:10])
