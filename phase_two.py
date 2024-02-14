@@ -18,7 +18,7 @@ import scipy
 import csv
 import math
 
-
+import distcomp_PMD_withRR_temp as distcomp
 class PhaseTwo():
     """
     PhaseTwo is a class that performs face detection and landmark tracking using MediaPipe FaceMesh.
@@ -65,9 +65,9 @@ class PhaseTwo():
         self.face_roi_definitions = {
             'nose': np.array([196, 419, 455, 235]),
             'forehead': np.array([109, 338, 9]),
-            # 'cheek_n_nose': np.array([117, 346, 411, 187]), # CNN ROI 1: Gets 51.17 HR
+            'cheek_n_nose': np.array([117, 346, 411, 187]), # CNN ROI 1: Gets 51.17 HR
             # 'cheek_n_nose': np.array([116, 340, 433, 213]), # CNN ROI 2: Gets 102.34 HR
-            'cheek_n_nose': np.array([117,346, 205, 165]),
+            # 'cheek_n_nose': np.array([117,346, 205, 165]),
             # 'cheek_n_nose': np.array([31, 228, 229, 230, 231, 232, 233, 245, 465, 453, 452, 451, 450, 449, 448, 340, 345, 352, 376, 411, 427, 426, 294, 278, 360, 363, 281, 5, 51, 134, 131, 102, 203, 206, 207, 187, 147, 123, 116, 111]), # CNN ROI 3: Gets 105.35 HR
             'left_cheek': np.array([131, 165, 214, 50]),
             'right_cheek': np.array([372, 433, 358]),
@@ -161,11 +161,12 @@ class PhaseTwo():
         # with my_mp_face_mesh.FaceMesh(static_image_mode=False, max_num_faces=1, refine_landmarks=True, min_detection_confidence=0.5, min_tracking_confidence=0.5) as my_face_mesh:
         
         # Loop through each file
+        frame_num = 0
         for filename in filelist:
             file_num = file_num + 1
             
             # Process the file
-            self._process_file(file_num, num_files_to_process, filename, num_ROIs, face_mesh_detector)
+            frame_num  = self._process_file(file_num, num_files_to_process, filename, num_ROIs, face_mesh_detector)
         
         # # Load Alex data from alex_outputdata.mat
         # alex_outputdata = loadmat("alex_outputdata.mat")
@@ -176,15 +177,57 @@ class PhaseTwo():
         self.depth_signals = np.delete(self.depth_signals, 0, 1)
         self.ear_signal = np.delete(self.ear_signal,0,0)
 
-        with open("depth.csv", 'w', newline='') as csvfile:
-            writer = csv.writer(csvfile)
-            firstCol = np.array(self.chest_depth)
-            firstCol = firstCol.tolist()
-            firstCol = [[value] for value in firstCol]  # Convert each value to a single
-            writer.writerows(firstCol) 
+        #tablet phase 3
 
-        if self.doRR:
-            self.RR = self.getRespitoryRate(self.chest_depth, outputFile=None, Savgof=False, Lowpass=True, Window=True, realFFT = True)
+        cheek_n_nose_intensity = self.intensity_signals[2]
+        cheek_n_nose_depth = self.depth_signals[2]
+
+        D_signal_smooth=scipy.signal.savgol_filter(cheek_n_nose_depth,9,2,mode='nearest')
+        I_signal_smooth=scipy.signal.savgol_filter(cheek_n_nose_intensity,5,2,mode='nearest')
+
+        print(f'shape of d signal smooth: {D_signal_smooth.shape}')
+        print(f'shape of i signal smooth: {I_signal_smooth.shape}')
+        
+        I_compensated = distcomp.distcomp(I_signal_smooth/200, D_signal_smooth,time_window=1, Fs = 10)
+        print(f'shape of I_compensated: {I_compensated.shape}')
+        print(f'frame_num: {frame_num}')
+        fps = 30
+        T = 1.0 / fps
+        yf_hr = abs(distcomp.fft(I_compensated))
+        yf_hr=2.0 / frame_num * yf_hr[:frame_num // 2]
+        xf_hr = np.linspace(0.0, 1.0 / (2.0 * T), frame_num // 2)
+        xf_hr = xf_hr * 60
+        yf_hr[np.where(xf_hr<=40 )]=0
+        yf_hr[np.where(xf_hr>=200)]=0
+
+        #isiah uncompensated hr BEGIN
+        yf_hrun = abs(distcomp.fft(I_signal_smooth))
+        yf_hrun = 2.0 / frame_num * yf_hrun[:frame_num // 2]
+        xf_hrun = np.linspace(0.0, 1.0 / (2.0 * T), frame_num // 2)
+        xf_hrun = xf_hrun * 60
+        yf_hrun[np.where(xf_hrun <= 40)] = 0
+        yf_hrun[np.where(xf_hrun >= 150)] = 0
+
+        peaks, properties = scipy.signal.find_peaks(yf_hrun)
+        max_index = np.argmax(yf_hrun[peaks])
+        HR_UNCOMP = xf_hrun[peaks[max_index]]
+        #isiah uncompensated hr END
+
+        peaks, properties = scipy.signal.find_peaks(yf_hr)
+        max_index=np.argmax(yf_hr[peaks])
+        HR_comp = xf_hr[peaks[max_index]]
+        print('Tablet code results: ')
+        print("HR_comp", HR_comp)
+        print("HR_UNCOMP", HR_UNCOMP)
+        # with open("depth.csv", 'w', newline='') as csvfile:
+        #     writer = csv.writer(csvfile)
+        #     firstCol = np.array(self.chest_depth)
+        #     firstCol = firstCol.tolist()
+        #     firstCol = [[value] for value in firstCol]  # Convert each value to a single
+        #     writer.writerows(firstCol) 
+
+        # if self.doRR:
+        #     self.RR = self.getRespitoryRate(self.chest_depth, outputFile=None, Savgof=False, Lowpass=True, Window=True, realFFT = True)
 
 
         # Save average intensities and depths for cheek_n_nose ROI as .mat files
@@ -226,7 +269,7 @@ class PhaseTwo():
         return
     
     def _process_file(self, file_num: int, num_files_to_process: int, filename: str, num_ROIs: int,
-                  face_mesh_detector: FaceMeshDetector) -> None:
+                  face_mesh_detector: FaceMeshDetector):
         """
         Processes a single file.proces
         
@@ -351,7 +394,7 @@ class PhaseTwo():
         # Save average intensities for each frame for cheek_n_nose to a .mat file. This is row idx 2 of the intensity_signals array.
         # savemat("intensity_signals.mat", {"intensity_signals": self.intensity_signals[2, :]})
 
-        return
+        return num_frames
     
     def chestCalculations(self, corner_landmarks, frame_x, frame_y, frame_z, frame_confidence): 
 

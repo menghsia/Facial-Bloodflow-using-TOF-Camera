@@ -69,8 +69,8 @@ class ProcessHR():
 
         ## getHR() NEEDS FIXING ##
         # Get HR Data
-        HR_comp = self.getHR(HRsig, 300, Window=False)
-        HR_ND = self.getHR(HRsigRaw, 300, Window=False)
+        HR_comp = self.getHR(HRsig, 600, Window=False)
+        HR_ND = self.getHR(HRsigRaw, 600, Window=False)
 
 
         # analyzer = HeartRateAnalyzer()
@@ -80,10 +80,10 @@ class ProcessHR():
         print(f'Main HR: {HR_comp}')
         print(f'Main HR_ND: {HR_ND}')
 
-        with open('PLY/csv/main_code_results.csv', 'a', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow(['HR_comp', HR_comp])
-            writer.writerow(['HR_ND', HR_ND])
+        # with open('PLY/csv/main_code_results.csv', 'a', newline='') as file:
+        #     writer = csv.writer(file)
+        #     writer.writerow(['HR_comp', HR_comp])
+        #     writer.writerow(['HR_ND', HR_ND])
 
         # I_comp_tab = self.tablet_depthComp(I_raw[2,:], Depth[2,:])
         # HR_comp_tab = self.tablet_getHR(I_comp_tab, 600)
@@ -166,7 +166,7 @@ class ProcessHR():
         #plt.show()
         
         # Process waveforms into the different regions
-        Fs = 10 # Frames/Second
+        Fs = 30 # Frames/Second
         T = 1 / Fs
 
         # Cheek and nose ROI is set aside for Heart Rate Signal calculation
