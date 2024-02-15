@@ -395,7 +395,7 @@ for i in range(1,2):
     lk_params = dict( winSize  = (21,21),
                     maxLevel = 2,
                     criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 30, 0.005))
-    frame_new=np.zeros((640,480)).astype('uint8')
+    frame_new=np.zeros((480,640)).astype('uint8')
 
     ini_ROImask = vtx2mask(ROIcoords_sig,image_cols,image_rows)
     ini_ROIcoords_sig = np.asarray(ROIcoords_sig).T
