@@ -333,19 +333,24 @@ class PhaseTwo():
             frame_y = y_all[:, :, frame_idx]
             frame_z = z_all[:, :, frame_idx]
             frame_confidence = confidence_all[:, :, frame_idx]
+            
 
             # Track face and extract intensity and depth for all ROIs in this frame
-
+            plt.figure()
+            plt.imshow(frame_confidence)
+            plt.show()
             # Convert the frame's confidence values to a grayscale image (n,d)
             frame_grayscale = self._convert_camera_confidence_to_grayscale(frame_confidence)
-
+            # frame_grayscale = frame_confidence
             # # To improve performance, optionally mark the image as not writeable to
             # # pass by reference.
             # frame_grayscale.flags.writeable = False
 
             # Convert grayscale image to "RGB" (n,d,3)
             frame_grayscale_rgb = cv2.cvtColor(frame_grayscale, cv2.COLOR_GRAY2RGB)
-
+            plt.figure()
+            plt.imshow(frame_grayscale_rgb)
+            plt.show()
             # Get pixel locations of all face landmarks
             face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=self.visualize_FaceMesh)
 
@@ -619,6 +624,43 @@ class PhaseTwo():
                     plt.title(f'frame: {frame_idx}')
                     plt.show(block=True)
 
+            if roi_name == 'cheek_n_nose' and frame_idx == 0:
+                # get path to the PLY/csv folder
+                csv_path = os.path.join(os.getcwd(), 'PLY/csv/roi_cheek_n_nose.csv')
+                with open(csv_path, 'a', newline='') as csvfile:
+                    csvwriter = csv.writer(csvfile)
+                    # I want roi_bounding_box_pixels to be a 1D array
+                    OneD = roi_bounding_box_pixels.flatten().tolist()
+                    # print(roi_bounding_box_pixels)
+                    # print(f'OneD: {OneD}')
+                    csvwriter.writerow(OneD)                
+                corners = roi_bounding_box_pixels
+                if True:
+                    # Convert corners to a format suitable for matplotlib (starting corner and width/height)
+                    top_left_corner = corners[0]
+                    width = corners[1][0] - corners[0][0]
+                    height = corners[2][1] - corners[1][1]
+
+                    # Create a figure and axis for plotting
+                    fig, ax = plt.subplots()
+
+                    # Create a rectangle patch
+                    rect = patches.Rectangle(top_left_corner, width, height, linewidth=1, edgecolor='r', facecolor='none')
+
+                    # Add the rectangle to the Axes
+                    # ax.add_patch(rect)
+                    
+                    coord = [top_left_corner, corners[1], corners[2], corners[3], top_left_corner]
+
+                    xs, ys = zip(*coord) #create lists of x and y values
+
+                    ax.plot(xs,ys) 
+                    ax.imshow(frame_grayscale_rgb, cmap='gray', aspect='auto')
+                    plt.title(f'frame: {frame_idx}')
+                    plt.show(block=True)
+                # roi_bounding_box_pixels.tofile(csv_path, sep = ',')
+
+                # np.savetxt(csv_path, roi_bounding_box_pixels, delimiter=',', fmt='%d')
 
             if self.visualize_ROIs and roi_name in self.ROIs_to_visualize:
                 # Draw bounding box of ROI
@@ -1068,7 +1110,7 @@ class PhaseTwo():
         divisor = 4
         
         grayscale_img = confidence_array.astype(float)
-        grayscale_img = grayscale_img / divisor
+        # grayscale_img = grayscale_img / divisor
         grayscale_img[np.where(grayscale_img > 255)] = 255
         grayscale_img = grayscale_img.astype('uint8')
 

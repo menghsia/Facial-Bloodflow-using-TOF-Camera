@@ -78,13 +78,11 @@ def ROI_coord_extract(image, ROIwhich, img_plt = False):
     if ROIwhich == 'full_face':
         ROI_vertex = [54, 284, 365, 136]
         # for sony camera it's times 8 
-        ROI_vertex = [54*8, 284*8, 365*8, 136*8]
         
     elif ROIwhich == 'left_face':
         ROI_vertex = [70, 135, 200, 8]
     elif ROIwhich == 'cheek_n_nose':
         ROI_vertex = [117, 346, 411, 187]
-        ROI_vertex = [117*8, 340*8, 433*8, 213*8]
     elif ROIwhich == 'left_cheek':
         ROI_vertex = [131, 165,214, 50]
     elif ROIwhich == 'right_cheek':
@@ -103,6 +101,13 @@ def ROI_coord_extract(image, ROIwhich, img_plt = False):
     mp_face_mesh = mp.solutions.face_mesh
     face_mesh = mp_face_mesh.FaceMesh(static_image_mode=True, max_num_faces=1, min_detection_confidence=0.5)
     results = face_mesh.process(image_3chnl)
+
+    # plt.figure()
+    # plt.imshow(image, cmap='gray')
+    # plt.show()
+    if results.multi_face_landmarks is None:
+        print('No face detected')
+        quit()
     face_landmarks = results.multi_face_landmarks[0]
 
     # Extract coordinates of all pixels within the ROI polygon
@@ -295,13 +300,23 @@ def bin_to_numpy(bin_file_path):
     x_all, y_all, z_all, confidence_all = read_binary_file(filepath)
     
     frame_num = 600
-    x_value=np.reshape(x_all,(frame_num,640,480)).astype('float')
-    y_value=np.reshape(y_all,(frame_num,640,480)).astype('float')
-    depth=np.reshape(z_all,(frame_num,640,480)).astype('float')
-    intensity=np.reshape(x_all,(frame_num,640,480)).astype('float')
+    x_value = x_all.reshape([480, 640, frame_num])
+    y_value = y_all.reshape([480, 640, frame_num])
+    depth = z_all.reshape([480, 640, frame_num])
+    intensity = confidence_all.reshape([480, 640, frame_num])
 
-    # I want to transpose so it's in the form (frame_num, 640, 480)
-
+    # plt.figure()
+    # plt.imshow(intensity[:,:,0], cmap='gray', aspect='auto')
+    # plt.show()
+    # I want to transpose so it's in the form (frame_num, 480, 640)
+    x_value = np.transpose(x_value, (2, 0, 1))
+    y_value = np.transpose(y_value, (2, 0, 1))
+    depth = np.transpose(depth, (2, 0, 1))
+    intensity = np.transpose(intensity, (2, 0, 1))
+    
+    # plt.figure()
+    # plt.imshow(intensity[0, :, :], cmap='gray')
+    # plt.show()
     print(f'shape of x_value: {x_value.shape}')
     print(f'shape of y_value: {y_value.shape}')
     print(f'shape of depth: {depth.shape}')
@@ -334,8 +349,10 @@ for i in range(1,2):
     # Extract initial ROI landmark locations
     start_frame=0
     frameSig = intensity[start_frame,:,:]
-    frameTrk = intensity[start_frame,:,:]/4
+    # frameTrk = intensity[start_frame,:,:]/4
+    frameTrk = intensity[start_frame,:,:]/1
     frameTrk[np.where(frameTrk>255)] = 255
+    frameTrk = frameTrk.astype('uint8')
     frameTrk = np.uint8(frameTrk)
 
 
@@ -378,7 +395,7 @@ for i in range(1,2):
     lk_params = dict( winSize  = (21,21),
                     maxLevel = 2,
                     criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 30, 0.005))
-    frame_new=np.zeros((171,224)).astype('uint8')
+    frame_new=np.zeros((640,480)).astype('uint8')
 
     ini_ROImask = vtx2mask(ROIcoords_sig,image_cols,image_rows)
     ini_ROIcoords_sig = np.asarray(ROIcoords_sig).T
@@ -473,12 +490,12 @@ for i in range(1,2):
     # give write permission to the file
     print(f'shape of I_signal: {I_signal.shape}, length: {len(I_signal)}')
     print(f'shape of D_signal: {D_signal.shape}, length: {len(D_signal)}')
-    with open('datas/csv/intensity.csv', 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerows(I_signal.reshape(-1,1))
-    with open('datas/csv/depth.csv', 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerows(D_signal.reshape(-1,1))
+    # with open('datas/csv/intensity.csv', 'w', newline='') as csvfile:
+    #     writer = csv.writer(csvfile)
+    #     writer.writerows(I_signal.reshape(-1,1))
+    # with open('datas/csv/depth.csv', 'w', newline='') as csvfile:
+    #     writer = csv.writer(csvfile)
+    #     writer.writerows(D_signal.reshape(-1,1))
 
     D_signal_smooth=scipy.signal.savgol_filter(D_signal,9,2,mode='nearest')
     I_signal_smooth=scipy.signal.savgol_filter(I_signal,5,2,mode='nearest')
@@ -527,7 +544,7 @@ for i in range(1,2):
     #plt.show()
 
     #please work - isiah
-    np.savetxt('test.out',D_signal, delimiter = ',')
+    # np.savetxt('test.out',D_signal, delimiter = ',')
 
 
 

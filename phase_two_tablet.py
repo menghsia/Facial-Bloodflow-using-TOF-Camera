@@ -604,7 +604,7 @@ class PhaseTwo():
             # Get bounding box of ROI in pixels
             roi_bounding_box_pixels = self._get_ROI_bounding_box_pixels(landmarks_pixels, roi_name)
             
-            if roi_name == 'cheek_n_nose':
+            if roi_name == 'cheek_n_nose' and frame_idx == 0:
                 # get path to the PLY/csv folder
                 csv_path = os.path.join(os.getcwd(), 'PLY/csv/roi_cheek_n_nose.csv')
                 with open(csv_path, 'a', newline='') as csvfile:
@@ -615,7 +615,7 @@ class PhaseTwo():
                     # print(f'OneD: {OneD}')
                     csvwriter.writerow(OneD)                
                 corners = roi_bounding_box_pixels
-                if False:
+                if True:
                     # Convert corners to a format suitable for matplotlib (starting corner and width/height)
                     top_left_corner = corners[0]
                     width = corners[1][0] - corners[0][0]
