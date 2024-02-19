@@ -297,7 +297,7 @@ def bin_to_numpy(bin_file_path):
     print(f'Processing {bin_file_path}')
     filepath = bin_file_path
 
-    x_all, y_all, z_all, confidence_all = read_binary_file(filepath)
+    x_all, z_all, y_all, confidence_all = read_binary_file(filepath)
     
     frame_num = 600
     x_value = x_all.reshape([480, 640, frame_num])
@@ -324,7 +324,17 @@ def bin_to_numpy(bin_file_path):
 
     return x_value, y_value, depth, intensity, frame_num
 
-for i in range(1,2):
+# store all bin filenames in a list
+skv_dir = os.path.join(os.getcwd(), 'skvs')
+print(skv_dir)
+run.check_for_skvs(skv_dir)
+run.skv_to_bin(skv_dir)
+print('converted skv to bin')
+bin_dir = os.path.join(os.getcwd(), 'skvs/mat')
+bin_files = [f for f in os.listdir(bin_dir) if f.endswith('.bin')]
+print(bin_files)
+
+for filename in bin_files:
     start = time.time()
 
     #raw_data_name = 'recorded_data.mat'
@@ -333,12 +343,12 @@ for i in range(1,2):
     #mat_data = loadmat(mat_path)
     #mat_data = pickle.load(open('rt.pkl', 'rb'))
     
-    skv_dir = os.path.join(os.getcwd(), 'skvs')
-    print(skv_dir)
-    run.check_for_skvs(skv_dir)
-    run.skv_to_bin(skv_dir)
-    print('converted skv to bin')
-    bin_dir = os.path.join(os.getcwd(), 'skvs/mat/sk_automotive_20240115_170319.skv.bin')
+    # skv_dir = os.path.join(os.getcwd(), 'skvs')
+    # print(skv_dir)
+    # run.check_for_skvs(skv_dir)
+    # run.skv_to_bin(skv_dir)
+    # print('converted skv to bin')
+    bin_dir = os.path.join(os.getcwd(), f'skvs/mat/{filename}')
     x_value, y_value, depth, intensity, frame_num = bin_to_numpy(bin_dir)
 
     I_signal = np.zeros(frame_num)
@@ -406,9 +416,13 @@ for i in range(1,2):
 
     # Initial value
     I_signal[0] = np.average(frameSig[np.where(ini_ROImask>0)])
-    D_signal[0] = np.average(np.sqrt((xframe[np.where(ini_ROImask>0)])**2 +
-        (yframe[np.where(ini_ROImask>0)])**2 + (zframe[np.where(ini_ROImask>0)])**2))
-
+    # D_signal[0] = np.average(np.sqrt((xframe[np.where(ini_ROImask>0)])**2 +
+    #     (yframe[np.where(ini_ROImask>0)])**2 + (zframe[np.where(ini_ROImask>0)])**2))
+    D_signal[0] = np.sqrt(
+        np.average(xframe[np.where(ini_ROImask>0)])**2 +
+        np.average(yframe[np.where(ini_ROImask>0)])**2 +
+        np.average(zframe[np.where(ini_ROImask>0)])**2
+    )
     # Create 3 length buffer to calculate RoI means
     # roi_history = np.zeros(tuple([3] + list(old_ROIcoords.shape)))
     # roi_history[0, :, :] = old_ROIcoords
@@ -417,7 +431,7 @@ for i in range(1,2):
 
     for i in range(frame_num-1):
         frameSig = intensity[i+1,:,:]
-        frame_new = intensity[i+1,:,:]/4
+        frame_new = intensity[i+1,:,:]
         frame_new = np.uint8(frame_new)
 
 
@@ -461,9 +475,13 @@ for i in range(1,2):
         # record ROI signal
         ROImask = vtx2mask(list(np.reshape(new_ROIcoords.T,-1)),image_cols,image_rows)
         I_signal[i+1] = np.average(frameSig[np.where(ROImask>0)])
-        D_signal[i+1] = np.average(np.sqrt(xframe[np.where(ROImask>0)]**2 +
-            yframe[np.where(ROImask>0)]**2 + zframe[np.where(ROImask>0)]**2))
-
+        # D_signal[i+1] = np.average(np.sqrt(xframe[np.where(ROImask>0)]**2 +
+        #     yframe[np.where(ROImask>0)]**2 + zframe[np.where(ROImask>0)]**2))
+        D_signal[i+1] = np.sqrt(
+            np.average(xframe[np.where(ROImask>0)])**2 +
+            np.average(yframe[np.where(ROImask>0)])**2 +
+            np.average(zframe[np.where(ROImask>0)])**2
+        )
         # show tracking performance
 
         ROIpts = np.transpose(new_ROIcoords)
