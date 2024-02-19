@@ -188,7 +188,7 @@ class PhaseTwo():
         print(f'shape of d signal smooth: {D_signal_smooth.shape}')
         print(f'shape of i signal smooth: {I_signal_smooth.shape}')
         
-        I_compensated = distcomp.distcomp(I_signal_smooth/200, D_signal_smooth,time_window=1, Fs = 10)
+        I_compensated = distcomp.distcomp(I_signal_smooth/200, D_signal_smooth,time_window=1, Fs = 30)
         print(f'shape of I_compensated: {I_compensated.shape}')
         print(f'frame_num: {frame_num}')
         fps = 30
@@ -294,7 +294,7 @@ class PhaseTwo():
 
         # Load the file
         filepath = os.path.join(self.input_dir, filename + '.bin')
-        x_all, y_all, z_all, confidence_all = self._read_binary_file(filepath)
+        x_all, z_all, y_all, confidence_all = self._read_binary_file(filepath)
 
         # Get number of frames (columns) in this video clip
         # num_frames = np.size(gray_all, 1)
@@ -321,6 +321,9 @@ class PhaseTwo():
         z_all = z_all.reshape([self.image_height, self.image_width, num_frames])
         confidence_all = confidence_all.reshape([self.image_height, self.image_width, num_frames])
 
+        # set all x y z values to 0 if it's < 0
+
+
         # Used to calculate FPS
         previous_time = 0
         start_time = time.time()
@@ -329,16 +332,17 @@ class PhaseTwo():
         
         # Loop through all frames
         for frame_idx in range(num_frames):
-            frame_x = x_all[:, :, frame_idx]
-            frame_y = y_all[:, :, frame_idx]
-            frame_z = z_all[:, :, frame_idx]
-            frame_confidence = confidence_all[:, :, frame_idx]
+            frame_x = x_all[:, :, frame_idx].copy()
+            frame_y = y_all[:, :, frame_idx].copy()
+            frame_z = z_all[:, :, frame_idx].copy()
+            frame_confidence = confidence_all[:, :, frame_idx].copy()
             
 
+
             # Track face and extract intensity and depth for all ROIs in this frame
-            plt.figure()
-            plt.imshow(frame_confidence)
-            plt.show()
+            # plt.figure()
+            # plt.imshow(frame_confidence)
+            # plt.show()
             # Convert the frame's confidence values to a grayscale image (n,d)
             frame_grayscale = self._convert_camera_confidence_to_grayscale(frame_confidence)
             # frame_grayscale = frame_confidence
@@ -348,9 +352,9 @@ class PhaseTwo():
 
             # Convert grayscale image to "RGB" (n,d,3)
             frame_grayscale_rgb = cv2.cvtColor(frame_grayscale, cv2.COLOR_GRAY2RGB)
-            plt.figure()
-            plt.imshow(frame_grayscale_rgb)
-            plt.show()
+            # plt.figure()
+            # plt.imshow(frame_grayscale_rgb)
+            # plt.show()
             # Get pixel locations of all face landmarks
             face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=self.visualize_FaceMesh)
 
@@ -359,7 +363,8 @@ class PhaseTwo():
                 self.chestCalculations(chest_ROIs, frame_x, frame_y, frame_z, frame_confidence)
 
             if face_detected:
-                multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb))
+                # multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb))
+                self._process_face_landmarks(landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb)
 
             if self.visualize_FaceMesh or self.visualize_ROIs:
                 # Calculate and overlay FPS
@@ -590,74 +595,60 @@ class PhaseTwo():
             def get_info(custom_bounding_box, color):
                 corners = custom_bounding_box
                 top_left_corner = corners[0]
-                width = corners[1][0] - corners[0][0]
-                height = corners[2][1] - corners[1][1]
-                rect = patches.Rectangle(top_left_corner, width, height, linewidth=1, edgecolor=color, facecolor='none')
-                return rect
+                coord = [top_left_corner, corners[1], corners[2], corners[3], top_left_corner]
+                xs, ys = zip(*coord)
+
+                return xs, ys
 
             if roi_name == 'cheek_n_nose' and frame_idx == 0:
-                if False:
+                if True:
                     # create fig and ax for subplots
                     fig, ax = plt.subplots()
                     # create rectangles
                     # print(f'roi_bounding_box: {roi_bounding_box_pixels}')
                     # print('landmark pixels:')
                     # print(landmarks_pixels)
-                    rect = get_info(roi_bounding_box_pixels, 'r')
-                    ax.add_patch(rect)
-                    i = 0
-                    for coord in landmarks_pixels:
-                        print(f'({coord[0]}, {coord[1]}) i = {i}')
-                        if coord[0] >= 335 and coord[0] <= 360 and coord[1] >= 155 and coord[1] <= 150:
-                            print(f'found {coord[0]}, {coord[1]} at {i}')
-                        # if coord[0] >= 290 and coord[0] <= 296 and coord[1] == 155:
-                        #     print(f'found {coord[0]}, {coord[1]} at {i}')                       
-                        i += 1   
-
-                    # roi_bounding_box_pixels = self._custom_ROI_bounding_box_pixels(landmarks_pixels, [117,346, 205, 165])
-                    # print(f'roi_bounding_box 1: {roi_bounding_box_pixels}')
-                    # rect = get_info(roi_bounding_box_pixels, 'g')
-                    # ax.add_patch(rect)
-                    
+                    xs, ys = get_info(roi_bounding_box_pixels, 'r')
+                    ax.plot(xs,ys)
 
                     ax.imshow(frame_grayscale_rgb, cmap='gray', aspect='auto')
                     plt.title(f'frame: {frame_idx}')
                     plt.show(block=True)
 
-            if roi_name == 'cheek_n_nose' and frame_idx == 0:
-                # get path to the PLY/csv folder
-                csv_path = os.path.join(os.getcwd(), 'PLY/csv/roi_cheek_n_nose.csv')
-                with open(csv_path, 'a', newline='') as csvfile:
-                    csvwriter = csv.writer(csvfile)
-                    # I want roi_bounding_box_pixels to be a 1D array
-                    OneD = roi_bounding_box_pixels.flatten().tolist()
-                    # print(roi_bounding_box_pixels)
-                    # print(f'OneD: {OneD}')
-                    csvwriter.writerow(OneD)                
-                corners = roi_bounding_box_pixels
-                if True:
-                    # Convert corners to a format suitable for matplotlib (starting corner and width/height)
-                    top_left_corner = corners[0]
-                    width = corners[1][0] - corners[0][0]
-                    height = corners[2][1] - corners[1][1]
+            # if roi_name == 'cheek_n_nose' and frame_idx == 0:
+            #     # get path to the PLY/csv folder
+            #     csv_path = os.path.join(os.getcwd(), 'PLY/csv/roi_cheek_n_nose.csv')
+            #     with open(csv_path, 'a', newline='') as csvfile:
+            #         csvwriter = csv.writer(csvfile)
+            #         # I want roi_bounding_box_pixels to be a 1D array
+            #         OneD = roi_bounding_box_pixels.flatten().tolist()
+            #         # print(roi_bounding_box_pixels)
+            #         # print(f'OneD: {OneD}')
+            #         csvwriter.writerow(OneD)                
+            #     corners = roi_bounding_box_pixels
+            #     if True:
+            #         # Convert corners to a format suitable for matplotlib (starting corner and width/height)
+            #         top_left_corner = corners[0]
+            #         width = corners[1][0] - corners[0][0]
+            #         height = corners[2][1] - corners[1][1]
 
-                    # Create a figure and axis for plotting
-                    fig, ax = plt.subplots()
+            #         # Create a figure and axis for plotting
+            #         fig, ax = plt.subplots()
 
-                    # Create a rectangle patch
-                    rect = patches.Rectangle(top_left_corner, width, height, linewidth=1, edgecolor='r', facecolor='none')
+            #         # Create a rectangle patch
+            #         rect = patches.Rectangle(top_left_corner, width, height, linewidth=1, edgecolor='r', facecolor='none')
 
-                    # Add the rectangle to the Axes
-                    # ax.add_patch(rect)
+            #         # Add the rectangle to the Axes
+            #         # ax.add_patch(rect)
                     
-                    coord = [top_left_corner, corners[1], corners[2], corners[3], top_left_corner]
+            #         coord = [top_left_corner, corners[1], corners[2], corners[3], top_left_corner]
 
-                    xs, ys = zip(*coord) #create lists of x and y values
+            #         xs, ys = zip(*coord) #create lists of x and y values
 
-                    ax.plot(xs,ys) 
-                    ax.imshow(frame_grayscale_rgb, cmap='gray', aspect='auto')
-                    plt.title(f'frame: {frame_idx}')
-                    plt.show(block=True)
+            #         ax.plot(xs,ys) 
+            #         ax.imshow(frame_grayscale_rgb, cmap='gray', aspect='auto')
+            #         plt.title(f'frame: {frame_idx}')
+            #         plt.show(block=True)
                 # roi_bounding_box_pixels.tofile(csv_path, sep = ',')
 
                 # np.savetxt(csv_path, roi_bounding_box_pixels, delimiter=',', fmt='%d')

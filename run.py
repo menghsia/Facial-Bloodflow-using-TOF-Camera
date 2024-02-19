@@ -182,10 +182,10 @@ def bin_to_bfsig(skvs_dir: str):
     return
 
 
-def bfsig_to_plot(skvs_dir):
+def bfsig_to_plot(skvs_dir, width, height, fps, frame_num):
     # Run plotting matlab script
     # Create path to matlab script
-    processHR = ProcessHR(input_file=os.path.join(skvs_dir, "mat", "auto_bfsig"))
+    processHR = ProcessHR(input_file=os.path.join(skvs_dir, "mat", "auto_bfsig"), width=width, height=height, fps=fps, frame_num=frame_num)
     processHR.run()
     return processHR.time
 
@@ -227,7 +227,10 @@ if __name__ == '__main__':
     skvs_dir = os.path.join(os.getcwd(), 'skvs')
 
     check_for_skvs(skvs_dir)
-
+    width = 640
+    height = 480
+    fps = 30
+    frame_num = 600
 
     if args.skv_to_bin:
         start_time = time.time()
@@ -247,7 +250,7 @@ if __name__ == '__main__':
     plotting_time = 0
     
     if args.bfsig_to_plot:
-        plotting_time = bfsig_to_plot(skvs_dir)
+        plotting_time = bfsig_to_plot(skvs_dir, width, height, fps, frame_num)
 
     print('Done!')
 

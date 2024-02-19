@@ -519,7 +519,13 @@ for filename in bin_files:
     I_signal_smooth=scipy.signal.savgol_filter(I_signal,5,2,mode='nearest')
 
     I_compensated = distcomp(I_signal_smooth/200, D_signal_smooth,time_window=1, Fs = 30)
-
+    fig, axs = plt.subplots(2, 1, figsize=(8, 6))
+    axs[0].plot(I_signal)
+    axs[0].set_ylabel('Raw Intensity')
+    
+    axs[1].plot(I_compensated)
+    axs[1].set_ylabel('Compensated Intensity')
+    axs[0].set_title('Cheek and Nose Signal Intensity')
     fps = 30
     T = 1.0 / fps
     yf_hr = abs(fft(I_compensated))
@@ -574,6 +580,11 @@ for filename in bin_files:
     #ax4.plot(xf, yf)
     #plt.xlim(0, 200)
     #plt.ylim(0,0.5)
+    plt.figure()
+    plt.plot(xf_hr, yf_hr)
+    plt.xlim((40, 150))
+    plt.title("Tablet hr power spectrum")
+    plt.show()
 
     print("COMPENSATED Heart Rate Measured", HR_comp)
     print("UNCOMPENSATED Heart Rate Measured", HR_UNCOMP)

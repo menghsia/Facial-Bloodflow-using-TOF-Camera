@@ -206,18 +206,18 @@ def ply_to_bfsig(ply_dir: str, i: int):
     return
 
 
-def bfsig_to_plot(skvs_dir):
+def bfsig_to_plot(skvs_dir, width, height, fps, frame_num):
     # Run plotting matlab script
     # Create path to matlab script
-    processHR = ProcessHR(input_file=os.path.join(skvs_dir, "mat", "auto_bfsig"))
+    processHR = ProcessHR(input_file=os.path.join(skvs_dir, "mat", "auto_bfsig"), width=width, height=height, fps=fps, frame_num=frame_num)
     processHR.run()
     return processHR.time
 
 
-def ply_bfsig_plot(ply_dir):
+def ply_bfsig_plot(ply_dir, width, height, fps, frame_num):
     # Run plotting matlab script
     # Create path to matlab script
-    processHR = ProcessHR(input_file=ply_dir)
+    processHR = ProcessHR(input_file=ply_dir, width=width, height=height, fps=fps, frame_num=frame_num)
     processHR.run()
     return processHR.time
 
@@ -262,7 +262,10 @@ if __name__ == '__main__':
 
     
     mat_dir = os.path.join(os.getcwd(), 'PLY/mat')
-
+    width = 171
+    height = 224
+    fps = 10
+    frame_num = 300
 
     if args.single:
         single_file_number = args.single
@@ -274,7 +277,7 @@ if __name__ == '__main__':
         main_end_time = time.time()
         print(f'processing {single_file_number}.mat')
         mat_file_dir = mat_dir + f'/{single_file_number}'
-        plotting_time = ply_bfsig_plot(mat_file_dir)
+        plotting_time = ply_bfsig_plot(mat_file_dir, width, height, fps, frame_num)
         print(f"run.py took {main_end_time - main_start_time + plotting_time} seconds to run")
         # Rest of the code for processing the single file goes here
         # check_for_skvs(skvs_dir)
@@ -285,6 +288,7 @@ if __name__ == '__main__':
         # bfsig_to_plot(skvs_dir)
         # ply_bfsig_plot(ply_dir)
         # ply_bfsig_plot(ply_dir)
+        
     else:
         if args.bin_to_bfsig:
             start_time = time.time()
@@ -297,7 +301,7 @@ if __name__ == '__main__':
                 main_end_time = time.time()
                 print(f'processing {i}.mat')
                 mat_file_dir = mat_dir + f'/{i}'
-                plotting_time = ply_bfsig_plot(mat_file_dir)
+                plotting_time = ply_bfsig_plot(mat_file_dir, width, height, fps, frame_num)
                 
                 # if args.bfsig_to_plot:
                 #     plotting_time = ply_bfsig_plot(ply_dir)

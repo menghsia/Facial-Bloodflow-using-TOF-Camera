@@ -23,7 +23,7 @@ class ProcessHR():
         time (float): runtime of run() from start to finish
     """
 
-    def __init__(self, input_file):
+    def __init__(self, input_file, width, height, fps, frame_num):
         """
         Initializes class variables
 
@@ -33,6 +33,11 @@ class ProcessHR():
 
         self.input_file = input_file
         self.time = 0
+        self.width = width
+        self.height = height
+        self.fps = fps
+        self.frame_num = frame_num
+
     
     def run(self):
         """
@@ -69,8 +74,8 @@ class ProcessHR():
 
         ## getHR() NEEDS FIXING ##
         # Get HR Data
-        HR_comp = self.getHR(HRsig, 600, Window=False)
-        HR_ND = self.getHR(HRsigRaw, 600, Window=False)
+        HR_comp = self.getHR(HRsig, self.frame_num, Window=False)
+        HR_ND = self.getHR(HRsigRaw, self.frame_num, Window=False)
 
 
         # analyzer = HeartRateAnalyzer()
@@ -157,7 +162,7 @@ class ProcessHR():
         #TODO: I changed 30fps to 10fps 
         print('I_raw shape', I_raw.shape)
         print('Depth shape', Depth.shape)
-        I_comp = self.depthComp(I_raw, Depth, 2, 10) # depthComp is good
+        I_comp = self.depthComp(I_raw, Depth, 2, self.fps) # depthComp is good
         print('I_comp shape', I_comp.shape)
         depth_compensator = DepthCompensator()
         # moose_I_comp = depth_compensator.run(I_raw, Depth, window_length=2, fps=30)
@@ -166,7 +171,7 @@ class ProcessHR():
         #plt.show()
         
         # Process waveforms into the different regions
-        Fs = 30 # Frames/Second
+        Fs = self.fps # Frames/Second
         T = 1 / Fs
 
         # Cheek and nose ROI is set aside for Heart Rate Signal calculation
@@ -187,22 +192,22 @@ class ProcessHR():
 
 
         # Plots Raw and Compensated cheek and nose intensities
-        # fig, axs = plt.subplots(2, 1, figsize=(8, 6))
-        # axs[0].plot(I_raw[2, :])
-        # axs[0].set_ylabel('Raw Intensity')
+        fig, axs = plt.subplots(2, 1, figsize=(8, 6))
+        axs[0].plot(I_raw[2, :])
+        axs[0].set_ylabel('Raw Intensity')
 
 
-        # axs[1].plot(I_comp[2, :])
-        # axs[1].set_ylabel('Compensated Intensity')
+        axs[1].plot(I_comp[2, :])
+        axs[1].set_ylabel('Compensated Intensity')
 
 
-        # axs[0].set_xticks([])
-        # if dataTitle is not None:
-        #     axs[0].set_title('Cheek and Nose Signal Intensity: ' + dataTitle)
-        # else:
-        #     axs[0].set_title('Cheek and Nose Signal Intensity')
+        axs[0].set_xticks([])
+        if dataTitle is not None:
+            axs[0].set_title('Cheek and Nose Signal Intensity: ' + dataTitle)
+        else:
+            axs[0].set_title('Cheek and Nose Signal Intensity')
 
-        # plt.show()
+        plt.show()
 
         return HRsig, HRsigRaw, I_comp, Depth, I_raw
     
@@ -381,7 +386,7 @@ class ProcessHR():
             HRsig = HRsig * window
 
         # Prepare Parameters
-        Fs = 10
+        Fs = self.fps
         T = 1/Fs
 
         # Get HR
@@ -396,11 +401,11 @@ class ProcessHR():
         maxindex = np.argmax(spectrum[pks])
         HR = f[pks[maxindex]]
 
-        # plt.figure()
-        # plt.plot(f, spectrum)
-        # plt.xlim((40, 150))
-        # plt.title("main hr power spectrum")
-        # plt.show()
+        plt.figure()
+        plt.plot(f, spectrum)
+        plt.xlim((40, 150))
+        plt.title("main hr power spectrum")
+        plt.show()
 
         return HR
     
