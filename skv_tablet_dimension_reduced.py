@@ -321,7 +321,7 @@ if __name__ == "__main__":
     run.check_for_skvs(skv_dir)
     run.skv_to_bin(skv_dir)
     print('converted skv to bin')
-    bin_dir = os.path.join(os.getcwd(), 'skvs/mat')
+    bin_dir = os.path.join(os.getcwd(), 'skvs_bins/mat')
     bin_files = [f for f in os.listdir(bin_dir) if f.endswith('.bin')]
     print(bin_files)
     for filename in bin_files:
@@ -336,21 +336,21 @@ if __name__ == "__main__":
         intensity = intensity[20:320, :, :]
         frame_num = 300
 
-        pool_height = 480 // 171
-        pool_width = 640 // 224
-
-        resized_x = np.zeros((300, 171, 224), dtype=np.uint8)
-        resized_y = np.zeros((300, 171, 224), dtype=np.uint8)
-        resized_depth = np.zeros((300, 171, 224), dtype=np.uint8)
-        resized_intensity = np.zeros((300, 171, 224), dtype=np.uint8)
-
+        # resize using opencv 
+        resized_x = np.zeros((300, 171, 224))
+        resized_y = np.zeros((300, 171, 224))
+        resized_depth = np.zeros((300, 171, 224))
+        resized_intensity = np.zeros((300, 171, 224))
         for i in range(300):
-            resized_x[i] = block_reduce(x_value[i], 3, np.max)
-            resized_y[i] = block_reduce(y_value[i], 3, np.max)
-            resized_depth[i] = block_reduce(depth[i], 3, np.max)
-            resized_intensity[i] = block_reduce(intensity[i], 3, np.max)
-            
+            resized_x[i] = cv2.resize(x_value[i], (224, 171), interpolation = cv2.INTER_NEAREST)
+            resized_y[i] = cv2.resize(y_value[i], (224, 171), interpolation = cv2.INTER_NEAREST)
+            resized_depth[i] = cv2.resize(depth[i], (224, 171), interpolation = cv2.INTER_NEAREST)
+            resized_intensity[i] = cv2.resize(intensity[i], (224, 171), interpolation = cv2.INTER_NEAREST)
         
+        x_value = resized_x
+        y_value = resized_y
+        depth = resized_depth
+        intensity = resized_intensity
 
 
 
