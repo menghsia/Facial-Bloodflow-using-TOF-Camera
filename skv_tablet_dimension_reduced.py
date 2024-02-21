@@ -13,6 +13,7 @@ import re
 import scipy
 from scipy.signal import savgol_filter
 from scipy.ndimage import zoom
+from skimage.transform import resize
 
 import os
 import serial
@@ -318,12 +319,12 @@ if __name__ == "__main__":
 
     skv_dir = os.path.join(os.getcwd(), 'skvs')
     print(skv_dir)
-    run.check_for_skvs(skv_dir)
+    # run.check_for_skvs(skv_dir)
     run.skv_to_bin(skv_dir)
     print('converted skv to bin')
-    bin_dir = os.path.join(os.getcwd(), 'skvs_bins/mat')
+    bin_dir = os.path.join(os.getcwd(), 'skvs/mat')
     bin_files = [f for f in os.listdir(bin_dir) if f.endswith('.bin')]
-    print(bin_files)
+    # print(bin_files)
     for filename in bin_files:
         start = time.time()
 
@@ -335,17 +336,17 @@ if __name__ == "__main__":
         depth = depth[20:320, :, :]
         intensity = intensity[20:320, :, :]
         frame_num = 300
-
         # resize using opencv 
         resized_x = np.zeros((300, 171, 224))
         resized_y = np.zeros((300, 171, 224))
         resized_depth = np.zeros((300, 171, 224))
         resized_intensity = np.zeros((300, 171, 224))
         for i in range(300):
-            resized_x[i] = cv2.resize(x_value[i], (224, 171), interpolation = cv2.INTER_NEAREST)
-            resized_y[i] = cv2.resize(y_value[i], (224, 171), interpolation = cv2.INTER_NEAREST)
-            resized_depth[i] = cv2.resize(depth[i], (224, 171), interpolation = cv2.INTER_NEAREST)
-            resized_intensity[i] = cv2.resize(intensity[i], (224, 171), interpolation = cv2.INTER_NEAREST)
+            resized_x[i] = resize(x_value[i], (171, 224))
+            resized_y[i] = resize(y_value[i], (171, 224))
+            resized_depth[i] = resize(depth[i], (171, 224))
+            resized_intensity[i] = resize(intensity[i], (171, 224))
+
         
         x_value = resized_x
         y_value = resized_y
@@ -388,9 +389,9 @@ if __name__ == "__main__":
         # y_value = zoom(y_value, (1, zoom_factor_1, zoom_factor_2))
         # depth = zoom(depth, (1, zoom_factor_1, zoom_factor_2))
         # intensity = zoom(intensity, (1, zoom_factor_1, zoom_factor_2))
-        plt.figure()
-        plt.imshow(intensity[0, :, :], cmap='gray')
-        plt.show()
+        # plt.figure()
+        # plt.imshow(intensity[0, :, :], cmap='gray')
+        # plt.show()
         print(f'shape of x_value: {x_value.shape}')
         print(f'shape of y_value: {y_value.shape}')
         print(f'shape of depth: {depth.shape}')
