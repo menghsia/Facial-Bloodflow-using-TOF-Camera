@@ -315,6 +315,11 @@ def bin_to_numpy(bin_file_path):
 
     return x_value, y_value, depth, intensity, frame_num
 
+def crop_center(img, new_height, new_width):
+    height, width = img.shape[-2:]
+    startx = width//2 - new_width//2
+    starty = height//2 - new_height//2    
+    return img[:, starty:starty+new_height, startx:startx+new_width]
 if __name__ == "__main__":
 
     skv_dir = os.path.join(os.getcwd(), 'skvs')
@@ -336,29 +341,24 @@ if __name__ == "__main__":
         depth = depth[20:320, :, :]
         intensity = intensity[20:320, :, :]
         frame_num = 300
-        # resize using opencv 
-        resized_x = np.zeros((300, 171, 224))
-        resized_y = np.zeros((300, 171, 224))
-        resized_depth = np.zeros((300, 171, 224))
-        resized_intensity = np.zeros((300, 171, 224))
-        for i in range(300):
-            resized_x[i] = resize(x_value[i], (171, 224))
-            resized_y[i] = resize(y_value[i], (171, 224))
-            resized_depth[i] = resize(depth[i], (171, 224))
-            resized_intensity[i] = resize(intensity[i], (171, 224))
 
-        
-        x_value = resized_x
-        y_value = resized_y
-        depth = resized_depth
-        intensity = resized_intensity
+        x_value_cropped = crop_center(x_value, 171, 224)
+        y_value_cropped = crop_center(y_value, 171, 224)
+        depth_cropped = crop_center(depth, 171, 224)
+        intensity_cropped = crop_center(intensity, 171, 224)
+
+        x_value = x_value_cropped
+        y_value = y_value_cropped
+        depth = depth_cropped
+        intensity = intensity_cropped
 
 
 
-        # pil_image = Image.fromarray(intensity[0, :, :])
-        # plt.figure()
-        # plt.imshow(pil_image, cmap='gray')
-        # plt.show()
+
+        pil_image = Image.fromarray(intensity[0, :, :])
+        plt.figure()
+        plt.imshow(pil_image, cmap='gray')
+        plt.show()
 
 
         # resized_image = pil_image.resize((224, 171), Image.LANCZOS)
