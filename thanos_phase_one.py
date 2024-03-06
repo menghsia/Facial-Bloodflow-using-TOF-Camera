@@ -116,11 +116,16 @@ def run():
 # If any of the tests that require image data to be processed are to be run, run them
 if __name__=="__main__":
     # Get list of folders in Data
-    folders = next(os.walk('Data'))[1]
+
+    # print(next(os.walk('Data')))
+    folders = next(os.walk('Data'))[2]
+
     if 'mat' in folders:
         folders.pop(folders.index('mat'))
     
     ctr = 1
+    print(folders)
+    print("Hi")
     for filename in folders:
         # Choose the name of the folder of NIR images and file of depth data to be processed
         print(f'Processing file {ctr}/{len(folders)}: {filename}')
@@ -131,14 +136,24 @@ if __name__=="__main__":
         img_height = 804
 
         # Adjust frame rate accordingly
-        NIR_framerate = 30
-        Depth_framerate = 30
+        NIR_framerate = 20
+        Depth_framerate = 20
 
         # Get filenames for amplitude and depth data
-        amp_names = get_files(pathname + "*amplitude*")
+        # print(filename.replace("ambient", "amplitude"))
+        # file = filename.replace("ambient", "amplitude")
+        # amp_names = get_files(file)
+        file = filename.replace("ambient", "amplitude")
+        
+        full_path = f'Data/{file}/'
+        print(f'Looking for files in: {full_path}')
+        amp_names = get_files(full_path)
+        print(amp_names)
+        
         amp_names.sort()
 
-        depth_names = get_files(pathname + "*depth*")
+        print(filename.replace("ambient.pfm", "depth.pgm"))
+        depth_names = get_files(filename.replace("ambient.pfm", "depth.pgm"))
         depth_names.sort()
 
         # Run processing
