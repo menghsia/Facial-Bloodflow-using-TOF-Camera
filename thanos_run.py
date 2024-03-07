@@ -217,6 +217,7 @@ def process_args() -> argparse.Namespace:
     
     return args
 
+
 if __name__ == '__main__':
     # TODO: Add checks to ensure that /skvs/ and /skvs/mat/ exist. If not, create them.
     
@@ -231,13 +232,13 @@ if __name__ == '__main__':
     skv_dir_names = [f for f in os.listdir(skvs_dir) if f.endswith('.bin')]
 
     # check_for_skvs(skvs_dir)
-    width = 640
-    height = 480
-    fps = 30
+    width = 600
+    height = 804
+    fps = 20
     frame_num = 600
 
     # run thanos phase 1
-    thanos_phase_one.run()
+    # thanos_phase_one.run()
     
     if args.bin_to_bfsig:
         start_time = time.time()

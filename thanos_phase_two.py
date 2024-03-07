@@ -24,7 +24,7 @@ class PhaseTwo():
     PhaseTwo is a class that performs face detection and landmark tracking using MediaPipe FaceMesh.
     """
 
-    def __init__(self, input_dir: str, output_filename: str, image_width: int = 640, image_height: int = 480, visualize_FaceMesh=False, visualize_ROIs=False, doRR = False):
+    def __init__(self, input_dir: str, output_filename: str, image_width: int = 600, image_height: int = 804, visualize_FaceMesh=False, visualize_ROIs=False, doRR = False):
         """
         Initialize class variables.
 
@@ -139,10 +139,10 @@ class PhaseTwo():
 
         # Get list of all input files in input_mats_dir (./skvs/mat/)
         filelist = []
-        for filename in os.listdir(self.input_dir):
-            if filename.endswith('.skv.bin'):
-                # Remove the ".bin" suffix
-                filename = filename[:-4]
+        mat_dir = 'Data/mat/'
+        print(f'mat_dir: {mat_dir}')
+        for filename in os.listdir(mat_dir):
+            if filename.endswith('.mat'):
                 filelist.append(filename)
 
         # Load and process every input video file. Track and map face using MediaPipe.
@@ -162,6 +162,7 @@ class PhaseTwo():
         
         # Loop through each file
         frame_num = 0
+        print(f'filelist: {filelist}')
         for filename in filelist:
             file_num = file_num + 1
             
@@ -179,46 +180,46 @@ class PhaseTwo():
 
         #tablet phase 3
 
-        cheek_n_nose_intensity = self.intensity_signals[2]
-        cheek_n_nose_depth = self.depth_signals[2]
+        # cheek_n_nose_intensity = self.intensity_signals[2]
+        # cheek_n_nose_depth = self.depth_signals[2]
 
-        D_signal_smooth=scipy.signal.savgol_filter(cheek_n_nose_depth,9,2,mode='nearest')
-        I_signal_smooth=scipy.signal.savgol_filter(cheek_n_nose_intensity,5,2,mode='nearest')
+        # D_signal_smooth=scipy.signal.savgol_filter(cheek_n_nose_depth,9,2,mode='nearest')
+        # I_signal_smooth=scipy.signal.savgol_filter(cheek_n_nose_intensity,5,2,mode='nearest')
 
-        print(f'shape of d signal smooth: {D_signal_smooth.shape}')
-        print(f'shape of i signal smooth: {I_signal_smooth.shape}')
+        # print(f'shape of d signal smooth: {D_signal_smooth.shape}')
+        # print(f'shape of i signal smooth: {I_signal_smooth.shape}')
         
-        I_compensated = distcomp.distcomp(I_signal_smooth/200, D_signal_smooth,time_window=1, Fs = 30)
-        print(f'shape of I_compensated: {I_compensated.shape}')
-        print(f'frame_num: {frame_num}')
-        fps = 30
-        T = 1.0 / fps
-        yf_hr = abs(distcomp.fft(I_compensated))
-        yf_hr=2.0 / frame_num * yf_hr[:frame_num // 2]
-        xf_hr = np.linspace(0.0, 1.0 / (2.0 * T), frame_num // 2)
-        xf_hr = xf_hr * 60
-        yf_hr[np.where(xf_hr<=40 )]=0
-        yf_hr[np.where(xf_hr>=200)]=0
+        # I_compensated = distcomp.distcomp(I_signal_smooth/200, D_signal_smooth,time_window=1, Fs = 20)
+        # print(f'shape of I_compensated: {I_compensated.shape}')
+        # print(f'frame_num: {frame_num}')
+        # fps = 20
+        # T = 1.0 / fps
+        # yf_hr = abs(distcomp.fft(I_compensated))
+        # yf_hr=2.0 / frame_num * yf_hr[:frame_num // 2]
+        # xf_hr = np.linspace(0.0, 1.0 / (2.0 * T), frame_num // 2)
+        # xf_hr = xf_hr * 60
+        # yf_hr[np.where(xf_hr<=40 )]=0
+        # yf_hr[np.where(xf_hr>=200)]=0
 
-        #isiah uncompensated hr BEGIN
-        yf_hrun = abs(distcomp.fft(I_signal_smooth))
-        yf_hrun = 2.0 / frame_num * yf_hrun[:frame_num // 2]
-        xf_hrun = np.linspace(0.0, 1.0 / (2.0 * T), frame_num // 2)
-        xf_hrun = xf_hrun * 60
-        yf_hrun[np.where(xf_hrun <= 40)] = 0
-        yf_hrun[np.where(xf_hrun >= 150)] = 0
+        # #isiah uncompensated hr BEGIN
+        # yf_hrun = abs(distcomp.fft(I_signal_smooth))
+        # yf_hrun = 2.0 / frame_num * yf_hrun[:frame_num // 2]
+        # xf_hrun = np.linspace(0.0, 1.0 / (2.0 * T), frame_num // 2)
+        # xf_hrun = xf_hrun * 60
+        # yf_hrun[np.where(xf_hrun <= 40)] = 0
+        # yf_hrun[np.where(xf_hrun >= 150)] = 0
 
-        peaks, properties = scipy.signal.find_peaks(yf_hrun)
-        max_index = np.argmax(yf_hrun[peaks])
-        HR_UNCOMP = xf_hrun[peaks[max_index]]
-        #isiah uncompensated hr END
+        # peaks, properties = scipy.signal.find_peaks(yf_hrun)
+        # max_index = np.argmax(yf_hrun[peaks])
+        # HR_UNCOMP = xf_hrun[peaks[max_index]]
+        # #isiah uncompensated hr END
 
-        peaks, properties = scipy.signal.find_peaks(yf_hr)
-        max_index=np.argmax(yf_hr[peaks])
-        HR_comp = xf_hr[peaks[max_index]]
-        print('Tablet code results: ')
-        print("HR_comp", HR_comp)
-        print("HR_UNCOMP", HR_UNCOMP)
+        # peaks, properties = scipy.signal.find_peaks(yf_hr)
+        # max_index=np.argmax(yf_hr[peaks])
+        # HR_comp = xf_hr[peaks[max_index]]
+        # print('Tablet code results: ')
+        # print("HR_comp", HR_comp)
+        # print("HR_UNCOMP", HR_UNCOMP)
         # with open("depth.csv", 'w', newline='') as csvfile:
         #     writer = csv.writer(csvfile)
         #     firstCol = np.array(self.chest_depth)
@@ -282,6 +283,10 @@ class PhaseTwo():
 
         Intensities = mat['I_values']
         Depths = mat['D_values']
+        
+        print(f'Intensities shape: {Intensities.shape}')
+        print(f'Depths shape: {Depths.shape}')
+        
         return Intensities, Depths
 
     def _process_file(self, file_num: int, num_files_to_process: int, filename: str, num_ROIs: int,
@@ -312,7 +317,15 @@ class PhaseTwo():
         filepath = os.path.join(self.input_dir, filename + '.bin')
         # x_all, z_all, y_all, confidence_all = self._read_binary_file(filepath)
 
-        depths, confidence_all = self.read_mat_file(os.path.join(self.input_dir, filename + '.mat'))
+        confidence_all, depths = self.read_mat_file('Data/mat/' + filename)
+
+        # print out depth and confidence in using matplot lib
+        # plt.figure()
+        # plt.imshow(depths)
+        # plt.savefig('depths.png')
+        # plt.figure()
+        # plt.imshow(confidence_all)
+        # plt.savefig('confidence_all.png')
 
         # Get number of frames (columns) in this video clip
         # num_frames = np.size(gray_all, 1)
@@ -346,14 +359,14 @@ class PhaseTwo():
         
         # Loop through all frames
         for frame_idx in range(num_frames):
-            depths = depths[:, :, frame_idx].copy()
+            depth = depths[:, :, frame_idx].copy()
             frame_confidence = confidence_all[:, :, frame_idx].copy()
             
 
 
             # Track face and extract intensity and depth for all ROIs in this frame
             # plt.figure()
-            # plt.imshow(frame_confidence)
+            # plt.imshow(depth)
             # plt.show()
             # Convert the frame's confidence values to a grayscale image (n,d)
             frame_grayscale = self._convert_camera_confidence_to_grayscale(frame_confidence)
@@ -376,8 +389,9 @@ class PhaseTwo():
 
             if face_detected:
                 # multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb))
-                self._process_face_landmarks(landmarks_pixels, frame_idx, depths, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb)
-
+                self._process_face_landmarks(landmarks_pixels, frame_idx, depth, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb)
+            else:
+                print('Face not detected in frame', frame_idx)
             if self.visualize_FaceMesh or self.visualize_ROIs:
                 # Calculate and overlay FPS
 
@@ -611,7 +625,7 @@ class PhaseTwo():
                 return xs, ys
 
             if roi_name == 'cheek_n_nose' and frame_idx > 410 and frame_idx < 440:
-                if True:
+                if False:
                     # create fig and ax for subplots
                     fig, ax = plt.subplots()
                     # create rectangles
