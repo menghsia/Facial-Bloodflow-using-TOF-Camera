@@ -61,58 +61,47 @@ def orientation_check(I_array, D_array):
     plt.subplot(1,2,2)
     sns.heatmap(D_array)
     plt.show()
-def run():
-        # Get list of folders in Data
-    folders = next(os.walk('Data'))[1]
-    if 'mat' in folders:
-        folders.pop(folders.index('mat'))
-    print(f'processing {len(folders)} folders')
-    ctr = 1
-    for filename in folders:
-        # Choose the name of the folder of NIR images and file of depth data to be processed
-        print(f'Processing file {ctr}/{len(folders)}: {filename}')
-        pathname = f'Data/{filename}/'
+def run(filename):
+    # Choose the name of the folder of NIR images and file of depth data to be processed
+    print(f'Processing file: {filename}')
+    pathname = f'Data/{filename}/'
 
-        # Specifications for the measurement - image size, total frames, framerates
-        img_width = 600
-        img_height = 804
+    # Specifications for the measurement - image size, total frames, framerates
+    img_width = 600
+    img_height = 804
 
-        # Adjust frame rate accordingly
-        NIR_framerate = 30
-        Depth_framerate = 30
+    # Adjust frame rate accordingly
+    NIR_framerate = 30
+    Depth_framerate = 30
 
-        # Get filenames for amplitude and depth data
-        amp_names = get_files(pathname + "*amplitude*")
-        amp_names.sort()
+    # Get filenames for amplitude and depth data
+    amp_names = get_files(pathname + "*amplitude*")
+    amp_names.sort()
 
-        depth_names = get_files(pathname + "*depth*")
-        depth_names.sort()
+    depth_names = get_files(pathname + "*depth*")
+    depth_names.sort()
 
-        # Run processing
-        num_frames = len(amp_names)
-        print(f'Number of Frames to Process: {num_frames}')
+    # Run processing
+    num_frames = len(amp_names)
+    print(f'Number of Frames to Process: {num_frames}')
 
-        num_processes = cpu_count()
-        args = [(frame_index, amp_names[frame_index], depth_names[frame_index], img_width, img_height) for frame_index in range(num_frames)]
-        results = p_map(load_and_process_nir_images, args)
-        
-        I_and_D = np.asarray(results)
-        I_values_old = I_and_D[:, :, :, 0]
-        D_values_old = I_and_D[:, :, :, 1]
+    num_processes = cpu_count()
+    args = [(frame_index, amp_names[frame_index], depth_names[frame_index], img_width, img_height) for frame_index in range(num_frames)]
+    results = p_map(load_and_process_nir_images, args)
+    
+    I_and_D = np.asarray(results)
+    I_values_old = I_and_D[:, :, :, 0]
+    D_values_old = I_and_D[:, :, :, 1]
 
-        I_values = np.zeros((img_height, img_width, num_frames))
-        D_values = np.zeros((img_height, img_width, num_frames))
-        for i in range(num_frames):
-            I_values[:, :, i] = I_values_old[i, :, :]
-            D_values[:, :, i] = D_values_old[i, :, :]
-        
-        #orientation_check(I_values[:, :, 0], D_values[:, :, 0])
-        return I_values, D_values
-        # savemat(f'Data/mat/{filename}.mat', {'I_values': I_values, 'D_values': D_values})
-        ctr = ctr+1
-        print()
-    print('Done!')
-    return None, None
+    I_values = np.zeros((img_height, img_width, num_frames))
+    D_values = np.zeros((img_height, img_width, num_frames))
+    for i in range(num_frames):
+        I_values[:, :, i] = I_values_old[i, :, :]
+        D_values[:, :, i] = D_values_old[i, :, :]
+    
+    #orientation_check(I_values[:, :, 0], D_values[:, :, 0])
+    return I_values, D_values
+
 # If any of the tests that require image data to be processed are to be run, run them
 if __name__=="__main__":
     # Get list of folders in Data

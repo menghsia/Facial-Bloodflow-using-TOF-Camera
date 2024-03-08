@@ -165,7 +165,7 @@ def skv_to_bin(skvs_dir: str):
 
     return
 
-def bin_to_bfsig(skvs_dir: str):
+def bin_to_bfsig(width, height, fps, frame_num):
     """
     Take all .bin files in ./skvs/mat/ and convert to bloodflow signature .mat file using
     phase_two.py and save output to ./skvs/mat/
@@ -178,7 +178,7 @@ def bin_to_bfsig(skvs_dir: str):
     """
     # Tag regions in face and generate bloodflow signature .mat file
     # myFaceMeshDetector = PhaseTwo(input_mats_dir="./skvs/mat/", output_bfsig_name="auto_bfsig")
-    myPhaseTwo = PhaseTwo(input_dir=os.path.join(skvs_dir, "mat"), output_filename="auto_bfsig", visualize_FaceMesh=False, visualize_ROIs=False, doRR=False)
+    myPhaseTwo = PhaseTwo(output_filename="auto_bfsig", image_width=width, image_height=height, fps=fps, frame_num=frame_num, visualize_FaceMesh=False, visualize_ROIs=False, doRR=False)
     myPhaseTwo.run()
     myPhaseTwo.clean_up()
 
@@ -234,29 +234,41 @@ if __name__ == '__main__':
     # check_for_skvs(skvs_dir)
     width = 600
     height = 804
-    fps = 10
-    frame_num = 300
+    fps = 20
+    frame_num = 600
 
-    # run thanos phase 1
-    # thanos_phase_one.run()
+    # setup filepath to .pgm
+    folders = next(os.walk('Data'))[1]
+    if 'mat' in folders:
+        folders.pop(folders.index('mat'))
     
-    if args.bin_to_bfsig:
-        start_time = time.time()
-        bin_to_bfsig(skvs_dir)
-        end_time = time.time()
-        print("bin_to_bfsig() took " + str(end_time - start_time) + " seconds to run")
+    print(f'processing {len(folders)} folders')
+    ctr = 1
+    for filename in folders:
+        print(f'Processing file {ctr}/{len(folders)}: {filename}')
         
+        # run phase one
+        I_values, D_values = thanos_phase_one.run(filename)
 
-    main_end_time = time.time()
+        # run phase two
+        start_time = time.time()
+        myPhaseTwo = PhaseTwo(I_values, D_values, output_filename="auto_bfsig", image_width=width, image_height=height, fps=fps, frame_num=frame_num, visualize_FaceMesh=False, visualize_ROIs=False, doRR=False)
+        myPhaseTwo.run()
+        end_time = time.time()
+        print("PhaseTwo took " + str(end_time - start_time) + " seconds to run")
+        
+        # run phase three
+        start_time = time.time()
+        processHR = ProcessHR(input_file=os.path.join(skvs_dir, "mat", "auto_bfsig"), width=width, height=height, fps=fps, frame_num=frame_num)
+        processHR.run()
+        end_time = time.time()
+        print("Phase 3 took " + str(end_time - start_time) + " seconds to run")
 
-    plotting_time = 0
+        ctr += 1
     
-    if args.bfsig_to_plot:
-        plotting_time = bfsig_to_plot(skvs_dir, width, height, fps, frame_num)
-
+    
+    
     print('Done!')
 
-    # comment for commit
 
-    print(f"run.py took {main_end_time - main_start_time + plotting_time} seconds to run")
 
