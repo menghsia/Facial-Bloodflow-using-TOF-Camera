@@ -19,6 +19,7 @@ import csv
 import math
 
 import distcomp_PMD_withRR_temp as distcomp
+import thanos_phase_one
 class PhaseTwo():
     """
     PhaseTwo is a class that performs face detection and landmark tracking using MediaPipe FaceMesh.
@@ -161,14 +162,16 @@ class PhaseTwo():
         # with my_mp_face_mesh.FaceMesh(static_image_mode=False, max_num_faces=1, refine_landmarks=True, min_detection_confidence=0.5, min_tracking_confidence=0.5) as my_face_mesh:
         
         # Loop through each file
-        frame_num = 0
-        print(f'filelist: {filelist}')
-        for filename in filelist:
-            file_num = file_num + 1
+        # frame_num = 0
+        # print(f'filelist: {filelist}')
+        # for filename in filelist:
+        #     file_num = file_num + 1
             
-            # Process the file
-            frame_num  = self._process_file(file_num, num_files_to_process, filename, num_ROIs, face_mesh_detector)
+        #     # Process the file
+        #     frame_num  = self._process_file(file_num, num_files_to_process, filename, num_ROIs, face_mesh_detector)
         
+        frame_num  = self._process_file(file_num, num_files_to_process, "custom", num_ROIs, face_mesh_detector)
+
         # # Load Alex data from alex_outputdata.mat
         # alex_outputdata = loadmat("alex_outputdata.mat")
         # self.intensity_signals = alex_outputdata['I_signal']
@@ -288,6 +291,64 @@ class PhaseTwo():
         print(f'Depths shape: {Depths.shape}')
         
         return Intensities, Depths
+    def run_phase_one(self):
+            # Get list of folders in Data
+        folders = next(os.walk('Data'))[1]
+        if 'mat' in folders:
+            folders.pop(folders.index('mat'))
+        print(f'processing {len(folders)} folders')
+        ctr = 1
+        i = 0
+        for filename in folders:
+            # Choose the name of the folder of NIR images and file of depth data to be processed
+            if i >= 0:
+                print(f'Processing file {ctr}/{len(folders)}: {filename}')
+                pathname = f'Data/{filename}/'
+
+                # Specifications for the measurement - image size, total frames, framerates
+                img_width = 600
+                img_height = 804
+
+                # Adjust frame rate accordingly
+                NIR_framerate = 30
+                Depth_framerate = 30
+
+                # Get filenames for amplitude and depth data
+                amp_names = thanos_phase_one.get_files(pathname + "*amplitude*")
+                amp_names.sort()
+
+                depth_names = thanos_phase_one.get_files(pathname + "*depth*")
+                depth_names.sort()
+
+                # Run processing
+                num_frames = len(amp_names)
+                print(f'Number of Frames to Process: {num_frames}')
+
+                num_processes = thanos_phase_one.cpu_count()
+                args = [(frame_index, amp_names[frame_index], depth_names[frame_index], img_width, img_height) for frame_index in range(num_frames)]
+                results = thanos_phase_one.p_map(thanos_phase_one.load_and_process_nir_images, args)
+                
+                I_and_D = np.asarray(results)
+                I_values_old = I_and_D[:, :, :, 0]
+                D_values_old = I_and_D[:, :, :, 1]
+
+                I_values = np.zeros((img_height, img_width, num_frames))
+                D_values = np.zeros((img_height, img_width, num_frames))
+                for i in range(num_frames):
+                    I_values[:, :, i] = I_values_old[i, :, :]
+                    D_values[:, :, i] = D_values_old[i, :, :]
+                
+                plt.figure()
+                plt.plot(I_values[400, 300, :])
+                plt.savefig(f'Images_{filename}_I_values.png')
+                #orientation_check(I_values[:, :, 0], D_values[:, :, 0])
+                return I_values, D_values
+                # savemat(f'Data/mat/{filename}.mat', {'I_values': I_values, 'D_values': D_values})
+                ctr = ctr+1
+                print()
+            i += 1
+        print('Done!')
+        return None, None
 
     def _process_file(self, file_num: int, num_files_to_process: int, filename: str, num_ROIs: int,
                   face_mesh_detector: FaceMeshDetector):
@@ -317,8 +378,8 @@ class PhaseTwo():
         filepath = os.path.join(self.input_dir, filename + '.bin')
         # x_all, z_all, y_all, confidence_all = self._read_binary_file(filepath)
 
-        confidence_all, depths = self.read_mat_file('Data/mat/' + filename)
-
+        # confidence_all, depths = self.read_mat_file('Data/mat/' + filename)
+        confidence_all, depths = self.run_phase_one()
         # print out depth and confidence in using matplot lib
         # plt.figure()
         # plt.imshow(depths)
@@ -329,7 +390,7 @@ class PhaseTwo():
 
         # Get number of frames (columns) in this video clip
         # num_frames = np.size(gray_all, 1)
-        num_frames = np.shape(confidence_all)[1]
+        num_frames = 300
 
         # ROI indices:
         # 0: nose

@@ -66,7 +66,7 @@ def run():
     folders = next(os.walk('Data'))[1]
     if 'mat' in folders:
         folders.pop(folders.index('mat'))
-    
+    print(f'processing {len(folders)} folders')
     ctr = 1
     for filename in folders:
         # Choose the name of the folder of NIR images and file of depth data to be processed
@@ -107,11 +107,12 @@ def run():
             D_values[:, :, i] = D_values_old[i, :, :]
         
         #orientation_check(I_values[:, :, 0], D_values[:, :, 0])
-
+        return I_values, D_values
         # savemat(f'Data/mat/{filename}.mat', {'I_values': I_values, 'D_values': D_values})
         ctr = ctr+1
         print()
     print('Done!')
+    return None, None
 # If any of the tests that require image data to be processed are to be run, run them
 if __name__=="__main__":
     # Get list of folders in Data

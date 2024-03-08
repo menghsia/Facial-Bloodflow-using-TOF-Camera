@@ -192,7 +192,7 @@ def bfsig_to_plot(skvs_dir, width, height, fps, frame_num):
     processHR.run()
     return processHR.time
 
-  
+
 def process_args() -> argparse.Namespace:
     """
     Process command line arguments
@@ -234,8 +234,8 @@ if __name__ == '__main__':
     # check_for_skvs(skvs_dir)
     width = 600
     height = 804
-    fps = 20
-    frame_num = 600
+    fps = 10
+    frame_num = 300
 
     # run thanos phase 1
     # thanos_phase_one.run()
