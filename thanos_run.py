@@ -234,8 +234,8 @@ if __name__ == '__main__':
     # check_for_skvs(skvs_dir)
     width = 600
     height = 804
-    fps = 20
-    frame_num = 600
+    fps = 10
+    frame_num = 300
 
     # setup filepath to .pgm
     folders = next(os.walk('Data'))[1]
@@ -252,14 +252,14 @@ if __name__ == '__main__':
 
         # run phase two
         start_time = time.time()
-        myPhaseTwo = PhaseTwo(I_values, D_values, output_filename="auto_bfsig", image_width=width, image_height=height, fps=fps, frame_num=frame_num, visualize_FaceMesh=False, visualize_ROIs=False, doRR=False)
+        myPhaseTwo = PhaseTwo(I_values, D_values, output_filename=filename, image_width=width, image_height=height, fps=fps, frame_num=frame_num, visualize_FaceMesh=False, visualize_ROIs=False, doRR=False, verbose=True)
         myPhaseTwo.run()
         end_time = time.time()
         print("PhaseTwo took " + str(end_time - start_time) + " seconds to run")
         
         # run phase three
         start_time = time.time()
-        processHR = ProcessHR(input_file=os.path.join(skvs_dir, "mat", "auto_bfsig"), width=width, height=height, fps=fps, frame_num=frame_num)
+        processHR = ProcessHR(input_file=os.path.join(skvs_dir, "mat", "auto_bfsig"), width=width, height=height, fps=fps, frame_num=frame_num, filename=filename, verbose=True)
         processHR.run()
         end_time = time.time()
         print("Phase 3 took " + str(end_time - start_time) + " seconds to run")

@@ -23,7 +23,7 @@ class ProcessHR():
         time (float): runtime of run() from start to finish
     """
 
-    def __init__(self, input_file, width, height, fps, frame_num):
+    def __init__(self, input_file, width, height, fps, frame_num, filename, verbose=False):
         """
         Initializes class variables
 
@@ -37,7 +37,8 @@ class ProcessHR():
         self.height = height
         self.fps = fps
         self.frame_num = frame_num
-
+        self.filename = filename
+        self.verbose = verbose
     
     def run(self):
         """
@@ -90,6 +91,10 @@ class ProcessHR():
         #     writer.writerow(['HR_comp', HR_comp])
         #     writer.writerow(['HR_ND', HR_ND])
 
+        with open('thanos_results.csv', 'a', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow([self.filename, HR_comp, HR_ND])
+
         # I_comp_tab = self.tablet_depthComp(I_raw[2,:], Depth[2,:])
         # HR_comp_tab = self.tablet_getHR(I_comp_tab, 600)
         # HR_ND_tab = self.tablet_getHR(HRsigRaw, 600)
@@ -140,13 +145,14 @@ class ProcessHR():
                 I_raw = np.delete(I_raw, i, axis=1)
             else:
                 break
-        print('Depth shape', Depth.shape)
-        print('I_raw shape', I_raw.shape)
-        
-        Depth = np.delete(Depth, 6, axis=0)
-        I_raw = np.delete(I_raw, 6, axis=0)
-        print('Depth shape', Depth.shape)
-        print('I_raw shape', I_raw.shape)
+        if self.verbose:
+            print('Depth shape', Depth.shape)
+            print('I_raw shape', I_raw.shape)
+            
+            Depth = np.delete(Depth, 6, axis=0)
+            I_raw = np.delete(I_raw, 6, axis=0)
+            print('Depth shape', Depth.shape)
+            print('I_raw shape', I_raw.shape)
         
         # Smooth each ROI in the 2D arrays of depths and intensities
         # for i in range(6):
@@ -160,10 +166,10 @@ class ProcessHR():
         # Compensate for movement
         # I_comp: 2D array of compensated intensities
         #TODO: I changed 30fps to 10fps 
-        print('I_raw shape', I_raw.shape)
-        print('Depth shape', Depth.shape)
+        if self.verbose:
+            print('I_raw shape', I_raw.shape)
+            print('Depth shape', Depth.shape)
         I_comp = self.depthComp(I_raw, Depth, 2, self.fps) # depthComp is good
-        print('I_comp shape', I_comp.shape)
         depth_compensator = DepthCompensator()
         # moose_I_comp = depth_compensator.run(I_raw, Depth, window_length=2, fps=30)
 
@@ -192,22 +198,23 @@ class ProcessHR():
 
 
         # Plots Raw and Compensated cheek and nose intensities
-        fig, axs = plt.subplots(2, 1, figsize=(8, 6))
-        axs[0].plot(I_raw[2, :])
-        axs[0].set_ylabel('Raw Intensity')
+        if self.verbose: 
+            fig, axs = plt.subplots(2, 1, figsize=(8, 6))
+            axs[0].plot(I_raw[2, :])
+            axs[0].set_ylabel('Raw Intensity')
 
 
-        axs[1].plot(I_comp[2, :])
-        axs[1].set_ylabel('Compensated Intensity')
+            axs[1].plot(I_comp[2, :])
+            axs[1].set_ylabel('Compensated Intensity')
 
 
-        axs[0].set_xticks([])
-        if dataTitle is not None:
-            axs[0].set_title('Cheek and Nose Signal Intensity: ' + dataTitle)
-        else:
-            axs[0].set_title('Cheek and Nose Signal Intensity')
-
-        plt.show()
+            axs[0].set_xticks([])
+            if dataTitle is not None:
+                axs[0].set_title('Cheek and Nose Signal Intensity: ' + dataTitle)
+            else:
+                axs[0].set_title('Cheek and Nose Signal Intensity')
+            plt.savefig(f'plot_results/{self.filename}_cheek_n_nose_intensity.png', dpi=100)
+            plt.show()
 
         return HRsig, HRsigRaw, I_comp, Depth, I_raw
     
@@ -400,14 +407,14 @@ class ProcessHR():
         pks, properties = find_peaks(spectrum.squeeze())
         maxindex = np.argmax(spectrum[pks])
         HR = f[pks[maxindex]]
+        if self.verbose:
+            plt.figure()
+            plt.plot(f, spectrum)
+            plt.xlim((40, 150))
+            plt.title("main hr power spectrum")
+            plt.savefig(f'plot_results/{self.filename}_main_HR_power_spectrum.png', dpi=100)
 
-        plt.figure()
-        plt.plot(f, spectrum)
-        plt.xlim((40, 150))
-        plt.title("main hr power spectrum")
-        plt.savefig('myfilename.png', dpi=100)
-
-        plt.show()
+            plt.show()
 
         return HR
     

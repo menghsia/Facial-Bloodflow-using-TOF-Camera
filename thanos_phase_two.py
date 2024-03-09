@@ -25,7 +25,7 @@ class PhaseTwo():
     PhaseTwo is a class that performs face detection and landmark tracking using MediaPipe FaceMesh.
     """
 
-    def __init__(self, I_values, D_values, output_filename: str, image_width: int = 600, image_height: int = 804, fps: int = 20, frame_num: int = 600, visualize_FaceMesh=False, visualize_ROIs=False, doRR = False):
+    def __init__(self, I_values, D_values, output_filename: str, image_width: int = 600, image_height: int = 804, fps: int = 20, frame_num: int = 600, visualize_FaceMesh=False, visualize_ROIs=False, doRR = False, verbose=False):
         """
         Initialize class variables.
 
@@ -56,7 +56,7 @@ class PhaseTwo():
         
         self.visualize_FaceMesh=visualize_FaceMesh
         self.visualize_ROIs=visualize_ROIs
-
+        self.verbose = verbose
         self.chest_intensity = []
         self.chest_depth = []
         self.RR = None
@@ -362,20 +362,21 @@ class PhaseTwo():
         confidence_all = confidence_all.reshape([self.image_height, self.image_width, num_frames])
         
         # print out depth in matplot lib for pixel 300, 400
-        print(f'depth shape: {depths[300, 400, :].shape}')
-        print(f'confidence_all shape: {confidence_all[300, 400, :].shape}')
+        if self.verbose: 
+            print(f'depth shape: {depths[300, 400, :].shape}')
+            print(f'confidence_all shape: {confidence_all[300, 400, :].shape}')
 
-        # Plot depth values
-        plt.figure()
-        plt.title('Depth for pixel 300, 400')
-        plt.plot(depths[300, 400, :])  # Correct usage
-        plt.savefig('depths.png')
+            # Plot depth values
+            plt.figure()
+            plt.title('Depth for pixel 300, 400')
+            plt.plot(depths[300, 400, :])  # Correct usage
+            plt.savefig(f'plot_results/{self.output_filename}_depths.png')
 
-        # Plot confidence values
-        plt.figure()
-        plt.title('Confidence for pixel 300, 400')
-        plt.plot(confidence_all[300, 400, :])  # Corrected to plt.plot()
-        plt.savefig('confidence_all.png')
+            # Plot confidence values
+            plt.figure()
+            plt.title('Confidence for pixel 300, 400')
+            plt.plot(confidence_all[300, 400, :])  # Corrected to plt.plot()
+            plt.savefig(f'plot_results/{self.output_filename}_confidence_all.png')
 
         # set all x y z values to 0 if it's < 0
 
