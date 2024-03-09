@@ -259,7 +259,7 @@ if __name__ == '__main__':
         
         # run phase three
         start_time = time.time()
-        processHR = ProcessHR(input_file=os.path.join(skvs_dir, "mat", "auto_bfsig"), width=width, height=height, fps=fps, frame_num=frame_num, filename=filename, verbose=True)
+        processHR = ProcessHR(input_file=os.path.join(skvs_dir, "mat", filename), width=width, height=height, fps=fps, frame_num=frame_num, filename=filename, verbose=True)
         processHR.run()
         end_time = time.time()
         print("Phase 3 took " + str(end_time - start_time) + " seconds to run")
