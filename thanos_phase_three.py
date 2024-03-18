@@ -75,8 +75,10 @@ class ProcessHR():
 
         ## getHR() NEEDS FIXING ##
         # Get HR Data
-        HR_comp = self.getHR(HRsig, self.frame_num, Window=False)
-        HR_ND = self.getHR(HRsigRaw, self.frame_num, Window=False)
+        keyword = 'compensated'
+        HR_comp = self.getHR(HRsig, self.frame_num, keyword, Window=False)
+        keyword = 'Uncompensated'
+        HR_ND = self.getHR(HRsigRaw, self.frame_num, keyword, Window=False)
 
 
         # analyzer = HeartRateAnalyzer()
@@ -380,7 +382,7 @@ class ProcessHR():
 
         return specW, HR, specND, HR_ND
 
-    def getHR(self, HRsig, L, trial=None, Window=False): 
+    def getHR(self, HRsig, L, keyword, trial=None, Window=False): 
         ###  NEEDS FIXING ###
 
         # Apply windowing if True
@@ -411,7 +413,7 @@ class ProcessHR():
             plt.figure()
             plt.plot(f, spectrum)
             plt.xlim((40, 150))
-            plt.title("main hr power spectrum")
+            plt.title(f"main hr power spectrum {keyword}")
             plt.savefig(f'plot_results/{self.filename}_main_HR_power_spectrum.png', dpi=100)
 
             plt.show()

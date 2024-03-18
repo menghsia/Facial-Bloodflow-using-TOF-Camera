@@ -252,14 +252,14 @@ if __name__ == '__main__':
 
         # run phase two
         start_time = time.time()
-        myPhaseTwo = PhaseTwo(I_values, D_values, output_filename=filename, image_width=width, image_height=height, fps=fps, frame_num=frame_num, visualize_FaceMesh=False, visualize_ROIs=False, doRR=False, verbose=True)
+        myPhaseTwo = PhaseTwo(I_values, D_values, output_filename=filename, image_width=width, image_height=height, fps=fps, frame_num=frame_num, visualize_FaceMesh=False, visualize_ROIs=False, doRR=False, verbose=False)
         myPhaseTwo.run()
         end_time = time.time()
         print("PhaseTwo took " + str(end_time - start_time) + " seconds to run")
         
         # run phase three
         start_time = time.time()
-        processHR = ProcessHR(input_file=os.path.join(skvs_dir, "mat", filename), width=width, height=height, fps=fps, frame_num=frame_num, filename=filename, verbose=True)
+        processHR = ProcessHR(input_file=os.path.join(skvs_dir, "mat", filename), width=width, height=height, fps=fps, frame_num=frame_num, filename=filename, verbose=False)
         processHR.run()
         end_time = time.time()
         print("Phase 3 took " + str(end_time - start_time) + " seconds to run")

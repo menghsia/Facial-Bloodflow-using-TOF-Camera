@@ -368,14 +368,14 @@ class PhaseTwo():
 
             # Plot depth values
             plt.figure()
-            plt.title('Depth for pixel 300, 400')
-            plt.plot(depths[300, 400, :])  # Correct usage
+            plt.title('Depth for pixel 400, 300')
+            plt.plot(depths[400, 300, :])  # Correct usage
             plt.savefig(f'plot_results/{self.output_filename}_depths.png')
 
             # Plot confidence values
             plt.figure()
-            plt.title('Confidence for pixel 300, 400')
-            plt.plot(confidence_all[300, 400, :])  # Corrected to plt.plot()
+            plt.title('Confidence for pixel 400, 300')
+            plt.plot(confidence_all[400, 300, :])  # Corrected to plt.plot()
             plt.savefig(f'plot_results/{self.output_filename}_confidence_all.png')
 
         # set all x y z values to 0 if it's < 0
@@ -648,14 +648,19 @@ class PhaseTwo():
             roi_bounding_box_pixels = self._get_ROI_bounding_box_pixels(landmarks_pixels, roi_name)
             def get_info(custom_bounding_box, color):
                 corners = custom_bounding_box
+                
+                with open ('plot_results/bad_bounding_box_corners.csv', 'a', newline='') as csvfile:
+                    csvwriter = csv.writer(csvfile)
+                    csvwriter.writerow(corners)
+                
                 top_left_corner = corners[0]
                 coord = [top_left_corner, corners[1], corners[2], corners[3], top_left_corner]
                 xs, ys = zip(*coord)
 
                 return xs, ys
 
-            if roi_name == 'cheek_n_nose' and frame_idx > 410 and frame_idx < 440:
-                if False:
+            if roi_name == 'cheek_n_nose':
+                if True:
                     # create fig and ax for subplots
                     fig, ax = plt.subplots()
                     # create rectangles
@@ -665,10 +670,10 @@ class PhaseTwo():
                     xs, ys = get_info(roi_bounding_box_pixels, 'r')
                     ax.plot(xs,ys)
 
-                    ax.imshow(frame_grayscale_rgb, cmap='gray', aspect='auto')
+                    ax.imshow(frame_grayscale_rgb, aspect='auto')
                     plt.title(f'frame: {frame_idx}')
-                    plt.show(block=True)
-                    plt.savefig(f'frame_{frame_idx}.png')
+                    # plt.show(block=True)
+                    plt.savefig(f'plot_results/{self.output_filename}_frame_{frame_idx}.png')
 
             # if roi_name == 'cheek_n_nose' and frame_idx == 0:
             #     # get path to the PLY/csv folder
@@ -1152,7 +1157,7 @@ class PhaseTwo():
         divisor = 4
         
         grayscale_img = confidence_array.astype(float)
-        # grayscale_img = grayscale_img / divisor
+        grayscale_img = grayscale_img / divisor
         grayscale_img[np.where(grayscale_img > 255)] = 255
         grayscale_img = grayscale_img.astype('uint8')
 
