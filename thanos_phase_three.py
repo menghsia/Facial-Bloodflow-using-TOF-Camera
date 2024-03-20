@@ -76,9 +76,9 @@ class ProcessHR():
         ## getHR() NEEDS FIXING ##
         # Get HR Data
         keyword = 'compensated'
-        HR_comp = self.getHR(HRsig, self.frame_num, keyword, Window=False)
+        HR_comp = self.getHR(HRsig, self.frame_num, keyword, Window=True)
         keyword = 'Uncompensated'
-        HR_ND = self.getHR(HRsigRaw, self.frame_num, keyword, Window=False)
+        HR_ND = self.getHR(HRsigRaw, self.frame_num, keyword, Window=True)
 
 
         # analyzer = HeartRateAnalyzer()
@@ -391,7 +391,7 @@ class ProcessHR():
             max_val = np.max(HRsig)
             HRsig = (HRsig - min_val) / (max_val - min_val)
 
-            window = np.hanning(300)
+            window = np.hanning(self.frame_num)
             HRsig = HRsig * window
 
         # Prepare Parameters
@@ -414,7 +414,7 @@ class ProcessHR():
             plt.plot(f, spectrum)
             plt.xlim((40, 150))
             plt.title(f"main hr power spectrum {keyword}")
-            plt.savefig(f'plot_results/{self.filename}_main_HR_power_spectrum.png', dpi=100)
+            plt.savefig(f'plot_results/{self.filename}_main_HR_power_spectrum_{keyword}.png', dpi=100)
 
             plt.show()
 

@@ -265,14 +265,10 @@ if __name__ == "__main__":
         start = time.time()
 
         I_values, D_values = thanos_phase_one.run(filename, width, height, fps, num_frames)
-        print(I_values.shape)
-        print(D_values.shape)
 
         # right now, I values and D values are in shape (804, 600, 300), we want it to be 300, 600, 804
-        I_values = np.moveaxis(I_values, 2, 0)
-        D_values = np.moveaxis(D_values, 2, 0)
-        print(I_values.shape)
-        print(D_values.shape)
+        I_values = np.transpose(I_values, (2, 1, 0))
+        D_values = np.transpose(D_values, (2, 1, 0))
 
         print(f"Data loading complete for {filename}\n")
         frame_num = num_frames
@@ -299,292 +295,298 @@ if __name__ == "__main__":
         frameTrk = np.uint8(frameTrk)
 
 
+
         ROIcoords_full  = ROI_coord_extract(frameTrk,'full_face',img_plt = True)
         ROIcoords_sig = ROI_coord_extract(frameTrk,'cheek_n_nose',img_plt=False)
 
         dframe = depth[start_frame,:,:]
-        '''
-        ##### CHEST ROI #####
-        D_signal_RR = np.zeros((2,frame_num))
+        try:
+            '''
+            ##### CHEST ROI #####
+            D_signal_RR = np.zeros((2,frame_num))
 
-        chin_edge = ROI_coord_extract(frameTrk, 'chin')
-        ROIcoord_RR= Chest_ROI_extract(frameTrk, chin_edge, plot=True)
-        alpha = [tuple(i) for i in ROIcoord_RR[0,:,:].tolist()]
-        beta = [tuple(i) for i in ROIcoord_RR[1,:,:].tolist()]
-        ini_ROImask_RR_neck = vtx2mask(alpha,image_cols,image_rows)
-        ini_ROImask_RR_chest = vtx2mask(beta,image_cols,image_rows)
-        non_zero_pnts_neck=np.where(ini_ROImask_RR_neck>0)
-        non_zero_pnts_chest=np.where(ini_ROImask_RR_chest>0)
-        D_signal_RR[0,0] = np.average(zframe[non_zero_pnts_neck[0],non_zero_pnts_neck[1]])
-        D_signal_RR[1,0] = np.average(zframe[non_zero_pnts_chest[0],non_zero_pnts_chest[1]])
+            chin_edge = ROI_coord_extract(frameTrk, 'chin')
+            ROIcoord_RR= Chest_ROI_extract(frameTrk, chin_edge, plot=True)
+            alpha = [tuple(i) for i in ROIcoord_RR[0,:,:].tolist()]
+            beta = [tuple(i) for i in ROIcoord_RR[1,:,:].tolist()]
+            ini_ROImask_RR_neck = vtx2mask(alpha,image_cols,image_rows)
+            ini_ROImask_RR_chest = vtx2mask(beta,image_cols,image_rows)
+            non_zero_pnts_neck=np.where(ini_ROImask_RR_neck>0)
+            non_zero_pnts_chest=np.where(ini_ROImask_RR_chest>0)
+            D_signal_RR[0,0] = np.average(zframe[non_zero_pnts_neck[0],non_zero_pnts_neck[1]])
+            D_signal_RR[1,0] = np.average(zframe[non_zero_pnts_chest[0],non_zero_pnts_chest[1]])
 
-        ##### CHEST ROI #####
-        '''
-        # Corner feature detection for tracking the ROI
-        # Harris corner detector parameters
-        feature_params = dict( maxCorners = 100,
-                                qualityLevel = 0.01,
-                                minDistance = 10,
-                                blockSize = 6 )
+            ##### CHEST ROI #####
+            '''
+            # Corner feature detection for tracking the ROI
+            # Harris corner detector parameters
+            feature_params = dict( maxCorners = 100,
+                                    qualityLevel = 0.01,
+                                    minDistance = 10,
+                                    blockSize = 6 )
 
-        mask = vtx2mask(ROIcoords_full, image_cols, image_rows)
-        p0 = cv2.goodFeaturesToTrack(frameTrk, mask=mask, **feature_params)
-
-        # Parameters for lucas kanade optical flow
-        lk_params = dict( winSize  = (21,21),
-                        maxLevel = 2,
-                        criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 30, 0.005))
-        frame_new=np.zeros((171,224)).astype('uint8')
-
-        ini_ROImask = vtx2mask(ROIcoords_sig,image_cols,image_rows)
-        ini_ROIcoords_sig = np.asarray(ROIcoords_sig).T
-        ini_ROIcoords_sig = np.vstack((ini_ROIcoords_sig,np.ones(ini_ROIcoords_sig.shape[1])))
-        old_ROIcoords = ini_ROIcoords_sig
-
-
-        # Initial value
-        I_signal[0] = np.average(frameSig[np.where(ini_ROImask>0)])
-        D_signal[0] = np.average(dframe[np.where(ini_ROImask>0)])
-        
-
-        for i in range(frame_num-1):
-            frameSig = intensity[i+1,:,:]
-            frame_new = intensity[i+1,:,:]/4
-            frame_new = np.uint8(frame_new)
-
-
-            # calculate optical flow
-            p1, st, err = cv2.calcOpticalFlowPyrLK(frameTrk, frame_new, p0, None, **lk_params)
-            # Select good points
-            good_new = p1[st==1]
-            good_old = p0[st==1]
-            # Now update the previous frame and previous points
-
-            img_track = frame_new.copy()
-            frameTrk = frame_new.copy()
-            dframe = depth[i+1,:,:]
-
-            p0 = good_new.reshape(-1,1,2)
-            xform_matrix, inliers = cv2.estimateAffinePartial2D(good_old,good_new)
-
-            ##################
-            #D_signal_RR[0,i+1] = np.average(zframe[non_zero_pnts_neck[0],non_zero_pnts_neck[1]])
-            #D_signal_RR[1,i+1] = np.average(zframe[non_zero_pnts_chest[0],non_zero_pnts_chest[1]])
-
-            ##################
-
-            # No averaging of ROI
-            new_ROIcoords = np.dot(xform_matrix,old_ROIcoords)
-            old_ROIcoords = np.vstack((new_ROIcoords,np.ones(new_ROIcoords.shape[1])))
-
-            # New method with 3 frame averaging of ROI coordinates
-            # old_ROIcoords = roi_history[2, :, :]
-            # roi_history[0, :, :] = roi_history[1, :, :]
-            # roi_history[1, :, :] = roi_history[2, :, :]
-            # knrc = np.dot(xform_matrix,old_ROIcoords)
-            # roi_history[2, :, :] = np.vstack((knrc, np.ones(knrc.shape[1])))
-            # new_ROIcoords = np.mean(roi_history, axis=0)
-            # new_ROIcoords = new_ROIcoords[:-1, :]
-            # roi_history[2, :, :] = np.vstack((new_ROIcoords, np.ones(new_ROIcoords.shape[1])))
-
-            # record ROI signal
-            ROImask = vtx2mask(list(np.reshape(new_ROIcoords.T,-1)),image_cols,image_rows)
-            I_signal[i+1] = np.average(frameSig[np.where(ROImask>0)])
-            D_signal[i+1] = np.average(dframe[np.where(ROImask>0)])
-            
-
-            ROIpts = np.transpose(new_ROIcoords)
-            ROIpts = np.int32(ROIpts)
-            img_track = np.stack((img_track,)*3, axis=-1)
-            img_track = cv2.polylines(img_track,[ROIpts],True, color = (0,0,255), thickness = 1)
-            for kk, points in enumerate(good_new[:,1]):
-                img_track = cv2.circle(img_track, (int(good_new[kk,0]),int(good_new[kk,1])), radius=2, color=(0, 255, 255), thickness=-1)
-
-
-            # cv2.imshow('frame', img_track)
-            # cv2.waitKey(30)
-
-
-        cv2.destroyAllWindows()
-
-        # export D_signal and I_signal to csv files
-        # if file doesn't exist create it, otherwise append
-        # path = '/datas/csv/'
-        # os.chmod(path, 0o777)
-        # if not os.path.exists(path):
-        #     os.makedirs(path)
-        
-        # give write permission to the file
-        # print(f'shape of I_signal: {I_signal.shape}, length: {len(I_signal)}')
-        # print(f'shape of D_signal: {D_signal.shape}, length: {len(D_signal)}')
-        with open('PLY/tablet_csv/intensity.csv', 'w', newline='') as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerows(I_signal.reshape(-1,1))
-        with open('PLY/tablet_csv/depth.csv', 'w', newline='') as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerows(D_signal.reshape(-1,1))
-
-        D_signal_smooth=scipy.signal.savgol_filter(D_signal,9,2,mode='nearest')
-        I_signal_smooth=scipy.signal.savgol_filter(I_signal,5,2,mode='nearest')
-        
-        print(f'D signal shape after smoothing: {D_signal_smooth.shape}')
-        print(f'I signal shape after smoothing: {I_signal_smooth.shape}')
-        
-        I_compensated = distcomp(I_signal_smooth/200, D_signal_smooth,time_window=1, Fs = 10)
-        print(f'I_compensated shape: {I_compensated.shape}')
-        fps = 10
-        T = 1.0 / fps
-        yf_hr = abs(fft(I_compensated)) # this is spectrum
-        yf_hr=2.0 / frame_num * yf_hr[:frame_num // 2] # frame_num=L
-        xf_hr = np.linspace(0.0, 1.0 / (2.0 * T), frame_num // 2) # xf_hr = f
-        xf_hr = xf_hr * 60
-        yf_hr[np.where(xf_hr<=40 )]=0 
-        yf_hr[np.where(xf_hr>=200)]=0
-
-        #isiah uncompensated hr BEGIN
-        yf_hrun = abs(fft(I_signal_smooth))
-        yf_hrun = 2.0 / frame_num * yf_hrun[:frame_num // 2]
-        xf_hrun = np.linspace(0.0, 1.0 / (2.0 * T), frame_num // 2)
-        xf_hrun = xf_hrun * 60
-        yf_hrun[np.where(xf_hrun <= 40)] = 0
-        yf_hrun[np.where(xf_hrun >= 150)] = 0
-
-        peaks, properties = scipy.signal.find_peaks(yf_hrun)
-        max_index = np.argmax(yf_hrun[peaks])
-        HR_UNCOMP = xf_hrun[peaks[max_index]]
-        #isiah uncompensated hr END
-
-        peaks, properties = scipy.signal.find_peaks(yf_hr)
-        max_index=np.argmax(yf_hr[peaks])
-        HR_comp = xf_hr[peaks[max_index]]
+            mask = vtx2mask(ROIcoords_full, image_cols, image_rows).astype(np.uint8)
 
             
-        # error_rate=abs(HR_comp-HR_ref)/abs(HR_ref)*100
-        # success_label=error_rate<11
-        # success_index=np.where(error_rate<10)
-        # success_rate=np.shape(success_index)[1]/len(HR_comp)   
-        # plt.figure()
-        # plt.plot(D_signal)
-        # plt.show()
-        # f1 = plt.figure()
-        # ax1 = f1.add_subplot(221)
-        # ax1.plot(I_signal_smooth)
-        # plt.figure() 
-        # plt.plot(D_signal_smooth)
-        # plt.show()
+            p0 = cv2.goodFeaturesToTrack(frameTrk, mask=mask, **feature_params)
 
-        # #please work - isiah
-        # np.savetxt('test.out',D_signal, delimiter = ',')
+            # Parameters for lucas kanade optical flow
+            lk_params = dict( winSize  = (21,21),
+                            maxLevel = 2,
+                            criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 30, 0.005))
+            frame_new=np.zeros((171,224)).astype('uint8')
+
+            ini_ROImask = vtx2mask(ROIcoords_sig,image_cols,image_rows)
+            ini_ROIcoords_sig = np.asarray(ROIcoords_sig).T
+            ini_ROIcoords_sig = np.vstack((ini_ROIcoords_sig,np.ones(ini_ROIcoords_sig.shape[1])))
+            old_ROIcoords = ini_ROIcoords_sig
 
 
+            # Initial value
+            I_signal[0] = np.average(frameSig[np.where(ini_ROImask>0)])
+            D_signal[0] = np.average(dframe[np.where(ini_ROImask>0)])
+            
 
-        # ax2 = f1.add_subplot(222)
-        # ax2.plot(D_signal_smooth)
-        # ax3 = f1.add_subplot(223)
-        # ax3.plot(I_compensated)
-        # ax4 = f1.add_subplot(224)
-        # ax4.plot(xf, yf)
-        # plt.xlim(0, 200)
-        # plt.ylim(0,0.5)
-
-        print("COMPENSATED Heart Rate Measured", HR_comp)
-        print("UNCOMPENSATED Heart Rate Measured", HR_UNCOMP)
-
-        with open('PLY/tablet_csv/tablet_code_results.csv', 'a', newline='') as csvfile:
-            write = csv.writer(csvfile)
-            write.writerow(['HR_comp', HR_comp])
-            write.writerow(['HR_UNCOMP', HR_UNCOMP])
-        # print(D_signal_RR.shape)
-        # plt.figure()
-        # plt.plot(D_signal_RR[0,:])
-        # plt.plot(D_signal_RR[1,:])
-        # plt.show()
+            for i in range(frame_num-1):
+                frameSig = intensity[i+1,:,:]
+                frame_new = intensity[i+1,:,:]/4
+                frame_new = np.uint8(frame_new)
 
 
+                # calculate optical flow
+                p1, st, err = cv2.calcOpticalFlowPyrLK(frameTrk, frame_new, p0, None, **lk_params)
+                # Select good points
+                good_new = p1[st==1]
+                good_old = p0[st==1]
+                # Now update the previous frame and previous points
 
-        # plt.figure()
-        # plt.plot(I_signal)
-        # plt.show()
+                img_track = frame_new.copy()
+                frameTrk = frame_new.copy()
+                dframe = depth[i+1,:,:]
+
+                p0 = good_new.reshape(-1,1,2)
+                xform_matrix, inliers = cv2.estimateAffinePartial2D(good_old,good_new)
+
+                ##################
+                #D_signal_RR[0,i+1] = np.average(zframe[non_zero_pnts_neck[0],non_zero_pnts_neck[1]])
+                #D_signal_RR[1,i+1] = np.average(zframe[non_zero_pnts_chest[0],non_zero_pnts_chest[1]])
+
+                ##################
+
+                # No averaging of ROI
+                new_ROIcoords = np.dot(xform_matrix,old_ROIcoords)
+                old_ROIcoords = np.vstack((new_ROIcoords,np.ones(new_ROIcoords.shape[1])))
+
+                # New method with 3 frame averaging of ROI coordinates
+                # old_ROIcoords = roi_history[2, :, :]
+                # roi_history[0, :, :] = roi_history[1, :, :]
+                # roi_history[1, :, :] = roi_history[2, :, :]
+                # knrc = np.dot(xform_matrix,old_ROIcoords)
+                # roi_history[2, :, :] = np.vstack((knrc, np.ones(knrc.shape[1])))
+                # new_ROIcoords = np.mean(roi_history, axis=0)
+                # new_ROIcoords = new_ROIcoords[:-1, :]
+                # roi_history[2, :, :] = np.vstack((new_ROIcoords, np.ones(new_ROIcoords.shape[1])))
+
+                # record ROI signal
+                ROImask = vtx2mask(list(np.reshape(new_ROIcoords.T,-1)),image_cols,image_rows)
+                I_signal[i+1] = np.average(frameSig[np.where(ROImask>0)])
+                D_signal[i+1] = np.average(dframe[np.where(ROImask>0)])
+                
+
+                ROIpts = np.transpose(new_ROIcoords)
+                ROIpts = np.int32(ROIpts)
+                img_track = np.stack((img_track,)*3, axis=-1)
+                img_track = cv2.polylines(img_track,[ROIpts],True, color = (0,0,255), thickness = 1)
+                for kk, points in enumerate(good_new[:,1]):
+                    img_track = cv2.circle(img_track, (int(good_new[kk,0]),int(good_new[kk,1])), radius=2, color=(0, 255, 255), thickness=-1)
 
 
-        # transformer = FastICA(n_components=2, max_iter=500, whiten=True, tol=5e-3)
-        # X_transformed = transformer.fit_transform(D_signal_RR.T)
-
-        #plt.figure()
-        #plt.plot(X_transformed[:,0])
-        #plt.plot(X_transformed[:,1])
-        #plt.show()
-
-        '''
-        yf_rr1 = abs(fft(X_transformed[:,0]))
-        yf_rr1=2.0 / frame_num * yf_rr1[:frame_num // 2]
-        xf_rr1 = np.linspace(0.0, 1.0 / (2.0 * T), frame_num // 2)
-        xf_rr1 = xf_rr1 * 60
-        yf_rr1[np.where(xf_rr1<=5 )]=0
-        yf_rr1[np.where(xf_rr1>=30)]=0
-
-        peaks, properties = scipy.signal.find_peaks(yf_rr1)
-        max_index_1=np.argmax(yf_rr1[peaks])
-
-        yf_rr2 = abs(fft(X_transformed[:,1]))
-        yf_rr2=2.0 / frame_num * yf_rr1[:frame_num // 2]
-        xf_rr2 = np.linspace(0.0, 1.0 / (2.0 * T), frame_num // 2)
-        xf_rr2 = xf_rr2 * 60
-        yf_rr2[np.where(xf_rr2<=5 )]=0
-        yf_rr2[np.where(xf_rr2>=30)]=0
-
-        peaks, properties = scipy.signal.find_peaks(yf_rr2)
-        max_index_2=np.argmax(yf_rr2[peaks])
-
-        if yf_rr1[peaks[max_index_1]]>yf_rr2[peaks[max_index_2]]:
-            RR_ica=xf_rr1[peaks[max_index_1]]
-        else:
-            RR_ica=xf_rr2[peaks[max_index_2]]
-
-        print("Respiratory Rate Measured", RR_ica)
-        '''
+                # cv2.imshow('frame', img_track)
+                # cv2.waitKey(30)
 
 
-        # Read temperature
-        # read_temp('/dev/ttyUSB0')
-        # plt.figure()
-        # plt.plot(X_transformed)
-        # plt.show()
+            cv2.destroyAllWindows()
 
-        # plt.figure()
-        # plt.plot(xf_rr, yf_rr)
-        # plt.show()
+            # export D_signal and I_signal to csv files
+            # if file doesn't exist create it, otherwise append
+            # path = '/datas/csv/'
+            # os.chmod(path, 0o777)
+            # if not os.path.exists(path):
+            #     os.makedirs(path)
+            
+            # give write permission to the file
+            # print(f'shape of I_signal: {I_signal.shape}, length: {len(I_signal)}')
+            # print(f'shape of D_signal: {D_signal.shape}, length: {len(D_signal)}')
+            with open('PLY/tablet_csv/intensity.csv', 'w', newline='') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerows(I_signal.reshape(-1,1))
+            with open('PLY/tablet_csv/depth.csv', 'w', newline='') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerows(D_signal.reshape(-1,1))
 
-        # run phase 3 main code
-        # print(f'processing main code for file {i}')
-        # processHR = ProcessHR(input_file=f"PLY/{i}.ply")
-        # Depth = D_signal
-        # I_raw = I_signal        
-        # print('I_raw shape', I_raw.shape)
-        # print('Depth shape', Depth.shape)
-        
-        # for i in range(Depth.shape[1]-1, -1, -1):
-        #     if Depth[0, i] == 0:
-        #         Depth = np.delete(Depth, i, axis=1)
-        #         I_raw = np.delete(I_raw, i, axis=1)
-        #     else:
-        #         break
-        # Depth = np.delete(Depth, 6, axis=0)
-        # I_raw = np.delete(I_raw, 6, axis=0)
-        # Depth = scipy.signal.savgol_filter(Depth, 9, 2, mode='nearest')    
-        # I_raw = scipy.signal.savgol_filter(I_raw, 5, 2, mode='nearest')
-        # print('I_raw shape', I_raw.shape)
-        # print('Depth shape', Depth.shape)
-        # # I want 7 times of the I_raw
-        # I_raw = np.repeat(I_raw, 7, axis=0)
-        # Depth = np.repeat(Depth, 7, axis=0)
-        # I_comp = processHR.depthComp(I_raw, Depth, 2, 10) # depthComp is good
-        # print('I_comp shape', I_comp.shape)
-        # HRsig = I_comp[2,:]
-        # HRsig = distcomp(I_raw/200, Depth, time_window=1, Fs=30)
-        # HRsigRaw = I_raw
-        # HR_comp = processHR.getHR(HRsig, 300, Window=False)
-        # HR_ND = processHR.getHR(HRsigRaw, 300, Window=False)
-        # print(f'Main HR: {HR_comp}')
-        # print(f'Main HR_ND: {HR_ND}')
+            D_signal_smooth=scipy.signal.savgol_filter(D_signal,9,2,mode='nearest')
+            I_signal_smooth=scipy.signal.savgol_filter(I_signal,5,2,mode='nearest')
+            
+            print(f'D signal shape after smoothing: {D_signal_smooth.shape}')
+            print(f'I signal shape after smoothing: {I_signal_smooth.shape}')
+            
+            I_compensated = distcomp(I_signal_smooth/200, D_signal_smooth,time_window=1, Fs = 10)
+            print(f'I_compensated shape: {I_compensated.shape}')
+            fps = 10
+            T = 1.0 / fps
+            yf_hr = abs(fft(I_compensated)) # this is spectrum
+            yf_hr=2.0 / frame_num * yf_hr[:frame_num // 2] # frame_num=L
+            xf_hr = np.linspace(0.0, 1.0 / (2.0 * T), frame_num // 2) # xf_hr = f
+            xf_hr = xf_hr * 60
+            yf_hr[np.where(xf_hr<=40 )]=0 
+            yf_hr[np.where(xf_hr>=200)]=0
+
+            #isiah uncompensated hr BEGIN
+            yf_hrun = abs(fft(I_signal_smooth))
+            yf_hrun = 2.0 / frame_num * yf_hrun[:frame_num // 2]
+            xf_hrun = np.linspace(0.0, 1.0 / (2.0 * T), frame_num // 2)
+            xf_hrun = xf_hrun * 60
+            yf_hrun[np.where(xf_hrun <= 40)] = 0
+            yf_hrun[np.where(xf_hrun >= 150)] = 0
+
+            peaks, properties = scipy.signal.find_peaks(yf_hrun)
+            max_index = np.argmax(yf_hrun[peaks])
+            HR_UNCOMP = xf_hrun[peaks[max_index]]
+            #isiah uncompensated hr END
+
+            peaks, properties = scipy.signal.find_peaks(yf_hr)
+            max_index=np.argmax(yf_hr[peaks])
+            HR_comp = xf_hr[peaks[max_index]]
+
+                
+            # error_rate=abs(HR_comp-HR_ref)/abs(HR_ref)*100
+            # success_label=error_rate<11
+            # success_index=np.where(error_rate<10)
+            # success_rate=np.shape(success_index)[1]/len(HR_comp)   
+            # plt.figure()
+            # plt.plot(D_signal)
+            # plt.show()
+            # f1 = plt.figure()
+            # ax1 = f1.add_subplot(221)
+            # ax1.plot(I_signal_smooth)
+            # plt.figure() 
+            # plt.plot(D_signal_smooth)
+            # plt.show()
+
+            # #please work - isiah
+            # np.savetxt('test.out',D_signal, delimiter = ',')
+
+
+
+            # ax2 = f1.add_subplot(222)
+            # ax2.plot(D_signal_smooth)
+            # ax3 = f1.add_subplot(223)
+            # ax3.plot(I_compensated)
+            # ax4 = f1.add_subplot(224)
+            # ax4.plot(xf, yf)
+            # plt.xlim(0, 200)
+            # plt.ylim(0,0.5)
+
+            print("COMPENSATED Heart Rate Measured", HR_comp)
+            print("UNCOMPENSATED Heart Rate Measured", HR_UNCOMP)
+
+            with open('thanos_results_tablet.csv', 'a', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow([filename, HR_comp, HR_UNCOMP])
+                
+            # print(D_signal_RR.shape)
+            # plt.figure()
+            # plt.plot(D_signal_RR[0,:])
+            # plt.plot(D_signal_RR[1,:])
+            # plt.show()
+
+
+
+            # plt.figure()
+            # plt.plot(I_signal)
+            # plt.show()
+
+
+            # transformer = FastICA(n_components=2, max_iter=500, whiten=True, tol=5e-3)
+            # X_transformed = transformer.fit_transform(D_signal_RR.T)
+
+            #plt.figure()
+            #plt.plot(X_transformed[:,0])
+            #plt.plot(X_transformed[:,1])
+            #plt.show()
+
+            '''
+            yf_rr1 = abs(fft(X_transformed[:,0]))
+            yf_rr1=2.0 / frame_num * yf_rr1[:frame_num // 2]
+            xf_rr1 = np.linspace(0.0, 1.0 / (2.0 * T), frame_num // 2)
+            xf_rr1 = xf_rr1 * 60
+            yf_rr1[np.where(xf_rr1<=5 )]=0
+            yf_rr1[np.where(xf_rr1>=30)]=0
+
+            peaks, properties = scipy.signal.find_peaks(yf_rr1)
+            max_index_1=np.argmax(yf_rr1[peaks])
+
+            yf_rr2 = abs(fft(X_transformed[:,1]))
+            yf_rr2=2.0 / frame_num * yf_rr1[:frame_num // 2]
+            xf_rr2 = np.linspace(0.0, 1.0 / (2.0 * T), frame_num // 2)
+            xf_rr2 = xf_rr2 * 60
+            yf_rr2[np.where(xf_rr2<=5 )]=0
+            yf_rr2[np.where(xf_rr2>=30)]=0
+
+            peaks, properties = scipy.signal.find_peaks(yf_rr2)
+            max_index_2=np.argmax(yf_rr2[peaks])
+
+            if yf_rr1[peaks[max_index_1]]>yf_rr2[peaks[max_index_2]]:
+                RR_ica=xf_rr1[peaks[max_index_1]]
+            else:
+                RR_ica=xf_rr2[peaks[max_index_2]]
+
+            print("Respiratory Rate Measured", RR_ica)
+            '''
+
+
+            # Read temperature
+            # read_temp('/dev/ttyUSB0')
+            # plt.figure()
+            # plt.plot(X_transformed)
+            # plt.show()
+
+            # plt.figure()
+            # plt.plot(xf_rr, yf_rr)
+            # plt.show()
+
+            # run phase 3 main code
+            # print(f'processing main code for file {i}')
+            # processHR = ProcessHR(input_file=f"PLY/{i}.ply")
+            # Depth = D_signal
+            # I_raw = I_signal        
+            # print('I_raw shape', I_raw.shape)
+            # print('Depth shape', Depth.shape)
+            
+            # for i in range(Depth.shape[1]-1, -1, -1):
+            #     if Depth[0, i] == 0:
+            #         Depth = np.delete(Depth, i, axis=1)
+            #         I_raw = np.delete(I_raw, i, axis=1)
+            #     else:
+            #         break
+            # Depth = np.delete(Depth, 6, axis=0)
+            # I_raw = np.delete(I_raw, 6, axis=0)
+            # Depth = scipy.signal.savgol_filter(Depth, 9, 2, mode='nearest')    
+            # I_raw = scipy.signal.savgol_filter(I_raw, 5, 2, mode='nearest')
+            # print('I_raw shape', I_raw.shape)
+            # print('Depth shape', Depth.shape)
+            # # I want 7 times of the I_raw
+            # I_raw = np.repeat(I_raw, 7, axis=0)
+            # Depth = np.repeat(Depth, 7, axis=0)
+            # I_comp = processHR.depthComp(I_raw, Depth, 2, 10) # depthComp is good
+            # print('I_comp shape', I_comp.shape)
+            # HRsig = I_comp[2,:]
+            # HRsig = distcomp(I_raw/200, Depth, time_window=1, Fs=30)
+            # HRsigRaw = I_raw
+            # HR_comp = processHR.getHR(HRsig, 300, Window=False)
+            # HR_ND = processHR.getHR(HRsigRaw, 300, Window=False)
+            # print(f'Main HR: {HR_comp}')
+            # print(f'Main HR_ND: {HR_ND}')
+        except Exception as e:
+            print(f'Error in processing {filename}: {e}')
         ctr += 1

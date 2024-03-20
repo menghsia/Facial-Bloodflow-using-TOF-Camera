@@ -248,7 +248,7 @@ if __name__ == '__main__':
         print(f'Processing file {ctr}/{len(folders)}: {filename}')
         
         # run phase one
-        I_values, D_values = thanos_phase_one.run(filename)
+        I_values, D_values = thanos_phase_one.run(filename, width, height, fps, frame_num)
 
         # run phase two
         start_time = time.time()

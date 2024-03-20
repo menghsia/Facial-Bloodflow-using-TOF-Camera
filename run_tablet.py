@@ -206,18 +206,12 @@ def ply_to_bfsig(ply_dir: str, i: int):
     return
 
 
-def bfsig_to_plot(skvs_dir, width, height, fps, frame_num):
-    # Run plotting matlab script
-    # Create path to matlab script
-    processHR = ProcessHR(input_file=os.path.join(skvs_dir, "mat", "auto_bfsig"), width=width, height=height, fps=fps, frame_num=frame_num)
-    processHR.run()
-    return processHR.time
 
 
-def ply_bfsig_plot(ply_dir, width, height, fps, frame_num):
+def ply_bfsig_plot(ply_dir, width, height, fps, frame_num, filenmae):
     # Run plotting matlab script
     # Create path to matlab script
-    processHR = ProcessHR(input_file=ply_dir, width=width, height=height, fps=fps, frame_num=frame_num)
+    processHR = ProcessHR(input_file=ply_dir, width=width, height=height, fps=fps, frame_num=frame_num, filename=filenmae)
     processHR.run()
     return processHR.time
 
@@ -299,9 +293,9 @@ if __name__ == '__main__':
                 end_time = time.time()
                 print("ply_to_bfsig() took " + str(end_time - start_time) + " seconds to run")
                 main_end_time = time.time()
-                print(f'processing {i}.mat')
+                print(f'processing menghsia{i}.mat')
                 mat_file_dir = mat_dir + f'/{i}'
-                plotting_time = ply_bfsig_plot(mat_file_dir, width, height, fps, frame_num)
+                plotting_time = ply_bfsig_plot(mat_file_dir, width, height, fps, frame_num, f'{i}')
                 
                 # if args.bfsig_to_plot:
                 #     plotting_time = ply_bfsig_plot(ply_dir)

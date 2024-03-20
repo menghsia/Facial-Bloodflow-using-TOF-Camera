@@ -61,18 +61,18 @@ def orientation_check(I_array, D_array):
     plt.subplot(1,2,2)
     sns.heatmap(D_array)
     plt.show()
-def run(filename):
+def run(filename, width, height, fps, num_frames):
     # Choose the name of the folder of NIR images and file of depth data to be processed
     print(f'Processing file: {filename}')
     pathname = f'Data/{filename}/'
 
     # Specifications for the measurement - image size, total frames, framerates
-    img_width = 600
-    img_height = 804
+    img_width = width
+    img_height = height
 
     # Adjust frame rate accordingly
-    NIR_framerate = 30
-    Depth_framerate = 30
+    NIR_framerate = fps
+    Depth_framerate = fps
 
     # Get filenames for amplitude and depth data
     amp_names = get_files(pathname + "*amplitude*")
@@ -82,7 +82,7 @@ def run(filename):
     depth_names.sort()
 
     # Run processing
-    num_frames = len(amp_names)
+    num_frames = num_frames
     print(f'Number of Frames to Process: {num_frames}')
 
     num_processes = cpu_count()

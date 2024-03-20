@@ -615,7 +615,7 @@ class PhaseTwo():
                     # print(f'OneD: {OneD}')
                     csvwriter.writerow(OneD)                
                 corners = roi_bounding_box_pixels
-                if True:
+                if False:
                     # Convert corners to a format suitable for matplotlib (starting corner and width/height)
                     top_left_corner = corners[0]
                     width = corners[1][0] - corners[0][0]

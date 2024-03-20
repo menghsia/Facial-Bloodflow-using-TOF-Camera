@@ -187,46 +187,45 @@ class PhaseTwo():
 
         #tablet phase 3
 
-        # cheek_n_nose_intensity = self.intensity_signals[2]
-        # cheek_n_nose_depth = self.depth_signals[2]
+        cheek_n_nose_intensity = self.intensity_signals[2]
+        cheek_n_nose_depth = self.depth_signals[2]
 
-        # D_signal_smooth=scipy.signal.savgol_filter(cheek_n_nose_depth,9,2,mode='nearest')
-        # I_signal_smooth=scipy.signal.savgol_filter(cheek_n_nose_intensity,5,2,mode='nearest')
+        D_signal_smooth=scipy.signal.savgol_filter(cheek_n_nose_depth,9,2,mode='nearest')
+        I_signal_smooth=scipy.signal.savgol_filter(cheek_n_nose_intensity,5,2,mode='nearest')
 
-        # print(f'shape of d signal smooth: {D_signal_smooth.shape}')
-        # print(f'shape of i signal smooth: {I_signal_smooth.shape}')
-        
-        # I_compensated = distcomp.distcomp(I_signal_smooth/200, D_signal_smooth,time_window=1, Fs = 20)
-        # print(f'shape of I_compensated: {I_compensated.shape}')
-        # print(f'frame_num: {frame_num}')
-        # fps = 20
-        # T = 1.0 / fps
-        # yf_hr = abs(distcomp.fft(I_compensated))
-        # yf_hr=2.0 / frame_num * yf_hr[:frame_num // 2]
-        # xf_hr = np.linspace(0.0, 1.0 / (2.0 * T), frame_num // 2)
-        # xf_hr = xf_hr * 60
-        # yf_hr[np.where(xf_hr<=40 )]=0
-        # yf_hr[np.where(xf_hr>=200)]=0
+        I_compensated = distcomp.distcomp(I_signal_smooth/200, D_signal_smooth,time_window=1, Fs = 20)
+        fps = self.fps
+        T = 1.0 / fps
+        yf_hr = abs(distcomp.fft(I_compensated))
+        yf_hr=2.0 / frame_num * yf_hr[:frame_num // 2]
+        xf_hr = np.linspace(0.0, 1.0 / (2.0 * T), frame_num // 2)
+        xf_hr = xf_hr * 60
+        yf_hr[np.where(xf_hr<=40 )]=0
+        yf_hr[np.where(xf_hr>=200)]=0
 
-        # #isiah uncompensated hr BEGIN
-        # yf_hrun = abs(distcomp.fft(I_signal_smooth))
-        # yf_hrun = 2.0 / frame_num * yf_hrun[:frame_num // 2]
-        # xf_hrun = np.linspace(0.0, 1.0 / (2.0 * T), frame_num // 2)
-        # xf_hrun = xf_hrun * 60
-        # yf_hrun[np.where(xf_hrun <= 40)] = 0
-        # yf_hrun[np.where(xf_hrun >= 150)] = 0
+        #isiah uncompensated hr BEGIN
+        yf_hrun = abs(distcomp.fft(I_signal_smooth))
+        yf_hrun = 2.0 / frame_num * yf_hrun[:frame_num // 2]
+        xf_hrun = np.linspace(0.0, 1.0 / (2.0 * T), frame_num // 2)
+        xf_hrun = xf_hrun * 60
+        yf_hrun[np.where(xf_hrun <= 40)] = 0
+        yf_hrun[np.where(xf_hrun >= 150)] = 0
 
-        # peaks, properties = scipy.signal.find_peaks(yf_hrun)
-        # max_index = np.argmax(yf_hrun[peaks])
-        # HR_UNCOMP = xf_hrun[peaks[max_index]]
-        # #isiah uncompensated hr END
+        peaks, properties = scipy.signal.find_peaks(yf_hrun)
+        max_index = np.argmax(yf_hrun[peaks])
+        HR_UNCOMP = xf_hrun[peaks[max_index]]
+        #isiah uncompensated hr END
 
-        # peaks, properties = scipy.signal.find_peaks(yf_hr)
-        # max_index=np.argmax(yf_hr[peaks])
-        # HR_comp = xf_hr[peaks[max_index]]
-        # print('Tablet code results: ')
-        # print("HR_comp", HR_comp)
-        # print("HR_UNCOMP", HR_UNCOMP)
+        peaks, properties = scipy.signal.find_peaks(yf_hr)
+        max_index=np.argmax(yf_hr[peaks])
+        HR_comp = xf_hr[peaks[max_index]]
+        print('Tablet code results: ')
+        print("HR_comp", HR_comp)
+        print("HR_UNCOMP", HR_UNCOMP)
+        with open('thanos_results_tablet_p3.csv', 'a', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow([self.output_filename, HR_comp, HR_UNCOMP])
+
         # with open("depth.csv", 'w', newline='') as csvfile:
         #     writer = csv.writer(csvfile)
         #     firstCol = np.array(self.chest_depth)
@@ -362,20 +361,24 @@ class PhaseTwo():
         confidence_all = confidence_all.reshape([self.image_height, self.image_width, num_frames])
         
         # print out depth in matplot lib for pixel 300, 400
-        if self.verbose: 
-            print(f'depth shape: {depths[300, 400, :].shape}')
-            print(f'confidence_all shape: {confidence_all[300, 400, :].shape}')
+        if False: 
+            px = self.image_width / 2
+            py = self.image_height / 2
+            px = int(px)
+            py = int(py)
+            print(f'depth shape: {depths[px, py, :].shape}')
+            print(f'confidence_all shape: {confidence_all[px, py, :].shape}')
 
             # Plot depth values
             plt.figure()
-            plt.title('Depth for pixel 400, 300')
-            plt.plot(depths[400, 300, :])  # Correct usage
+            plt.title(f'Depth for pixel {px}, {py}')
+            plt.plot(depths[px, py, :])  # Correct usage
             plt.savefig(f'plot_results/{self.output_filename}_depths.png')
 
             # Plot confidence values
             plt.figure()
-            plt.title('Confidence for pixel 400, 300')
-            plt.plot(confidence_all[400, 300, :])  # Corrected to plt.plot()
+            plt.title(f'Confidence for pixel {px}, {py}')
+            plt.plot(confidence_all[px, py, :])  # Corrected to plt.plot()
             plt.savefig(f'plot_results/{self.output_filename}_confidence_all.png')
 
         # set all x y z values to 0 if it's < 0
@@ -660,7 +663,7 @@ class PhaseTwo():
                 return xs, ys
 
             if roi_name == 'cheek_n_nose':
-                if True:
+                if self.verbose and frame_idx == 0:
                     # create fig and ax for subplots
                     fig, ax = plt.subplots()
                     # create rectangles
@@ -1154,7 +1157,7 @@ class PhaseTwo():
             An (n, d) grayscale image containing grayscale intensity values in the range [0, 255].
         """
 
-        divisor = 4
+        divisor = 5
         
         grayscale_img = confidence_array.astype(float)
         grayscale_img = grayscale_img / divisor

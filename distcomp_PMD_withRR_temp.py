@@ -259,7 +259,7 @@ if __name__ == "__main__":
         keyDict = {'x_value', 'y_value', 'distance', 'grayscale'}
         mat_data = dict([(key, []) for key in keyDict])
 
-        f = open(f"PLY/{i}.ply", "r")
+        f = open(f"PLY/menghsia{i}.ply", "r")
 
         # Read header -- get rid of header data
         for x in range(0,11):
@@ -581,12 +581,12 @@ if __name__ == "__main__":
         # plt.show()
 
         # run phase 3 main code
-        print(f'processing main code for file {i}')
-        processHR = ProcessHR(input_file=f"PLY/{i}.ply")
-        Depth = D_signal
-        I_raw = I_signal        
-        print('I_raw shape', I_raw.shape)
-        print('Depth shape', Depth.shape)
+        # print(f'processing main code for file {i}')
+        # processHR = ProcessHR(input_file=f"PLY/{i}.ply")
+        # Depth = D_signal
+        # I_raw = I_signal        
+        # print('I_raw shape', I_raw.shape)
+        # print('Depth shape', Depth.shape)
         
         # for i in range(Depth.shape[1]-1, -1, -1):
         #     if Depth[0, i] == 0:
@@ -606,9 +606,9 @@ if __name__ == "__main__":
         # I_comp = processHR.depthComp(I_raw, Depth, 2, 10) # depthComp is good
         # print('I_comp shape', I_comp.shape)
         # HRsig = I_comp[2,:]
-        HRsig = distcomp(I_raw/200, Depth, time_window=1, Fs=30)
-        HRsigRaw = I_raw
-        HR_comp = processHR.getHR(HRsig, 300, Window=False)
-        HR_ND = processHR.getHR(HRsigRaw, 300, Window=False)
-        print(f'Main HR: {HR_comp}')
-        print(f'Main HR_ND: {HR_ND}')
+        # HRsig = distcomp(I_raw/200, Depth, time_window=1, Fs=30)
+        # HRsigRaw = I_raw
+        # HR_comp = processHR.getHR(HRsig, 300, Window=False)
+        # HR_ND = processHR.getHR(HRsigRaw, 300, Window=False)
+        # print(f'Main HR: {HR_comp}')
+        # print(f'Main HR_ND: {HR_ND}')
