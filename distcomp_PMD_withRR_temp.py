@@ -258,7 +258,7 @@ for i in range(1,2):
     keyDict = {'x_value', 'y_value', 'distance', 'grayscale'}
     mat_data = dict([(key, []) for key in keyDict])
 
-    f = open(f"datas/{i}.ply", "r")
+    f = open(f"PLY/{i}.ply", "r")
 
     # Read header -- get rid of header data
     for x in range(0,11):
@@ -430,10 +430,10 @@ for i in range(1,2):
     # give write permission to the file
     print(f'shape of I_signal: {I_signal.shape}, length: {len(I_signal)}')
     print(f'shape of D_signal: {D_signal.shape}, length: {len(D_signal)}')
-    with open('datas/csv/intensity.csv', 'w', newline='') as csvfile:
+    with open('tablet_intensity.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerows(I_signal.reshape(-1,1))
-    with open('datas/csv/depth.csv', 'w', newline='') as csvfile:
+    with open('tablet_depth.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerows(D_signal.reshape(-1,1))
 
@@ -497,8 +497,8 @@ for i in range(1,2):
     #plt.xlim(0, 200)
     #plt.ylim(0,0.5)
 
-    print("COMPENSATED Heart Rate Measured", HR_comp)
-    print("UNCOMPENSATED Heart Rate Measured", HR_UNCOMP)
+    # print("COMPENSATED Heart Rate Measured", HR_comp)
+    # print("UNCOMPENSATED Heart Rate Measured", HR_UNCOMP)
 
     #print(D_signal_RR.shape)
     #plt.figure()
