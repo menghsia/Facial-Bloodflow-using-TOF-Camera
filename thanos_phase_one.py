@@ -153,4 +153,8 @@ if __name__=="__main__":
         # savemat(f'Data/mat/{filename}.mat', {'I_values': I_values, 'D_values': D_values})
         ctr = ctr+1
         print()
+<<<<<<< HEAD
     print('Done!')
+=======
+    print('Done!')
+>>>>>>> origin/thomas_2.0

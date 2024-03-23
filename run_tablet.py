@@ -10,8 +10,7 @@ from plyfile import PlyData, PlyElement
 
 from phase_two_tablet import PhaseTwo
 from processHR import ProcessHR
-# from phase_two_tablet import PhaseTwo
-
+# from tablet_main_hybrid import PhaseTwo
 # Steps:
 # - Use Automotive Suite to record a video clip (.skv file)
 # - Copy skv file(s) to /skvs/
@@ -187,24 +186,6 @@ def skv_to_bin(skvs_dir: str):
 
     return
 
-def bin_to_bfsig(skv_dir: str):
-    """
-    Take all .bin files in ./skvs/mat/ and convert to bloodflow signature .mat file using
-    phase_two.py and save output to ./skvs/mat/
-
-    Args:
-        skvs_dir (str): absolute path to ./skvs/
-
-    Returns:
-        None
-    """
-    # Tag regions in face and generate bloodflow signature .mat file
-    # myFaceMeshDetector = PhaseTwo(input_mats_dir="./skvs/mat/", output_bfsig_name="auto_bfsig")
-    myPhaseTwo = PhaseTwo(input_dir=os.path.join(skv_dir, "mat"), output_filename="auto_bfsig", visualize_FaceMesh=False, visualize_ROIs=False, doRR=False)
-    myPhaseTwo.run()
-    myPhaseTwo.clean_up()
-
-    return
 
 
 def ply_to_bfsig(ply_dir: str, i: int):
@@ -225,18 +206,12 @@ def ply_to_bfsig(ply_dir: str, i: int):
     return
 
 
-def bfsig_to_plot(skvs_dir):
-    # Run plotting matlab script
-    # Create path to matlab script
-    processHR = ProcessHR(input_file=os.path.join(skvs_dir, "mat", "auto_bfsig"))
-    processHR.run()
-    return processHR.time
 
 
-def ply_bfsig_plot(ply_dir):
+def ply_bfsig_plot(ply_dir, width, height, fps, frame_num, filenmae):
     # Run plotting matlab script
     # Create path to matlab script
-    processHR = ProcessHR(input_file=ply_dir)
+    processHR = ProcessHR(input_file=ply_dir, width=width, height=height, fps=fps, frame_num=frame_num, filename=filenmae)
     processHR.run()
     return processHR.time
 
@@ -255,6 +230,8 @@ def process_args() -> argparse.Namespace:
     parser.add_argument('--skv_to_bin', action='store_true', help='Convert .skv files to .bin files')
     parser.add_argument('--bin_to_bfsig', action='store_true', help='Take all .bin files and generate bloodflow signature .mat file')
     parser.add_argument('--bfsig_to_plot', action='store_true', help='Plot bloodflow signature .mat file')
+    # need user to enter a number for single file
+    parser.add_argument('--single', type=int, help='Run the script on a single .skv file')
     args = parser.parse_args()
 
     # If no args are provided, set all 3 bools to True
@@ -278,32 +255,59 @@ if __name__ == '__main__':
     ply_dir = os.path.join(os.getcwd(), 'PLY') # get path to the PLY directory
 
     
-
-
-    
-    
-
-    # if args.bin_to_bfsig:
-    #     start_time = time.time()
-    #     for i in range (1, 13):
-    #         print(f'Processing {i}.ply')
-    #         file_dir = ply_dir + f"/{i}.ply"
-    #         ply_to_bfsig(file_dir, i)
-    #         end_time = time.time()
-    #         print("ply_to_bfsig() took " + str(end_time - start_time) + " seconds to run")
-    #         main_end_time = time.time()
-    #         plotting_time = 0
-    #         # if args.bfsig_to_plot:
-    #         #     plotting_time = ply_bfsig_plot(ply_dir)
-    #         # print(f"run.py took {main_end_time - main_start_time + plotting_time} seconds to run")
-    
     mat_dir = os.path.join(os.getcwd(), 'PLY/mat')
-    if args.bfsig_to_plot:
-        start_time = time.time()
+    width = 171
+    height = 224
+    fps = 10
+    frame_num = 300
+
+    if args.single:
+        single_file_number = args.single
+        print(f'Processing {single_file_number}.ply')
+        file_dir = ply_dir + f"/{single_file_number}.ply"
+        ply_to_bfsig(file_dir, single_file_number)
+        end_time = time.time()
+        print("ply_to_bfsig() took " + str(end_time - main_start_time) + " seconds to run")
+        main_end_time = time.time()
+        print(f'processing {single_file_number}.mat')
+        mat_file_dir = mat_dir + f'/{single_file_number}'
+        plotting_time = ply_bfsig_plot(mat_file_dir, width, height, fps, frame_num)
+        print(f"run.py took {main_end_time - main_start_time + plotting_time} seconds to run")
+        # Rest of the code for processing the single file goes here
+        # check_for_skvs(skvs_dir)
+        # skv_to_bin(skvs_dir)
+        # skv_to_bin(skvs_dir)
+        # ply_to_bfsig(ply_dir)
+        # bfsig_to_plot(skvs_dir)
+        # bfsig_to_plot(skvs_dir)
+        # ply_bfsig_plot(ply_dir)
+        # ply_bfsig_plot(ply_dir)
         
-        for i in range (1, 13):
-            print(f'Processing {i}.mat')
-            file_dir = mat_dir + f"/{i}"
-            print(file_dir)
-            plotting_time = ply_bfsig_plot(file_dir)
-            end_time = time.time()
+    else:
+        if args.bin_to_bfsig:
+            start_time = time.time()
+            for i in range (1,12):
+                print(f'Processing {i}.ply')
+                file_dir = ply_dir + f"/{i}.ply"
+                ply_to_bfsig(file_dir, i)
+                end_time = time.time()
+                print("ply_to_bfsig() took " + str(end_time - start_time) + " seconds to run")
+                main_end_time = time.time()
+                print(f'processing menghsia{i}.mat')
+                mat_file_dir = mat_dir + f'/{i}'
+                plotting_time = ply_bfsig_plot(mat_file_dir, width, height, fps, frame_num, f'{i}')
+                
+                # if args.bfsig_to_plot:
+                #     plotting_time = ply_bfsig_plot(ply_dir)
+                # print(f"run.py took {main_end_time - main_start_time + plotting_time} seconds to run")
+        
+        # mat_dir = os.path.join(os.getcwd(), 'PLY/mat')
+        # if args.bfsig_to_plot:
+        #     start_time = time.time()
+            
+        #     for i in range (1, 13):
+        #         print(f'Processing {i}.mat')
+        #         file_dir = mat_dir + f"/{i}"
+        #         print(file_dir)
+        #         plotting_time = ply_bfsig_plot(file_dir)
+        #         end_time = time.time()

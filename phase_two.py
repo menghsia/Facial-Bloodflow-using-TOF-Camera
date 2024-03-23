@@ -19,7 +19,10 @@ import csv
 import math
 
 import distcomp_PMD_withRR_temp as distcomp
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/thomas_2.0
 class PhaseTwo():
     """
     PhaseTwo is a class that performs face detection and landmark tracking using MediaPipe FaceMesh.
@@ -338,6 +341,11 @@ class PhaseTwo():
             frame_z = z_all[:, :, frame_idx].copy()
             frame_confidence = confidence_all[:, :, frame_idx].copy()
             
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> origin/thomas_2.0
             # Track face and extract intensity and depth for all ROIs in this frame
             # plt.figure()
             # plt.imshow(frame_confidence)

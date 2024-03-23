@@ -20,6 +20,7 @@ import scipy
 import csv
 import math
 
+import distcomp_PMD_withRR_temp
 
 class PhaseTwo():
     """
@@ -70,8 +71,8 @@ class PhaseTwo():
         self.face_roi_definitions = {
             'nose': np.array([196, 419, 455, 235]),
             'forehead': np.array([109, 338, 9]),
-            'cheek_n_nose': np.array([117, 346, 411, 187]), # CNN ROI 1: Gets 51.17 HR
-            # 'cheek_n_nose': np.array([116, 340, 433, 213]), # CNN ROI 2: Gets 102.34 HR
+            # 'cheek_n_nose': np.array([117, 346, 411, 187]), # CNN ROI 1: Gets 51.17 HR
+            'cheek_n_nose': np.array([116, 340, 433, 213]), # CNN ROI 2: Gets 102.34 HR
             # 'cheek_n_nose': np.array([31, 228, 229, 230, 231, 232, 233, 245, 465, 453, 452, 451, 450, 449, 448, 340, 345, 352, 376, 411, 427, 426, 294, 278, 360, 363, 281, 5, 51, 134, 131, 102, 203, 206, 207, 187, 147, 123, 116, 111]), # CNN ROI 3: Gets 105.35 HR
             'left_cheek': np.array([131, 165, 214, 50]),
             'right_cheek': np.array([372, 433, 358]),
@@ -155,7 +156,7 @@ class PhaseTwo():
         num_files_to_process = 1
         
         # Define MediaPipe detectors
-        face_mesh_detector = FaceMeshDetector(static_image_mode=True, max_num_faces=1, min_detection_confidence=0.5, min_tracking_confidence=0.5)
+        face_mesh_detector = FaceMeshDetector(static_image_mode=False, max_num_faces=1, min_detection_confidence=0.5, min_tracking_confidence=0.5)
 
         # Loop through each file
         # TODO:  I think each file is a video clip? But why is there multiple clips? 20s each? 
@@ -169,7 +170,7 @@ class PhaseTwo():
         
         
         
-        self._process_file(file_num, num_files_to_process, self.file_dir, num_ROIs, face_mesh_detector)
+        frame_num = self._process_file(file_num, num_files_to_process, self.file_dir, num_ROIs, face_mesh_detector)
         
         # # Load Alex data from alex_outputdata.mat
         # alex_outputdata = loadmat("alex_outputdata.mat")
@@ -180,100 +181,61 @@ class PhaseTwo():
         self.depth_signals = np.delete(self.depth_signals, 0, 1)
         self.ear_signal = np.delete(self.ear_signal,0,0)
 
-<<<<<<< HEAD
-        # export  intensity and depth signals to csv files
-        # if not os.path.exists('/PLY/csv/'):
-        #     os.makedirs('/PLY/csv/')
-        print(f'shape of intensity_signals: {self.intensity_signals.shape}')
-        print(f'shape of depth_signals: {self.depth_signals.shape}')
-        
-        
-        
-        # average_intensity_per_frame = np.mean(self.intensity_signals, axis=0)
-        # average_depth_per_frame = np.mean(self.depth_signals, axis=0)
-        
-        # # Save average intensities and depths for cheek_n_nose ROI as .csv files
-        # with open('PLY/csv/average_intensity_per_frame.csv', 'w', newline='') as csvfile:
-        #     writer = csv.writer(csvfile)
-        #     writer.writerow(average_intensity_per_frame.reshape(-1,1))
-        # with open('PLY/csv/average_depth_per_frame.csv', 'w', newline='') as csvfile:
-        #     writer = csv.writer(csvfile)
-        #     writer.writerow(average_depth_per_frame.reshape(-1,1))
-        
-        # right now the shape is (7,300) I want to make it (300,7)
-        trans_intensity_signals = np.transpose(self.intensity_signals)
-        trans_depth_signals = np.transpose(self.depth_signals)
-        
-        # separate the 7 ROIs into 7 different csv files
-        intensity_1 = trans_intensity_signals[:,0]
-        # intensity_2 = trans_intensity_signals[:,1]
-        
-        depth_1 = trans_depth_signals[:,0]
-        # depth_2 = trans_depth_signals[:,1]
-        
-        #####################################
-        # with open('PLY/csv/intensity1.csv', 'w', newline='') as csvfile:
-        #     writer = csv.writer(csvfile)
-        #     writer.writerows(intensity_1.reshape(-1,1))
+        # save cheek and nose roi intensity and depth array
+        cheek_n_nose_intensity = self.intensity_signals[2]
+        cheek_n_nose_depth = self.depth_signals[2]
 
-        # with open('PLY/csv/depth1.csv', 'w', newline='') as csvfile:
-        #     writer = csv.writer(csvfile)
-        #     writer.writerows(depth_1.reshape(-1,1))
-        #####################################
+        D_signal_smooth=scipy.signal.savgol_filter(cheek_n_nose_depth,9,2,mode='nearest')
+        I_signal_smooth=scipy.signal.savgol_filter(cheek_n_nose_intensity,5,2,mode='nearest')
 
-        with open("main_intensity.csv", "w", newline="") as f:
-            writer = csv.writer(f)
-            writer.writerows(self.intensity_signals)
-        with open("main_depth.csv", "w", newline="") as f:
-            writer = csv.writer(f)
-            writer.writerows(self.depth_signals)
+        print(f'shape of d signal smooth: {D_signal_smooth.shape}')
+        print(f'shape of i signal smooth: {I_signal_smooth.shape}')
+        
+        I_compensated = distcomp_PMD_withRR_temp.distcomp(I_signal_smooth/200, D_signal_smooth,time_window=1, Fs = 30)
+        print(f'shape of I_compensated: {I_compensated.shape}')
+        fps = 10
+        T = 1.0 / fps
+        yf_hr = abs(distcomp_PMD_withRR_temp.fft(I_compensated))
+        yf_hr=2.0 / frame_num * yf_hr[:frame_num // 2]
+        xf_hr = np.linspace(0.0, 1.0 / (2.0 * T), frame_num // 2)
+        xf_hr = xf_hr * 60
+        yf_hr[np.where(xf_hr<=40 )]=0
+        yf_hr[np.where(xf_hr>=200)]=0
 
-        # with open('PLY/csv/intensity2.csv', 'w', newline='') as csvfile:
-        #     writer = csv.writer(csvfile)
-        #     writer.writerows(intensity_2.reshape(-1,1))
+        #isiah uncompensated hr BEGIN
+        yf_hrun = abs(distcomp_PMD_withRR_temp.fft(I_signal_smooth))
+        yf_hrun = 2.0 / frame_num * yf_hrun[:frame_num // 2]
+        xf_hrun = np.linspace(0.0, 1.0 / (2.0 * T), frame_num // 2)
+        xf_hrun = xf_hrun * 60
+        yf_hrun[np.where(xf_hrun <= 40)] = 0
+        yf_hrun[np.where(xf_hrun >= 150)] = 0
 
-        # with open('PLY/csv/depth2.csv', 'w', newline='') as csvfile:
-        #     writer = csv.writer(csvfile)
-        #     writer.writerows(depth_2.reshape(-1,1))
+        peaks, properties = scipy.signal.find_peaks(yf_hrun)
+        max_index = np.argmax(yf_hrun[peaks])
+        HR_UNCOMP = xf_hrun[peaks[max_index]]
+        #isiah uncompensated hr END
 
-
-        ###########################
-        # with open("depth.csv", 'w', newline='') as csvfile:
-        #     writer = csv.writer(csvfile)
-        #     firstCol = np.array(self.chest_depth)
-        #     firstCol = firstCol.tolist()
-        #     firstCol = [[value] for value in firstCol]  # Convert each value to a single
-        #     writer.writerows(firstCol) 
-        ###########################
-=======
-        # Save average intensities and depths for each frame for cheek_n_nose to a .csv file
-        print(f'saving .csv files to {os.getcwd()}')
-        with open('PLY/csv/cheek_n_nose_intensity.csv', 'w', newline='') as csvfile:
+        peaks, properties = scipy.signal.find_peaks(yf_hr)
+        max_index=np.argmax(yf_hr[peaks])
+        HR_comp = xf_hr[peaks[max_index]]
+        print('Tablet code results: ')
+        print("HR_comp", HR_comp)
+        print("HR_UNCOMP", HR_UNCOMP)
+        
+        with open('PLY/tablet_csv/tablet_code_results.csv', 'a', newline='') as csvfile:
             writer = csv.writer(csvfile)
-            writer.writerows(self.intensity_signals[2].reshape(-1,1))
-        with open('PLY/csv/cheek_n_nose_depth.csv', 'w', newline='') as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerows(self.depth_signals[2].reshape(-1,1))
+            writer.writerow(['HR_comp', HR_comp])
+            writer.writerow(['HR_UNCOMP', HR_UNCOMP])
         
-        
-        
-        # with open('PLY/csv/intensity.csv', 'w', newline='') as csvfile:
-        #     writer = csv.writer(csvfile)
-        #     writer.writerows(self.intensity_signals.reshape(-1,1))
-        # with open('PLY/csv/depth.csv', 'w', newline='') as csvfile:
-        #     writer = csv.writer(csvfile)
-        #     writer.writerows(self.depth_signals.reshape(-1,1))
-
         with open("depth.csv", 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
             firstCol = np.array(self.chest_depth)
             firstCol = firstCol.tolist()
             firstCol = [[value] for value in firstCol]  # Convert each value to a single
             writer.writerows(firstCol) 
->>>>>>> origin/thomas_2.0
 
-        if self.doRR:
-            self.RR = self.getRespitoryRate(self.chest_depth, outputFile=None, Savgof=False, Lowpass=True, Window=True, realFFT = True)
+        # if self.doRR:
+        #     self.RR = self.getRespitoryRate(self.chest_depth, outputFile=None, Savgof=False, Lowpass=True, Window=True, realFFT = True)
 
 
         # Save average intensities and depths for cheek_n_nose ROI as .mat files
@@ -309,13 +271,9 @@ class PhaseTwo():
         mdic = {"Depth": self.depth_signals, 'I_raw': self.intensity_signals, 'EAR': self.ear_signal} # EAR: eye aspect ratio
         
         # check if there's a mat directory, if not, create one and store the .mat file there
-<<<<<<< HEAD
-        mat_dir = os.path.join("/Users/ml891/facial-bloodflow-tof/PLY", 'mat')
-=======
         mat_dir = os.path.join(os.getcwd(), 'PLY')
 
         mat_dir = os.path.join(mat_dir, 'mat')
->>>>>>> origin/thomas_2.0
         
         if not os.path.exists(mat_dir):
             os.makedirs(mat_dir)
@@ -329,9 +287,9 @@ class PhaseTwo():
         # savemat('main_mask_cheek_n_nose_all_600.mat', {'masks': self.cheek_n_nose_masks})
 
         return
-    
+
     def _process_file(self, file_num: int, num_files_to_process: int, filename: str, num_ROIs: int,
-                  face_mesh_detector: FaceMeshDetector) -> None:
+                  face_mesh_detector: FaceMeshDetector):
         """
         Processes a single file.process
         
@@ -375,7 +333,7 @@ class PhaseTwo():
             mat_data['distance'].append(nums[2])
             mat_data['grayscale'].append(nums[3])
         
-        print("Data loading complete\n")
+        # print("Data loading complete\n")
         #Issue here
         #print("mat_data", mat_data['grayscale'].shape)
         frame_num = int(len(mat_data['grayscale'])/(224*171))
@@ -398,10 +356,75 @@ class PhaseTwo():
         ear_signal_current_file = np.zeros(num_frames)
         ############################# END of tablet code section #########################################
         
-        print(f'shape of x_all: {x_all.shape}')
-        print(f'shape of y_all: {y_all.shape}')
-        print(f'shape of z_all: {z_all.shape}')
-        print(f'shape of confidence_all: {confidence_all.shape}')
+        ############################# using plyfile section #########################################
+
+    #     plydata = PlyData.read(os.path.join(self.input_dir, filename))
+    #     # read in all 600 frames of .ply data
+    #     frame_num = 300
+    #     x_all = []
+    #     y_all = []
+    #     z_all = []
+    #     confidence_all = []
+        
+    # # mat_data['x_value'].append(nums[0])
+    # # mat_data['y_value'].append(nums[1])
+    # # mat_data['distance'].append(nums[2])
+    # # mat_data['grayscale'].append(nums[3])
+    #     for element in plydata.elements[0].data:
+    #         x_all.append(element[0]*100)
+    #         y_all.append(element[1]*100)
+    #         z_all.append(element[2]*100)
+    #         confidence_all.append(element[3])
+
+    #     # print lengths of x, y, z, confidence
+    #     print(f"Length of x_all: {len(x_all)}")
+        
+    #     #reshape x y z confidence into arrays 
+    #     x_all=np.reshape(x_all,(38304, frame_num)).astype('float')
+    #     y_all=np.reshape(y_all,(38304, frame_num)).astype('float')
+    #     z_all=np.reshape(z_all,(38304, frame_num)).astype('float')
+    #     confidence_all=np.reshape(confidence_all,(38304, frame_num)).astype('int')
+        
+        
+    #     # print first 10 of x,y,z,confidence
+    #     # Sony camera is (307200, 600), which is (480*640, 600) for each shape
+    #     # we need to make x,y,z,confidence into (600, 307200) too, from ply file
+    #     print(x_all[:10])
+    #     print(y_all[:10])
+    #     print(z_all[:10])
+    #     print(confidence_all[:10])
+        
+
+    #     # Get number of frames (columns) in this video clip
+    #     # num_frames = np.size(gray_all, 1)
+    #     num_frames = np.shape(confidence_all)[1]
+
+    #     # ROI indices:
+    #     # 0: nose
+    #     # 1: forehead
+    #     # 2: cheek_and_nose
+    #     # 3: left_cheek
+    #     # 4: right_cheek
+    #     # 5: low_forehead
+    #     # 6: palm
+
+    #     # Create arrays to store intensity and depth signals for all ROIs in this video clip (num_ROIs, num_frames) = (7, 600)
+        
+    #     intensity_signal_current_file = np.zeros((num_ROIs, num_frames))
+    #     depth_signal_current_file = np.zeros((num_ROIs, num_frames))
+    #     ear_signal_current_file = np.zeros(num_frames)
+    #     # 224*117
+    #     # Each array is currently (height*width, num_frames) = (224*117, num_frames) = (26208, num_frames)
+    #     # Reshape to (height, width, num_frames) = (224, 117, num_frames)
+    #     x_all = x_all.reshape([self.image_height, self.image_width, num_frames])
+    #     y_all = y_all.reshape([self.image_height, self.image_width, num_frames])
+    #     z_all = z_all.reshape([self.image_height, self.image_width, num_frames])
+    #     confidence_all = confidence_all.reshape([self.image_height, self.image_width, num_frames])
+        ############################# using plyfile section #########################################
+        # print(f'shape of x_all: {x_all.shape}')
+        # print(f'shape of y_all: {y_all.shape}')
+        # print(f'shape of z_all: {z_all.shape}')
+        # print(f'shape of confidence_all: {confidence_all.shape}')
         # print(x_all[:10])
         # print(y_all[:10])
         # print(z_all[:10])
@@ -437,6 +460,7 @@ class PhaseTwo():
             frame_grayscale_rgb = cv2.cvtColor(frame_grayscale, cv2.COLOR_GRAY2RGB)
             
             # Get pixel locations of all face landmarks
+            #TODO: no face detected 
             face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=self.visualize_FaceMesh)
 
             if self.doRR:
@@ -466,7 +490,7 @@ class PhaseTwo():
 
                 # Display frame
 
-                #cv2.imshow("Image", frame_grayscale_rgb)
+                cv2.imshow("Image", frame_grayscale_rgb)
                 # cv2.waitKey(1)
         
         # Calculate and print average FPS
@@ -486,7 +510,7 @@ class PhaseTwo():
         # Save average intensities for each frame for cheek_n_nose to a .mat file. This is row idx 2 of the intensity_signals array.
         # savemat("intensity_signals.mat", {"intensity_signals": self.intensity_signals[2, :]})
 
-        return
+        return frame_num
     
     def chestCalculations(self, corner_landmarks, frame_x, frame_y, frame_z, frame_confidence): 
 
@@ -675,7 +699,7 @@ class PhaseTwo():
             # Get bounding box of ROI in pixels
             roi_bounding_box_pixels = self._get_ROI_bounding_box_pixels(landmarks_pixels, roi_name)
             
-            if roi_name == 'cheek_n_nose' and frame_idx == 0:
+            if roi_name == 'cheek_n_nose':
                 # get path to the PLY/csv folder
                 csv_path = os.path.join(os.getcwd(), 'PLY/csv/roi_cheek_n_nose.csv')
                 with open(csv_path, 'a', newline='') as csvfile:
@@ -699,16 +723,11 @@ class PhaseTwo():
                     rect = patches.Rectangle(top_left_corner, width, height, linewidth=1, edgecolor='r', facecolor='none')
 
                     # Add the rectangle to the Axes
-                    # ax.add_patch(rect)
-                    
-                    coord = [top_left_corner, corners[1], corners[2], corners[3], top_left_corner]
+                    ax.add_patch(rect)
 
-                    xs, ys = zip(*coord) #create lists of x and y values
-
-                    ax.plot(xs,ys) 
-                    ax.imshow(frame_grayscale_rgb, cmap='gray', aspect='auto')
-                    plt.title(f'frame: {frame_idx}')
-                    plt.show(block=True)
+                    # ax.imshow(frame_grayscale_rgb, cmap='gray', aspect='auto')
+                    # plt.title(f'frame: {frame_idx}')
+                    # plt.show(block=True)
                 # roi_bounding_box_pixels.tofile(csv_path, sep = ',')
 
                 # np.savetxt(csv_path, roi_bounding_box_pixels, delimiter=',', fmt='%d')
@@ -1189,14 +1208,7 @@ if __name__ == "__main__":
     skvs_dir = os.path.join(os.getcwd(), 'PLY')
     print(skvs_dir)
     # skvs_dir = '/Users/thatblue340/Documents/GitHub/facial-bloodflow-tof/PLY/1.ply'
-<<<<<<< HEAD
-    skvs_dir = os.path.join(skvs_dir, '1.ply')
-    myFaceMeshDetector = PhaseTwo(skvs_dir, output_filename="auto_bfsig", visualize_FaceMesh=False, visualize_ROIs=False, file_dir=skvs_dir)
-    myFaceMeshDetector.run(1)
-    myFaceMeshDetector.clean_up()
-=======
     skvs_dir = os.path.join(skvs_dir, '5.ply')
     myFaceMeshDetector = PhaseTwo(skvs_dir, output_filename="auto_bfsig", visualize_FaceMesh=False, visualize_ROIs=True, file_dir=skvs_dir)
     myFaceMeshDetector.run(5)
     # myFaceMeshDetector.clean_up()
->>>>>>> origin/thomas_2.0

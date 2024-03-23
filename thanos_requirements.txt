@@ -1,0 +1,10 @@
+regex
+numpy
+PIL
+p_tqdm
+glob
+seaborn
+matplotlib
+multiprocessing
+scripy
+scikit-learn
