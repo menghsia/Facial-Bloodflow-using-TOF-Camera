@@ -20,6 +20,11 @@ import serial
 import csv
 from processHR import ProcessHR
 import thanos_phase_one
+
+
+# Main MP 
+from face_mesh_module import FaceMeshDetector
+
 def _normalized_to_pixel_coordinates(
     normalized_x: float, normalized_y: float, image_width: int,
     image_height: int) -> Union[None, Tuple[int, int]]:
@@ -34,6 +39,27 @@ def _normalized_to_pixel_coordinates(
     x_px = min(math.floor(normalized_x * image_width), image_width - 1)
     y_px = min(math.floor(normalized_y * image_height), image_height - 1)
     return x_px, y_px
+
+def convert_camera_confidence_to_grayscale(confidence_array: np.ndarray) -> np.ndarray:
+    """
+    Convert the input confidence array to grayscale and scale down the brightness to help
+    with face detection.
+
+    Args:
+        confidence_array: An (n, d) confidence image in the format outputted by the IMX520 camera.
+
+    Returns:
+        An (n, d) grayscale image containing grayscale intensity values in the range [0, 255].
+    """
+
+    divisor = 5
+    
+    grayscale_img = confidence_array.astype(float)
+    # grayscale_img = grayscale_img / divisor
+    # grayscale_img[np.where(grayscale_img > 255)] = 255
+    grayscale_img = grayscale_img.astype('uint8')
+
+    return grayscale_img
 def ROI_coord_extract(image, ROIwhich, img_plt = False):
     # Input image is a 2D nparray representing a grayscale image
     image_rows, image_cols = image.shape
@@ -60,6 +86,18 @@ def ROI_coord_extract(image, ROIwhich, img_plt = False):
     face_mesh = mp_face_mesh.FaceMesh(static_image_mode=True, max_num_faces=1, min_detection_confidence=0.5)
     results = face_mesh.process(image_3chnl)
     face_landmarks = results.multi_face_landmarks[0]
+    
+    # main code MP
+    # frame_grayscale = convert_camera_confidence_to_grayscale(image)
+    # frame_grayscale_rgb = cv2.cvtColor(frame_grayscale, cv2.COLOR_GRAY2RGB)
+    # face_mesh_detector = FaceMeshDetector(static_image_mode=True, max_num_faces=1, min_detection_confidence=0.5, min_tracking_confidence=0.5)
+    # face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=False)
+    # face_landmarks = landmarks_pixels
+    # if face_detected:
+    #     print('Face detected')
+    # return landmarks_pixels
+    
+    # tablet code continues
     # Extract coordinates of all pixels within the ROI polygon
     landmark_px = []
     for i, vtx in enumerate(ROI_vertex):
@@ -252,9 +290,9 @@ if __name__ == "__main__":
         frameTrk[np.where(frameTrk>255)] = 255
         frameTrk = np.uint8(frameTrk)
 
-        plt.figure()
-        plt.imshow(frameTrk, cmap='gray')
-        plt.show()
+        # plt.figure()
+        # plt.imshow(frameTrk, cmap='gray')
+        # plt.show()
         
         ROIcoords_full  = ROI_coord_extract(frameTrk,'full_face',img_plt = True)
         ROIcoords_sig = ROI_coord_extract(frameTrk,'cheek_n_nose',img_plt=False)
@@ -283,10 +321,10 @@ if __name__ == "__main__":
                                 minDistance = 10,
                                 blockSize = 6 )
 
-        mask = vtx2mask(ROIcoords_full, image_cols, image_rows)
         mask = vtx2mask(ROIcoords_full, image_cols, image_rows).astype(np.uint8)
 
-
+        # print(f'mask shape: {mask.shape}')
+        # print(f'mask: {mask[:10]}')
         p0 = cv2.goodFeaturesToTrack(frameTrk, mask=mask, **feature_params)
 
         # Parameters for lucas kanade optical flow
@@ -306,6 +344,11 @@ if __name__ == "__main__":
             frameSig = intensity[i+1,:,:]
             frame_new = intensity[i+1,:,:]/4
             frame_new = np.uint8(frame_new)
+            
+            # plt.figure()
+            # plt.imshow(frame_new, cmap='gray')
+            # plt.show()
+            
             # calculate optical flow
             p1, st, err = cv2.calcOpticalFlowPyrLK(frameTrk, frame_new, p0, None, **lk_params)
             # Select good points
