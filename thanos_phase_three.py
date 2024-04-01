@@ -162,12 +162,11 @@ class ProcessHR():
         #     I_raw[i,:] = scipy.signal.savgol_filter(I_raw[i,:], 5, 2, mode='nearest')
         
         # scipy.io.savemat('main_intensity_smooth.mat', {'main_intensity_smooth': I_raw[2,:]})
-        Depth = scipy.signal.savgol_filter(Depth, 9, 2, mode='nearest')    
-        I_raw = scipy.signal.savgol_filter(I_raw, 5, 2, mode='nearest')
+        Depth = scipy.signal.savgol_filter(Depth, 12, 0, mode='nearest')    
+        I_raw = scipy.signal.savgol_filter(I_raw, 12, 0, mode='nearest')
         
         # Compensate for movement
         # I_comp: 2D array of compensated intensities
-        #TODO: I changed 30fps to 10fps 
         if self.verbose:
             print('I_raw shape', I_raw.shape)
             print('Depth shape', Depth.shape)
