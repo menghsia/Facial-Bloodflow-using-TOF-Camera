@@ -82,7 +82,7 @@ def run(filename, width, height, fps, num_frames):
     depth_names.sort()
 
     # Run processing
-    num_frames = num_frames
+    num_frames = len(amp_names)
     print(f'Number of Frames to Process: {num_frames}')
 
     num_processes = cpu_count()
@@ -100,7 +100,7 @@ def run(filename, width, height, fps, num_frames):
         D_values[:, :, i] = D_values_old[i, :, :]
     
     #orientation_check(I_values[:, :, 0], D_values[:, :, 0])
-    return I_values, D_values
+    return I_values, D_values, num_frames
 
 # If any of the tests that require image data to be processed are to be run, run them
 if __name__=="__main__":

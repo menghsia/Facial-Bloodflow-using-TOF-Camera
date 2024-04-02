@@ -263,9 +263,9 @@ if __name__ == "__main__":
         print(f'Processing file {ctr}/{len(folders)}: {filename}')
         start = time.time()
 
-        I_values, D_values = thanos_phase_one.run(filename, width, height, fps, num_frames)
+        I_values, D_values, actual_num_frames = thanos_phase_one.run(filename, width, height, fps, num_frames)
 
-
+        num_frames = actual_num_frames
 
         I_values = np.transpose(I_values, (2, 1, 0))
         D_values = np.transpose(D_values, (2, 1, 0))
@@ -286,14 +286,14 @@ if __name__ == "__main__":
         # Extract initial ROI landmark locations
         start_frame=0
         frameSig = intensity[start_frame,:,:]
-        frameTrk = intensity[start_frame,:,:]/4
+        frameTrk = intensity[start_frame,:,:]/2
         frameTrk[np.where(frameTrk>255)] = 255
         frameTrk = np.uint8(frameTrk)
 
         # plt.figure()
         # plt.imshow(frameTrk, cmap='gray')
         # plt.show()
-        
+
         ROIcoords_full  = ROI_coord_extract(frameTrk,'full_face',img_plt = True)
         ROIcoords_sig = ROI_coord_extract(frameTrk,'cheek_n_nose',img_plt=False)
 
@@ -332,6 +332,7 @@ if __name__ == "__main__":
                         maxLevel = 2,
                         criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 30, 0.005))
         frame_new=np.zeros((171,224)).astype('uint8')
+    
         ini_ROImask = vtx2mask(ROIcoords_sig,image_cols,image_rows)
         ini_ROIcoords_sig = np.asarray(ROIcoords_sig).T
         ini_ROIcoords_sig = np.vstack((ini_ROIcoords_sig,np.ones(ini_ROIcoords_sig.shape[1])))
@@ -342,13 +343,10 @@ if __name__ == "__main__":
         
         for i in range(frame_num-1):
             frameSig = intensity[i+1,:,:]
-            frame_new = intensity[i+1,:,:]/4
+            frame_new = intensity[i+1,:,:]/2
             frame_new = np.uint8(frame_new)
             
-            # plt.figure()
-            # plt.imshow(frame_new, cmap='gray')
-            # plt.show()
-            
+
             # calculate optical flow
             p1, st, err = cv2.calcOpticalFlowPyrLK(frameTrk, frame_new, p0, None, **lk_params)
             # Select good points
