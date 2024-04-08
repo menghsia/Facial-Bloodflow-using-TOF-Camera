@@ -1,0 +1,8 @@
+mediapipe
+Pillow
+numpy
+opencv-python
+scripy
+matplotlib
+scikit-learn
+serial
