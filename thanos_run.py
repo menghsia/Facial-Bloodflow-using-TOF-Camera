@@ -248,8 +248,8 @@ if __name__ == '__main__':
         print(f'Processing file {ctr}/{len(folders)}: {filename}')
         
         # run phase one
-        I_values, D_values = thanos_phase_one.run(filename, width, height, fps, frame_num)
-
+        I_values, D_values, actual_num_frames = thanos_phase_one.run(filename, width, height, fps, frame_num)
+        frame_num = actual_num_frames
         # run phase two
         start_time = time.time()
         myPhaseTwo = PhaseTwo(I_values, D_values, output_filename=filename, image_width=width, image_height=height, fps=fps, frame_num=frame_num, visualize_FaceMesh=False, visualize_ROIs=False, doRR=False, verbose=False)

@@ -156,7 +156,7 @@ class PhaseTwo():
         num_files_to_process = len(filelist)
         
         # Define MediaPipe detectors
-        face_mesh_detector = FaceMeshDetector(static_image_mode=False, max_num_faces=1, min_detection_confidence=0.5, min_tracking_confidence=0.5)
+        face_mesh_detector = FaceMeshDetector(static_image_mode=True, max_num_faces=1, min_detection_confidence=0.6, min_tracking_confidence=0.6)
 
         # This might be worth trying to increase accuracy:
         # Increasing min_tracking_confidence [0.0, 1.0] will generally improve the quality of the landmarks at the expense of a higher latency.
@@ -193,7 +193,7 @@ class PhaseTwo():
         D_signal_smooth=scipy.signal.savgol_filter(cheek_n_nose_depth,9,2,mode='nearest')
         I_signal_smooth=scipy.signal.savgol_filter(cheek_n_nose_intensity,5,2,mode='nearest')
 
-        I_compensated = distcomp.distcomp(I_signal_smooth/200, D_signal_smooth,time_window=1, Fs = 20)
+        I_compensated = distcomp.distcomp(I_signal_smooth/200, D_signal_smooth,time_window=1, Fs = self.fps)
         fps = self.fps
         T = 1.0 / fps
         yf_hr = abs(distcomp.fft(I_compensated))
@@ -410,9 +410,7 @@ class PhaseTwo():
 
             # Convert grayscale image to "RGB" (n,d,3)
             frame_grayscale_rgb = cv2.cvtColor(frame_grayscale, cv2.COLOR_GRAY2RGB)
-            # plt.figure()
-            # plt.imshow(frame_grayscale_rgb)
-            # plt.show()
+
             # Get pixel locations of all face landmarks
             face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=self.visualize_FaceMesh)
 
@@ -1157,13 +1155,13 @@ class PhaseTwo():
             An (n, d) grayscale image containing grayscale intensity values in the range [0, 255].
         """
 
-        divisor = 5
-        
+        divisor = 2
         grayscale_img = confidence_array.astype(float)
         grayscale_img = grayscale_img / divisor
         grayscale_img[np.where(grayscale_img > 255)] = 255
         grayscale_img = grayscale_img.astype('uint8')
-
+        
+        
         return grayscale_img
 
         # # This is a new implementation that I believe should be more resilient to

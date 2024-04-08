@@ -38,7 +38,7 @@ class FaceMeshDetector():
         #                                             min_tracking_confidence=min_tracking_confidence)
         self.face_mesh = self.mp_face_mesh.FaceMesh(static_image_mode=static_image_mode,
                                                     max_num_faces=max_num_faces,
-                                                    refine_landmarks=True,
+                                                    # refine_landmarks=True,
                                                     min_detection_confidence=min_detection_confidence,
                                                     min_tracking_confidence=min_tracking_confidence)
         self.drawing_spec_landmark = self.mp_draw.DrawingSpec(color=(0, 255, 0), thickness=1, circle_radius=2)
